@@ -1,0 +1,22 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+env/
+venv/
+
+# Project Data (Large files)
+*.parquet
+data/
+*.backup
+*.log
+
+# Project Specific
+scratch/
+.env
+
+# IDE
+.vscode/
+.idea/
+.DS_Store
