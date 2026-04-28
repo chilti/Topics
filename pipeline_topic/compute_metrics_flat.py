@@ -273,19 +273,27 @@ def compute_subfield_data_flat(subfield):
         status.write("Calculando tipos documentales y sectoriales...")
         type_q = """
         SELECT year, country_code, doc_type, count() as count
-        FROM (SELECT DISTINCT id, publication_year as year, '' as country_code, `type` as doc_type FROM sandbox
-              UNION ALL
-              SELECT DISTINCT id, publication_year as year, arrayJoin(country_codes) as country_code, `type` as doc_type FROM sandbox)
-        WHERE country_code != '' OR (country_code = '' AND id IS NOT NULL) GROUP BY year, country_code, doc_type
+        FROM (
+            SELECT publication_year as year, `type` as doc_type, 
+                   arrayConcat([''], country_codes) as codes
+            FROM sandbox
+        )
+        ARRAY JOIN codes as country_code
+        GROUP BY year, country_code, doc_type
         """
         client.query_df(type_q).to_parquet(CACHE_TEMAS_DIR / f"{sub_clean}_types_flat.parquet", index=False)
 
         inst_type_q = """
         SELECT year, country_code, inst_type, count() as count
-        FROM (SELECT DISTINCT id, publication_year as year, '' as country_code, arrayJoin(institution_types) as inst_type FROM sandbox
-              UNION ALL
-              SELECT DISTINCT id, publication_year as year, arrayJoin(country_codes) as country_code, arrayJoin(institution_types) as inst_type FROM sandbox)
-        WHERE inst_type != '' GROUP BY year, country_code, inst_type
+        FROM (
+            SELECT publication_year as year, institution_types, 
+                   arrayConcat([''], country_codes) as codes
+            FROM sandbox
+        )
+        ARRAY JOIN codes as country_code
+        ARRAY JOIN institution_types as inst_type
+        WHERE inst_type != ''
+        GROUP BY year, country_code, inst_type
         """
         client.query_df(inst_type_q).to_parquet(CACHE_TEMAS_DIR / f"{sub_clean}_inst_types_flat.parquet", index=False)
 
