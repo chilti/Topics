@@ -102,17 +102,16 @@ def get_missing_ids(
     """
     client = get_ch_client()
     query = f"""
-    SELECT w.id
-    FROM works_flat AS w
-    LEFT JOIN (
-        SELECT id
-        FROM embeddings_cache
-        WHERE subfield_name = '{subfield_name}'
-          AND length({model_col}) > 0
-    ) AS e ON w.id = e.id
-    WHERE w.subfield_name = '{subfield_name}'
-      AND w.publication_year BETWEEN {year_start} AND {year_end}
-      AND e.id IS NULL
+    SELECT id
+    FROM works_flat
+    WHERE subfield_name = '{subfield_name}'
+      AND publication_year BETWEEN {year_start} AND {year_end}
+      AND id NOT IN (
+          SELECT id
+          FROM embeddings_cache
+          WHERE subfield_name = '{subfield_name}'
+            AND length({model_col}) > 0
+      )
     """
     df = client.query_df(query)
     return df['id'].tolist() if not df.empty else []

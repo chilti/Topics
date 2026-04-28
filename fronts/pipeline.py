@@ -39,7 +39,8 @@ from fronts.config import (
     FASTRP_DIMENSION, FASTRP_ITERATIONS,
     JACCARD_THRESHOLD, JACCARD_MIN,
     PIPELINE_LEVELS,
-    get_window_cache_dir, get_subfield_cache_dir
+    get_window_cache_dir, get_subfield_cache_dir,
+    N_BIN_WORKERS
 )
 from fronts.clickhouse_queries import get_years_for_subfield, get_citation_pairs
 from fronts.segmentation.temporal_bins import (
