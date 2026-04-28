@@ -132,9 +132,25 @@ class NetworkEngine:
     <svg id="canvas"></svg>
     <script>
         const data = {data_json};
-        const width = window.innerWidth;
-        const height = window.innerHeight;
-        const svg = d3.select("#canvas").attr("viewBox", [0, 0, width, height]);
+        
+        // Sizing robusto para iframes (evita width/height 0)
+        let width = window.innerWidth || 800;
+        let height = window.innerHeight || 600;
+        
+        const svg = d3.select("#canvas")
+            .attr("width", "100%")
+            .attr("height", "100%")
+            .attr("viewBox", [0, 0, width, height]);
+
+        if (data.nodes.length === 0) {
+            d3.select("body").append("div")
+                .style("position", "absolute")
+                .style("top", "50%")
+                .style("left", "50%")
+                .style("transform", "translate(-50%, -50%)")
+                .style("color", "#888")
+                .text("No hay datos para mostrar en la red.");
+        }
         const g = svg.append("g");
         svg.call(d3.zoom().scaleExtent([0.1, 8]).on("zoom", (e) => g.attr("transform", e.transform)));
         const simulation = d3.forceSimulation(data.nodes)
