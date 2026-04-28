@@ -93,6 +93,7 @@ def compute_subfield_data_flat(subfield):
                 institution_ids, institution_types, source_id, sdgs, `type`, topic_id
             FROM works_flat 
             WHERE subfield_name = '{subfield}'
+            LIMIT 1 BY id
         """)
         status.write("Sandbox listo. Calculando métricas de impacto...")
         q_base = """
