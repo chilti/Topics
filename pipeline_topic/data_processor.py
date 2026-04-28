@@ -192,15 +192,37 @@ def get_summary_tables(df):
     if df is None or df.empty:
         return None, None, None, None, None, None
 
-    # 1. Tabla por Países
-    df_countries = df[df['entity_type'] == 'Country'].copy()
+    def aggregate_metrics(df_src, group_cols):
+        # 1. Agregación de sumas
+        sum_cols = [c for c in df_src.columns if c.endswith('_sum') or c == 'doc_count' or c == 'citations']
+        agg = df_src.groupby(group_cols)[sum_cols].sum().reset_index()
+        
+        # 2. Recalcular métricas de impacto (Promedio Pesado)
+        for m in ['fwci', 'percentile', 'pct_top_10', 'pct_top_1']:
+            is_pct = 'pct' in m
+            sum_col = f"{m}_sum" if not is_pct else f"{m.replace('pct_','')}_sum"
+            if sum_col in agg.columns:
+                agg[m] = np.where(agg['doc_count'] > 0, (agg[sum_col] / agg['doc_count']) * (100 if is_pct else 1), 0)
+        
+        # 3. OA & Languages
+        for col in [c for c in df_src.columns if c.startswith('pct_oa_') or c.startswith('pct_lang_')]:
+            base = col.split('_')[-1]
+            sum_col = f"{base}_sum"
+            if sum_col in agg.columns:
+                agg[col] = np.where(agg['doc_count'] > 0, (agg[sum_col] / agg['doc_count']) * 100, 0)
+        return agg
+
+    # 1. Tabla por Países (Agregada por País y Año)
+    df_countries_raw = df[df['entity_type'] == 'Country'].copy()
+    df_countries = aggregate_metrics(df_countries_raw, ['year', 'entity_name'])
     df_countries = df_countries.rename(columns={
         'year': 'Año', 'entity_name': 'País', 'doc_count': 'Documentos', 
         'fwci': 'FWCI', 'pct_top_10': '% Top 10%', 'pct_top_1': '% Top 1%', 'percentile': 'Percentil'
     })
     
-    # 2. Tabla por Tópicos (Mundial)
-    df_topics = df[df['entity_type'] == 'Mundo'].copy()
+    # 2. Tabla por Tópicos (Mundial - Agregada por Tópico y Año)
+    df_topics_raw = df[df['entity_type'] == 'Mundo'].copy()
+    df_topics = aggregate_metrics(df_topics_raw, ['year', 'topic'])
     df_topics = df_topics.rename(columns={
         'year': 'Año', 'topic': 'Tópico', 'doc_count': 'Documentos',
         'fwci': 'FWCI', 'pct_top_10': '% Top 10%', 'pct_top_1': '% Top 1%', 'percentile': 'Percentil'
