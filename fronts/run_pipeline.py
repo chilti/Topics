@@ -279,18 +279,34 @@ Ejemplos:
 
     args = parser.parse_args()
 
-    if args.step == 'setup':
-        step_setup(args)
-    elif args.step == 'embed':
-        step_embed(args)
-    elif args.step == 'run':
-        step_run(args)
-    elif args.step == 'status':
-        step_status(args)
-    elif args.step == 'all':
-        step_setup(args)
-        step_embed(args)
-        step_run(args)
+    try:
+        if args.step == 'setup':
+            step_setup(args)
+        elif args.step == 'embed':
+            step_embed(args)
+        elif args.step == 'run':
+            step_run(args)
+        elif args.step == 'status':
+            step_status(args)
+        elif args.step == 'all':
+            step_setup(args)
+            step_embed(args)
+            step_run(args)
+    except Exception as e:
+        import traceback
+        err_str = str(e)
+        if "HTTPConnectionPool" in err_str or "ConnectTimeoutError" in err_str or "OperationalError" in err_str:
+            print("\n❌ ERROR CRÍTICO DE CONEXIÓN A CLICKHOUSE")
+            print("No se pudo establecer conexión con el servidor de base de datos.")
+            print("Causas comunes:")
+            print("  1. El servidor ClickHouse está apagado o reiniciándose.")
+            print("  2. La conexión VPN se desconectó.")
+            print("  3. La IP o puerto en el archivo .env son incorrectos o inaccesibles.")
+            print(f"\nDetalle técnico:\n{err_str}")
+        else:
+            print("\n❌ ERROR INESPERADO EN EL PIPELINE:")
+            traceback.print_exc()
+        sys.exit(1)
 
 
 if __name__ == '__main__':
