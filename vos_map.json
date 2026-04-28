@@ -1,0 +1,121 @@
+{
+  "network": {
+    "items": [
+      {
+        "id": "A1",
+        "label": "Dr. Arriaga",
+        "cluster": 1,
+        "weight": 15,
+        "type": "author"
+      },
+      {
+        "id": "A2",
+        "label": "Dra. Benítez",
+        "cluster": 1,
+        "weight": 10,
+        "type": "author"
+      },
+      {
+        "id": "A3",
+        "label": "Dr. Castillo",
+        "cluster": 0,
+        "weight": 8,
+        "type": "author"
+      },
+      {
+        "id": "I1",
+        "label": "UNAM",
+        "cluster": 1,
+        "weight": 25,
+        "type": "institution"
+      },
+      {
+        "id": "I2",
+        "label": "IPN",
+        "cluster": 0,
+        "weight": 20,
+        "type": "institution"
+      },
+      {
+        "id": "C1",
+        "label": "México",
+        "cluster": 0,
+        "weight": 30,
+        "type": "country"
+      },
+      {
+        "id": "C2",
+        "label": "España",
+        "cluster": 2,
+        "weight": 25,
+        "type": "country"
+      },
+      {
+        "id": "W1",
+        "label": "Deep Learning in Bio",
+        "cluster": 1,
+        "weight": 5,
+        "type": "paper"
+      },
+      {
+        "id": "W2",
+        "label": "Climate Change Study",
+        "cluster": 0,
+        "weight": 5,
+        "type": "paper"
+      }
+    ],
+    "links": [
+      {
+        "source_id": "A1",
+        "target_id": "A2",
+        "strength": 5
+      },
+      {
+        "source_id": "A1",
+        "target_id": "A3",
+        "strength": 2
+      },
+      {
+        "source_id": "A1",
+        "target_id": "I1",
+        "strength": 10
+      },
+      {
+        "source_id": "A1",
+        "target_id": "W1",
+        "strength": 1
+      },
+      {
+        "source_id": "A2",
+        "target_id": "I1",
+        "strength": 10
+      },
+      {
+        "source_id": "A2",
+        "target_id": "W1",
+        "strength": 1
+      },
+      {
+        "source_id": "A3",
+        "target_id": "I2",
+        "strength": 10
+      },
+      {
+        "source_id": "A3",
+        "target_id": "W2",
+        "strength": 1
+      },
+      {
+        "source_id": "I1",
+        "target_id": "C1",
+        "strength": 15
+      },
+      {
+        "source_id": "I2",
+        "target_id": "C1",
+        "strength": 15
+      }
+    ]
+  }
+}

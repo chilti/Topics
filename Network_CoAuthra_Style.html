@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Mapa de Colaboración - Proyecto X</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0d0f14;
+            --surface: #1a1d24;
+            --accent: #4fc3f7;
+            --text: #dde1ec;
+            --muted: #565c78;
+            --border: #2a2d38;
+        }
+        body, html { margin:0; padding:0; width:100%; height:100%; background: var(--bg); font-family: 'IBM Plex Sans', sans-serif; color: var(--text); overflow: hidden; }
+        #controls { position: fixed; top: 20px; left: 20px; z-index: 10; background: var(--surface); padding: 15px; border-radius: 8px; border: 1px solid var(--border); box-shadow: 0 10px 30px rgba(0,0,0,0.5); width: 280px; }
+        h1 { font-size: 14px; margin: 0 0 10px 0; color: var(--accent); text-transform: uppercase; letter-spacing: 1px; }
+        .search-box { width: 100%; background: #000; border: 1px solid var(--border); color: #fff; padding: 8px; border-radius: 4px; outline: none; margin-bottom: 15px; }
+        .search-box:focus { border-color: var(--accent); }
+        .stats { font-size: 11px; color: var(--muted); display: flex; gap: 15px; }
+        #canvas { width: 100%; height: 100%; cursor: move; }
+        .node { cursor: pointer; stroke: var(--bg); stroke-width: 1.5px; transition: stroke 0.2s; }
+        .node:hover { stroke: #fff; stroke-width: 2px; }
+        .link { stroke: #444; stroke-opacity: 0.4; }
+        .label { font-size: 10px; fill: var(--text); pointer-events: none; opacity: 0.8; font-weight: 300; }
+        .tooltip { position: fixed; background: var(--surface); border: 1px solid var(--accent); padding: 8px 12px; border-radius: 4px; font-size: 12px; pointer-events: none; opacity: 0; transition: opacity 0.2s; z-index: 100; }
+    </style>
+</head>
+<body>
+    <div id="controls">
+        <h1>Mapa de Colaboración - Proyecto X</h1>
+        <input type="text" class="search-box" id="search" placeholder="Buscar nodo..." oninput="filterNodes()">
+        <div class="stats">
+            <span id="node-count">Nodes: 0</span>
+            <span id="link-count">Links: 0</span>
+        </div>
+    </div>
+    <div class="tooltip" id="tooltip"></div>
+    <svg id="canvas"></svg>
+
+    <script>
+        const data = {"nodes": [{"id": "A1", "label": "Dr. Arriaga", "type": "author", "weight": 15, "cluster": 1}, {"id": "A2", "label": "Dra. Benítez", "type": "author", "weight": 10, "cluster": 1}, {"id": "A3", "label": "Dr. Castillo", "type": "author", "weight": 8, "cluster": 0}, {"id": "I1", "label": "UNAM", "type": "institution", "weight": 25, "cluster": 1}, {"id": "I2", "label": "IPN", "type": "institution", "weight": 20, "cluster": 0}, {"id": "C1", "label": "México", "type": "country", "weight": 30, "cluster": 0}, {"id": "C2", "label": "España", "type": "country", "weight": 25, "cluster": 2}, {"id": "W1", "label": "Deep Learning in Bio", "type": "paper", "weight": 5, "cluster": 1}, {"id": "W2", "label": "Climate Change Study", "type": "paper", "weight": 5, "cluster": 0}], "links": [{"source": "A1", "target": "A2", "weight": 5}, {"source": "A1", "target": "A3", "weight": 2}, {"source": "A1", "target": "I1", "weight": 10}, {"source": "A1", "target": "W1", "weight": 1}, {"source": "A2", "target": "I1", "weight": 10}, {"source": "A2", "target": "W1", "weight": 1}, {"source": "A3", "target": "I2", "weight": 10}, {"source": "A3", "target": "W2", "weight": 1}, {"source": "I1", "target": "C1", "weight": 15}, {"source": "I2", "target": "C1", "weight": 15}]};
+        const width = window.innerWidth;
+        const height = window.innerHeight;
+
+        const svg = d3.select("#canvas")
+            .attr("viewBox", [0, 0, width, height]);
+
+        const g = svg.append("g");
+
+        // Zoom setup
+        svg.call(d3.zoom()
+            .scaleExtent([0.1, 8])
+            .on("zoom", (event) => g.attr("transform", event.transform)));
+
+        const simulation = d3.forceSimulation(data.nodes)
+            .force("link", d3.forceLink(data.links).id(d => d.id).distance(50))
+            .force("charge", d3.forceManyBody().strength(-150))
+            .force("center", d3.forceCenter(width / 2, height / 2))
+            .force("collision", d3.forceCollide().radius(d => Math.sqrt(d.weight) * 5 + 5));
+
+        const colorScale = d3.scaleOrdinal(d3.schemeCategory10);
+
+        const link = g.append("g")
+            .attr("class", "links")
+            .selectAll("line")
+            .data(data.links)
+            .join("line")
+            .attr("class", "link")
+            .attr("stroke-width", d => Math.sqrt(d.weight));
+
+        const node = g.append("g")
+            .attr("class", "nodes")
+            .selectAll("circle")
+            .data(data.nodes)
+            .join("circle")
+            .attr("class", "node")
+            .attr("r", d => Math.sqrt(d.weight) * 3 + 4)
+            .attr("fill", d => colorScale(d.cluster))
+            .on("mouseover", showTooltip)
+            .on("mouseout", hideTooltip)
+            .call(d3.drag()
+                .on("start", dragstarted)
+                .on("drag", dragged)
+                .on("end", dragended));
+
+        const labels = g.append("g")
+            .selectAll("text")
+            .data(data.nodes)
+            .join("text")
+            .attr("class", "label")
+            .attr("dx", 8)
+            .attr("dy", 3)
+            .text(d => d.label);
+
+        simulation.on("tick", () => {
+            link
+                .attr("x1", d => d.source.x)
+                .attr("y1", d => d.source.y)
+                .attr("x2", d => d.target.x)
+                .attr("y2", d => d.target.y);
+
+            node
+                .attr("cx", d => d.x)
+                .attr("cy", d => d.y);
+
+            labels
+                .attr("x", d => d.x)
+                .attr("y", d => d.y);
+        });
+
+        function showTooltip(event, d) {
+            const tt = d3.select("#tooltip");
+            tt.html(`<strong>${d.label}</strong><br>Tipo: ${d.type}<br>Cluster: ${d.cluster}`)
+              .style("left", (event.pageX + 10) + "px")
+              .style("top", (event.pageY - 10) + "px")
+              .style("opacity", 1);
+        }
+
+        function hideTooltip() {
+            d3.select("#tooltip").style("opacity", 0);
+        }
+
+        function filterNodes() {
+            const val = document.getElementById("search").value.toLowerCase();
+            node.style("opacity", d => d.label.toLowerCase().includes(val) ? 1 : 0.1);
+            labels.style("opacity", d => d.label.toLowerCase().includes(val) ? 1 : 0.1);
+            link.style("opacity", d => 
+                d.source.label.toLowerCase().includes(val) || d.target.label.toLowerCase().includes(val) ? 0.4 : 0.05
+            );
+        }
+
+        function dragstarted(event) {
+            if (!event.active) simulation.alphaTarget(0.3).restart();
+            event.subject.fx = event.subject.x;
+            event.subject.fy = event.subject.y;
+        }
+
+        function dragged(event) {
+            event.subject.fx = event.x;
+            event.subject.fy = event.y;
+        }
+
+        function dragended(event) {
+            if (!event.active) simulation.alphaTarget(0);
+            event.subject.fx = null;
+            event.subject.fy = null;
+        }
+
+        document.getElementById("node-count").innerText = `Nodes: ${data.nodes.length}`;
+        document.getElementById("link-count").innerText = `Links: ${data.links.length}`;
+    </script>
+</body>
+</html>
