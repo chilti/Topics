@@ -88,17 +88,21 @@ def compute_subfield_data_flat(subfield):
         client.command(f"""
             CREATE TEMPORARY TABLE sandbox AS
             SELECT 
-                id, publication_year, fwci, percentile, is_top_10, is_top_1, 
+                W.id, publication_year, fwci, percentile, is_top_10, is_top_1, 
                 cited_by_count, oa_status, language, country_codes, 
-                institution_ids, institution_types, source_id, sdgs, `type`, topic_id
-            FROM works_flat FINAL
+                institution_ids, institution_types, source_id, sdgs, `type`, 
+                if(T.display_name = '', W.topic_id, T.display_name) as topic_name
+            FROM works_flat FINAL AS W
+            LEFT JOIN (
+                SELECT id, any(display_name) as display_name FROM topics GROUP BY id
+            ) AS T ON W.topic_id = T.id
             WHERE subfield_name = '{subfield}'
         """)
         status.write("Sandbox listo. Calculando métricas de impacto...")
         q_base = """
             SELECT 
                 publication_year as year,
-                topic_id as topic,
+                topic_name as topic,
                 count() as doc_count,
                 sum(fwci) as fwci_sum,
                 sum(percentile) as percentile_sum,
@@ -139,7 +143,7 @@ def compute_subfield_data_flat(subfield):
                    sum(hybrid_sum) as hybrid_sum, sum(bronze_sum) as bronze_sum, sum(closed_sum) as closed_sum,
                    sum(lang_en_sum) as lang_en_sum, sum(lang_es_sum) as lang_es_sum, sum(lang_pt_sum) as lang_pt_sum
             FROM (
-                SELECT publication_year as year, topic_id as topic,
+                SELECT publication_year as year, topic_name as topic,
                        {region_mapping_sql} as entity_name,
                        count() as doc_count, sum(fwci) as fwci_sum, sum(percentile) as percentile_sum,
                        sum(is_top_10) as top_10_sum, sum(is_top_1) as top_1_sum,
@@ -167,7 +171,7 @@ def compute_subfield_data_flat(subfield):
                    sum(hybrid_sum) as hybrid_sum, sum(bronze_sum) as bronze_sum, sum(closed_sum) as closed_sum,
                    sum(lang_en_sum) as lang_en_sum, sum(lang_es_sum) as lang_es_sum, sum(lang_pt_sum) as lang_pt_sum
             FROM (
-                SELECT publication_year as year, topic_id as topic,
+                SELECT publication_year as year, topic_name as topic,
                        arrayJoin(country_codes) as entity_name,
                        count() as doc_count, sum(fwci) as fwci_sum, sum(percentile) as percentile_sum,
                        sum(is_top_10) as top_10_sum, sum(is_top_1) as top_1_sum,
