@@ -64,14 +64,17 @@ def step_embed(args):
     print(f"\n   Dispositivo: {device}")
     if device == "cpu":
         print("   Sin GPU. La generacion sera LENTA (~20ms/paper en CPU vs ~2ms en GPU).")
-        # Solo pedir confirmacion si es una terminal interactiva (no cuando se lanza como subproceso)
-        if sys.stdin.isatty():
-            resp = input("   Continuar de todas formas? [s/N]: ").strip().lower()
-            if resp != 's':
-                print("   Cancelado.")
-                return
+        # Solo pedir confirmacion si la salida no está redirigida a un archivo (como hace el dashboard)
+        if sys.stdout.isatty():
+            try:
+                resp = input("   Continuar de todas formas? [s/N]: ").strip().lower()
+                if resp != 's':
+                    print("   Cancelado.")
+                    return
+            except EOFError:
+                print("   Continuando (EOF detectado).")
         else:
-            print("   Continuando (lanzado como subproceso no interactivo).")
+            print("   Continuando (subproceso con stdout redirigido).")
 
     import numpy as np
     import pandas as pd
