@@ -443,6 +443,85 @@ def render_entity_details(entity_name, data, df_types, df_inst_types, show_all=F
     st.markdown("---")
     render_institution_types(entity_name, df_inst_types)
 
+def render_collaboration_network(df_collab):
+    if df_collab is None or df_collab.empty:
+        return
+    import networkx as nx
+    import plotly.graph_objects as go
+    
+    df_net = df_collab.sort_values('count', ascending=False).head(100)
+    
+    G = nx.Graph()
+    for _, row in df_net.iterrows():
+        G.add_edge(row['country_a'], row['country_b'], weight=row['count'])
+        
+    pos = nx.spring_layout(G, k=0.5, iterations=50, seed=42)
+    
+    edge_x = []
+    edge_y = []
+    
+    for edge in G.edges(data=True):
+        x0, y0 = pos[edge[0]]
+        x1, y1 = pos[edge[1]]
+        edge_x.extend([x0, x1, None])
+        edge_y.extend([y0, y1, None])
+
+    edge_trace = go.Scatter(
+        x=edge_x, y=edge_y,
+        line=dict(width=1, color='#aaa'),
+        hoverinfo='none',
+        mode='lines')
+
+    node_x = []
+    node_y = []
+    for node in G.nodes():
+        x, y = pos[node]
+        node_x.append(x)
+        node_y.append(y)
+
+    node_adjacencies = []
+    node_text = []
+    for node in G.nodes():
+        degree = sum([d['weight'] for _, _, d in G.edges(node, data=True)])
+        node_adjacencies.append(degree)
+        node_text.append(f"{node} (Colaboraciones: {degree})")
+
+    max_deg = max(node_adjacencies) if node_adjacencies else 1
+    node_trace = go.Scatter(
+        x=node_x, y=node_y,
+        mode='markers+text',
+        textposition="top center",
+        hoverinfo='text',
+        text=[n for n in G.nodes()],
+        hovertext=node_text,
+        marker=dict(
+            showscale=True,
+            colorscale='YlGnBu',
+            reversescale=True,
+            color=node_adjacencies,
+            size=[min(50, max(15, (v / max_deg) * 50)) for v in node_adjacencies],
+            colorbar=dict(
+                thickness=15,
+                title='Interacciones',
+                xanchor='left',
+                titleside='right'
+            ),
+            line=dict(width=1, color='#ffffff')
+        ))
+
+    fig = go.Figure(data=[edge_trace, node_trace],
+                 layout=go.Layout(
+                    showlegend=False,
+                    hovermode='closest',
+                    margin=dict(b=0,l=0,r=0,t=0),
+                    xaxis=dict(showgrid=False, zeroline=False, showticklabels=False),
+                    yaxis=dict(showgrid=False, zeroline=False, showticklabels=False),
+                    height=600,
+                    plot_bgcolor='rgba(0,0,0,0)',
+                    paper_bgcolor='rgba(0,0,0,0)')
+                 )
+    st.plotly_chart(fig, use_container_width=True)
+
 def render_entity_institutions(entity_name, df_inst_all, period_mode, x_col, y_col, x_label, y_label):
     """Renderiza el análisis institucional para una entidad específica en formato de burbujas."""
     if df_inst_all is None or df_inst_all.empty:
@@ -774,7 +853,12 @@ if df_countries is not None:
     with tab_sum_7:
         st.subheader("🤝 Matriz de Colaboración Internacional")
         if df_collab is not None and not df_collab.empty:
-            st.info("Esta tabla muestra el número de co-autorías detectadas entre pares de países para este subcampo.")
+            st.info("Esta tabla y grafo muestran el número de co-autorías detectadas entre pares de países para este subcampo.")
+            
+            st.markdown("### 🌐 Red de Colaboración (Top 100 relaciones)")
+            render_collaboration_network(df_collab)
+            
+            st.markdown("### 📊 Datos Tabulares")
             st.dataframe(df_collab, use_container_width=True, hide_index=True)
             download_csv_button(df_collab, "Colaboración")
         else:
