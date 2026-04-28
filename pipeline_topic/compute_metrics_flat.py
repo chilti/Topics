@@ -91,9 +91,8 @@ def compute_subfield_data_flat(subfield):
                 id, publication_year, fwci, percentile, is_top_10, is_top_1, 
                 cited_by_count, oa_status, language, country_codes, 
                 institution_ids, institution_types, source_id, sdgs, `type`, topic_id
-            FROM works_flat 
+            FROM works_flat FINAL
             WHERE subfield_name = '{subfield}'
-            LIMIT 1 BY id
         """)
         status.write("Sandbox listo. Calculando métricas de impacto...")
         q_base = """
