@@ -13,28 +13,33 @@ def track_clusters(df, cluster_col, bin_col):
     """
     Rastrea la evolución de los clusters a través de los bins temporales.
     Retorna un grafo de transiciones.
+    Pre-calcula los conjuntos de IDs por cluster para evitar O(clusters² × N) reconstrucciones.
     """
     bins = sorted(df[bin_col].unique())
     transitions = []
     
+    # Pre-calcular todos los conjuntos una sola vez
+    cluster_sets = {}
+    for b in bins:
+        df_bin = df[df[bin_col] == b]
+        for c in df_bin[cluster_col].unique():
+            if c != -1:  # Ignorar ruido HDBSCAN
+                cluster_sets[(b, c)] = set(df_bin[df_bin[cluster_col] == c]['id'])
+    
     for i in range(len(bins) - 1):
         bin_curr = bins[i]
-        bin_next = bins[i+1]
+        bin_next = bins[i + 1]
         
-        clusters_curr = df[df[bin_col] == bin_curr][cluster_col].unique()
-        clusters_next = df[df[bin_col] == bin_next][cluster_col].unique()
-        
-        # Ignorar ruido (-1 en HDBSCAN)
-        clusters_curr = [c for c in clusters_curr if c != -1]
-        clusters_next = [c for c in clusters_next if c != -1]
+        clusters_curr = [c for c in df[df[bin_col] == bin_curr][cluster_col].unique() if c != -1]
+        clusters_next = [c for c in df[df[bin_col] == bin_next][cluster_col].unique() if c != -1]
         
         for c1 in clusters_curr:
-            set1 = set(df[(df[bin_col] == bin_curr) & (df[cluster_col] == c1)]['id'])
+            set1 = cluster_sets.get((bin_curr, c1), set())
             for c2 in clusters_next:
-                set2 = set(df[(df[bin_col] == bin_next) & (df[cluster_col] == c2)]['id'])
+                set2 = cluster_sets.get((bin_next, c2), set())
                 
                 sim = calculate_jaccard(set1, set2)
-                if sim > 0.05: # Umbral bajo para capturar todas las conexiones
+                if sim > 0.05:  # Umbral bajo para capturar todas las conexiones
                     transitions.append({
                         'from_bin': bin_curr,
                         'to_bin': bin_next,

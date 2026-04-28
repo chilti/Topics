@@ -34,7 +34,7 @@ def main():
     # 2. Resumen de los datos
     print("\nResumen del corpus de prueba:")
     print(f"   - Anios: {df['publication_year'].min()} a {df['publication_year'].max()}")
-    print(f"   - Papers con abstract: {df['abstract_raw'].notna().sum()}")
+    print(f"   - Papers con abstract: {df['abstract'].notna().sum()}")
     print(f"   - Papers con citas (internas): {df['referenced_works'].apply(len).sum()}")
 
     print("\nOK: Sandbox Step 1 Finalizado. Pasando al Step 2 (Estructural)...")

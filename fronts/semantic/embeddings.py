@@ -29,14 +29,13 @@ def generate_specter_embeddings(texts, model_name='allenai/specter2_base', batch
 def prepare_text_for_specter(df):
     """
     Combina título y abstract en el formato sugerido para SPECTER2.
+    La columna 'abstract' en works_flat ya viene reconstruida desde el inverted index.
     """
     texts = []
     for _, row in df.iterrows():
-        title = row.get('title', '')
-        # El abstract en ClickHouse (inverted index) necesita ser reconstruido 
-        # o procesado. Por ahora, si es un sandbox rápido y abstract_raw es texto...
-        abstract = row.get('abstract_raw', '')
-        
+        title = str(row.get('title', '') or '')
+        # 'abstract' es la columna materializada en works_flat (reconstruida del inverted index)
+        abstract = str(row.get('abstract', '') or row.get('abstract_raw', '') or '')
         text = f"Title: {title} [SEP] Abstract: {abstract}"
         texts.append(text)
     return texts

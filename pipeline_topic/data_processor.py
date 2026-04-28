@@ -6,15 +6,15 @@ import datetime
 from pathlib import Path
 
 # --- CONFIGURATION ---
-BASE_PATH = Path(__file__).parent.parent
+BASE_PATH = Path(__file__).parent.parent.absolute()
 DATA_DIR = BASE_PATH / 'data'
 CACHE_TEMAS_DIR = DATA_DIR / 'cache_temas'
 
 # Load Data
 # Load Data
-def load_subfield_data(subfield):
+def load_subfield_data(subfield, suffix=""):
     sub_clean = subfield.strip().replace(' ', '_').lower()
-    cache_path = CACHE_TEMAS_DIR / f"{sub_clean}.parquet"
+    cache_path = CACHE_TEMAS_DIR / f"{sub_clean}{suffix}.parquet"
     if cache_path.exists():
         try:
             return pd.read_parquet(cache_path)
@@ -23,9 +23,10 @@ def load_subfield_data(subfield):
             return None
     return None
 
-def load_collaboration_data(subfield):
+def load_collaboration_data(subfield, suffix=""):
     sub_clean = subfield.strip().replace(' ', '_').lower()
-    cache_path = CACHE_TEMAS_DIR / f"{sub_clean}_collab.parquet"
+    fname = f"{sub_clean}_collab{suffix}.parquet" if suffix else f"{sub_clean}_collab.parquet"
+    cache_path = CACHE_TEMAS_DIR / fname
     if cache_path.exists():
         try:
             return pd.read_parquet(cache_path)
@@ -34,9 +35,10 @@ def load_collaboration_data(subfield):
             return None
     return None
 
-def load_institutional_data(subfield):
+def load_institutional_data(subfield, suffix=""):
     sub_clean = subfield.strip().replace(' ', '_').lower()
-    cache_path = CACHE_TEMAS_DIR / f"{sub_clean}_inst.parquet"
+    fname = f"{sub_clean}_inst{suffix}.parquet" if suffix else f"{sub_clean}_inst.parquet"
+    cache_path = CACHE_TEMAS_DIR / fname
     if cache_path.exists():
         try:
             return pd.read_parquet(cache_path)
@@ -45,9 +47,10 @@ def load_institutional_data(subfield):
             return None
     return None
 
-def load_types_data(subfield):
+def load_types_data(subfield, suffix=""):
     sub_clean = subfield.strip().replace(' ', '_').lower()
-    cache_path = CACHE_TEMAS_DIR / f"{sub_clean}_types.parquet"
+    fname = f"{sub_clean}_types{suffix}.parquet" if suffix else f"{sub_clean}_types.parquet"
+    cache_path = CACHE_TEMAS_DIR / fname
     if cache_path.exists():
         try:
             return pd.read_parquet(cache_path)
@@ -61,14 +64,17 @@ def get_type_distribution(df_types, entity_name):
     if df_types is None or df_types.empty: return None
     
     from regions import GLOBAL_REGIONS
-    
     df = df_types.copy()
     
     if entity_name == 'Mundo':
+        # Priorizar el registro consolidado ('' o NaN) para evitar doble conteo
+        mundo_df = df[df['country_code'].isna() | (df['country_code'] == '')]
+        if not mundo_df.empty:
+            return mundo_df
         return df.groupby(['year', 'doc_type'])['count'].sum().reset_index()
     
     if entity_name == 'México':
-        return df[df['country_code'] == 'MX'].groupby(['year', 'doc_type'])['count'].sum().reset_index()
+        return df[df['country_code'] == 'MX']
     
     # Regiones
     if entity_name in GLOBAL_REGIONS:
@@ -77,9 +83,10 @@ def get_type_distribution(df_types, entity_name):
     
     return None
 
-def load_inst_types_data(subfield):
+def load_inst_types_data(subfield, suffix=""):
     sub_clean = subfield.strip().replace(' ', '_').lower()
-    cache_path = CACHE_TEMAS_DIR / f"{sub_clean}_inst_types.parquet"
+    fname = f"{sub_clean}_inst_types{suffix}.parquet" if suffix else f"{sub_clean}_inst_types.parquet"
+    cache_path = CACHE_TEMAS_DIR / fname
     if cache_path.exists():
         try:
             return pd.read_parquet(cache_path)
@@ -93,14 +100,17 @@ def get_inst_type_distribution(df_types, entity_name):
     if df_types is None or df_types.empty: return None
     
     from regions import GLOBAL_REGIONS
-    
     df = df_types.copy()
     
     if entity_name == 'Mundo':
+        # Priorizar el registro consolidado ('' o NaN) para evitar doble conteo
+        mundo_df = df[df['country_code'].isna() | (df['country_code'] == '')]
+        if not mundo_df.empty:
+            return mundo_df
         return df.groupby(['year', 'inst_type'])['count'].sum().reset_index()
     
     if entity_name == 'México':
-        return df[df['country_code'] == 'MX'].groupby(['year', 'inst_type'])['count'].sum().reset_index()
+        return df[df['country_code'] == 'MX']
     
     # Regiones
     if entity_name in GLOBAL_REGIONS:
@@ -161,28 +171,20 @@ def get_entity_metrics(df, entity_name, period="Últimos 5 años (2021-2025)"):
         'percentile': (x['percentile'] * x['doc_count']).sum() / x['doc_count'].sum(),
     })).reset_index()
     
-    # 3. Tendencias por Tópico (Ya vienen listas)
+    # 3. Tendencias por Tópico
     topical_trends = dff.copy()
     
-    # 4. Top Tópicos
-    top_topics = dff_period.groupby('topic')['doc_count'].sum().sort_values(ascending=False)
-    
-    # 5. Top Journals (Cargados desde cache independiente)
-    # Nota: Este df se maneja aparte en la UI para evitar mezclar granuralidades
+    # 4. Top Tópicos (solo si el dataset tiene granularidad por tópico)
+    if 'topic' in dff_period.columns:
+        top_topics = dff_period.groupby('topic')['doc_count'].sum().sort_values(ascending=False)
+    else:
+        top_topics = pd.Series(dtype='float64')
     
     return {
         'metrics': metrics,
         'trends': trends,
         'topical_trends': topical_trends,
         'top_topics': top_topics
-    }
-
-    return {
-        'metrics': metrics,
-        'trends': trends,
-        'topical_trends': topical_trends,
-        'top_topics': top_topics,
-        'top_journals': top_journals
     }
 
 def get_summary_tables(df):
