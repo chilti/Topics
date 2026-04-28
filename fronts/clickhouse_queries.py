@@ -43,7 +43,7 @@ def get_years_for_subfield(subfield_name):
     client = get_ch_client()
     query = f"""
     SELECT publication_year, count() as n
-    FROM works_flat
+    FROM works_flat FINAL
     WHERE subfield_name = '{subfield_name}'
     GROUP BY publication_year
     ORDER BY publication_year
@@ -64,10 +64,10 @@ def get_citation_pairs(subfield_name, year_start, year_end):
     client = get_ch_client()
     query = f"""
     SELECT W.id AS source_id, ref AS target_id
-    FROM works_flat AS W
+    FROM works_flat FINAL AS W
     ARRAY JOIN W.referenced_works AS ref
     INNER JOIN (
-        SELECT id FROM works_flat
+        SELECT id FROM works_flat FINAL
         WHERE subfield_name = '{subfield_name}'
     ) AS T ON ref = T.id
     WHERE W.subfield_name = '{subfield_name}'
@@ -85,7 +85,7 @@ def get_sandbox_data(subfield_name='Pulmonary and Respiratory Medicine', term='c
         abstract,
         publication_year, 
         referenced_works
-    FROM works_flat
+    FROM works_flat FINAL
     WHERE subfield_name = '{subfield_name}'
       AND (hasToken(lower(title), '{term}') OR hasToken(lower(abstract), '{term}'))
       AND publication_year BETWEEN 2020 AND 2022
@@ -103,7 +103,7 @@ def get_work_metadata(work_ids):
     query = f"""
     SELECT 
         id, title, publication_year, cited_by_count, fwci, abstract
-    FROM works_flat
+    FROM works_flat FINAL
     WHERE id IN ({ids_str})
     """
     return client.query_df(query)
@@ -127,7 +127,7 @@ def get_bin_metadata(subfield_name: str, year_start: int, year_end: int) -> pd.D
         referenced_works,
         institution_ids,
         source_id
-    FROM works_flat
+    FROM works_flat FINAL
     WHERE subfield_name = '{subfield_name}'
       AND publication_year BETWEEN {year_start} AND {year_end}
     ORDER BY id
@@ -145,7 +145,7 @@ def get_citation_pairs_open(subfield_name: str, year_start: int, year_end: int) 
     client = get_ch_client()
     query = f"""
     SELECT W.id AS source_id, ref AS target_id
-    FROM works_flat AS W
+    FROM works_flat FINAL AS W
     ARRAY JOIN W.referenced_works AS ref
     WHERE W.subfield_name = '{subfield_name}'
       AND W.publication_year BETWEEN {year_start} AND {year_end}

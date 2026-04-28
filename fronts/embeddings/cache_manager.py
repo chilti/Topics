@@ -103,7 +103,7 @@ def get_missing_ids(
     client = get_ch_client()
     query = f"""
     SELECT id
-    FROM works_flat
+    FROM works_flat FINAL
     WHERE subfield_name = '{subfield_name}'
       AND publication_year BETWEEN {year_start} AND {year_end}
       AND id NOT IN (
