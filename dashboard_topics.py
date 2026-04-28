@@ -3,6 +3,8 @@ import pandas as pd
 import numpy as np
 import plotly.express as px
 import plotly.graph_objects as go
+import streamlit.components.v1 as components
+from Net.Visualizer import NetworkEngine
 import os
 import sys
 import json
@@ -446,80 +448,30 @@ def render_entity_details(entity_name, data, df_types, df_inst_types, show_all=F
 def render_collaboration_network(df_collab):
     if df_collab is None or df_collab.empty:
         return
-    import networkx as nx
-    import plotly.graph_objects as go
     
+    # 1. Preparar la red con el Motor de Redes
+    net = NetworkEngine()
+    
+    # Tomar top 100 relaciones para no saturar
     df_net = df_collab.sort_values('count', ascending=False).head(100)
     
-    G = nx.Graph()
+    # Agregar nodos y aristas (el motor maneja clusters automáticamente)
     for _, row in df_net.iterrows():
-        G.add_edge(row['country_a'], row['country_b'], weight=row['count'])
+        # Nodo A
+        net.add_node(row['country_a'], label=row['country_a'], node_type="country")
+        # Nodo B
+        net.add_node(row['country_b'], label=row['country_b'], node_type="country")
+        # Arista
+        net.add_edge(row['country_a'], row['country_b'], weight=row['count'])
         
-    pos = nx.spring_layout(G, k=0.5, iterations=50, seed=42)
+    # Calcular comunidades para colores
+    net.compute_communities()
     
-    edge_x = []
-    edge_y = []
+    # 2. Generar HTML de D3.js
+    html_content = net.get_d3_html(title="Red de Colaboración Internacional")
     
-    for edge in G.edges(data=True):
-        x0, y0 = pos[edge[0]]
-        x1, y1 = pos[edge[1]]
-        edge_x.extend([x0, x1, None])
-        edge_y.extend([y0, y1, None])
-
-    edge_trace = go.Scatter(
-        x=edge_x, y=edge_y,
-        line=dict(width=1, color='#aaa'),
-        hoverinfo='none',
-        mode='lines')
-
-    node_x = []
-    node_y = []
-    for node in G.nodes():
-        x, y = pos[node]
-        node_x.append(x)
-        node_y.append(y)
-
-    node_adjacencies = []
-    node_text = []
-    for node in G.nodes():
-        degree = sum([d['weight'] for _, _, d in G.edges(node, data=True)])
-        node_adjacencies.append(degree)
-        node_text.append(f"{node} (Colaboraciones: {degree})")
-
-    max_deg = max(node_adjacencies) if node_adjacencies else 1
-    node_trace = go.Scatter(
-        x=node_x, y=node_y,
-        mode='markers+text',
-        textposition="top center",
-        hoverinfo='text',
-        text=[n for n in G.nodes()],
-        hovertext=node_text,
-        marker=dict(
-            showscale=True,
-            colorscale='YlGnBu',
-            reversescale=True,
-            color=node_adjacencies,
-            size=[min(50, max(15, (v / max_deg) * 50)) for v in node_adjacencies],
-            colorbar=dict(
-                thickness=15,
-                title=dict(text='Interacciones', side='right'),
-                xanchor='left'
-            ),
-            line=dict(width=1, color='#ffffff')
-        ))
-
-    fig = go.Figure(data=[edge_trace, node_trace],
-                 layout=go.Layout(
-                    showlegend=False,
-                    hovermode='closest',
-                    margin=dict(b=0,l=0,r=0,t=0),
-                    xaxis=dict(showgrid=False, zeroline=False, showticklabels=False),
-                    yaxis=dict(showgrid=False, zeroline=False, showticklabels=False),
-                    height=600,
-                    plot_bgcolor='rgba(0,0,0,0)',
-                    paper_bgcolor='rgba(0,0,0,0)')
-                 )
-    st.plotly_chart(fig, use_container_width=True)
+    # 3. Renderizar en Streamlit
+    components.html(html_content, height=650, scrolling=False)
 
 def render_entity_institutions(entity_name, df_inst_all, period_mode, x_col, y_col, x_label, y_label):
     """Renderiza el análisis institucional para una entidad específica en formato de burbujas."""
