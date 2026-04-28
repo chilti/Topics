@@ -92,7 +92,7 @@ def compute_subfield_data_flat(subfield):
                 cited_by_count, oa_status, language, country_codes, 
                 institution_ids, institution_types, source_id, sdgs, `type`, 
                 if(T.display_name = '', W.topic_id, T.display_name) as topic_name
-            FROM works_flat FINAL AS W
+            FROM works_flat AS W FINAL
             LEFT JOIN (
                 SELECT id, any(display_name) as display_name FROM topics GROUP BY id
             ) AS T ON W.topic_id = T.id

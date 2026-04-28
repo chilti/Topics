@@ -64,7 +64,7 @@ def get_citation_pairs(subfield_name, year_start, year_end):
     client = get_ch_client()
     query = f"""
     SELECT W.id AS source_id, ref AS target_id
-    FROM works_flat FINAL AS W
+    FROM works_flat AS W FINAL
     ARRAY JOIN W.referenced_works AS ref
     INNER JOIN (
         SELECT id FROM works_flat FINAL
@@ -145,7 +145,7 @@ def get_citation_pairs_open(subfield_name: str, year_start: int, year_end: int) 
     client = get_ch_client()
     query = f"""
     SELECT W.id AS source_id, ref AS target_id
-    FROM works_flat FINAL AS W
+    FROM works_flat AS W FINAL
     ARRAY JOIN W.referenced_works AS ref
     WHERE W.subfield_name = '{subfield_name}'
       AND W.publication_year BETWEEN {year_start} AND {year_end}
