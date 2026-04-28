@@ -52,8 +52,12 @@ def get_years_for_subfield(subfield_name):
     if df.empty:
         return []
     # Expandir en Python: repetir cada año según su frecuencia
+    # ClickHouse devuelve COUNT() como uint64; cast explícito a int64 para numpy
     import numpy as np
-    return np.repeat(df['publication_year'].values, df['n'].values).tolist()
+    return np.repeat(
+        df['publication_year'].values.astype('int64'),
+        df['n'].values.astype('int64')
+    ).tolist()
 
 def get_citation_pairs(subfield_name, year_start, year_end):
     """Obtiene los pares de citación usando INNER JOIN para evitar doble escaneo O(N²)."""
