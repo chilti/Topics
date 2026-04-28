@@ -105,15 +105,19 @@ class NetworkEngine:
             --surface: #1a1d24;
             --accent: #4fc3f7;
             --text: #dde1ec;
+            --text2: #9aa0b8;
             --muted: #565c78;
             --border: #2a2d38;
         }}
         body, html {{ margin:0; padding:0; width:100%; height:100%; background: var(--bg); font-family: 'IBM Plex Sans', sans-serif; color: var(--text); overflow: hidden; }}
-        #controls {{ position: fixed; top: 10px; left: 10px; z-index: 10; background: var(--surface); padding: 10px; border-radius: 6px; border: 1px solid var(--border); box-shadow: 0 5px 15px rgba(0,0,0,0.5); width: 220px; pointer-events: auto; }}
-        h1 {{ font-size: 12px; margin: 0 0 8px 0; color: var(--accent); text-transform: uppercase; letter-spacing: 1px; }}
+        #controls {{ position: fixed; top: 10px; left: 10px; z-index: 10; background: var(--surface); padding: 12px; border-radius: 6px; border: 1px solid var(--border); box-shadow: 0 5px 15px rgba(0,0,0,0.5); width: 220px; pointer-events: auto; max-height: 95vh; overflow-y: auto; }}
+        h1 {{ font-size: 11px; margin: 0 0 8px 0; color: var(--accent); text-transform: uppercase; letter-spacing: 1px; border-bottom: 1px solid var(--border); padding-bottom: 5px; }}
         .search-box {{ width: 100%; background: #000; border: 1px solid var(--border); color: #fff; padding: 5px; border-radius: 3px; outline: none; margin-bottom: 10px; font-size: 11px; }}
         .search-box:focus {{ border-color: var(--accent); }}
-        .stats {{ font-size: 10px; color: var(--muted); display: flex; gap: 10px; }}
+        .control-group {{ margin-bottom: 8px; }}
+        .control-group label {{ display: flex; justify-content: space-between; font-size: 9px; color: var(--text2); margin-bottom: 2px; text-transform: uppercase; }}
+        .control-group input {{ width: 100%; accent-color: var(--accent); height: 4px; cursor: pointer; }}
+        .stats {{ font-size: 10px; color: var(--muted); display: flex; gap: 10px; margin-top: 5px; border-top: 1px solid var(--border); padding-top: 5px; }}
         #canvas {{ width: 100%; height: 100%; cursor: move; }}
         .node {{ cursor: pointer; stroke: var(--bg); stroke-width: 1.5px; transition: stroke 0.2s; }}
         .node:hover {{ stroke: #fff; stroke-width: 2px; }}
@@ -125,7 +129,25 @@ class NetworkEngine:
 <body>
     <div id="controls">
         <h1>{title}</h1>
-        <input type="text" class="search-box" id="search" placeholder="Buscar..." oninput="filterNodes()">
+        <input type="text" class="search-box" id="search" placeholder="Buscar país..." oninput="filterNodes()">
+        
+        <div class="control-group">
+            <label>Tamaño Nodos <span id="v-nodeSize">5</span></label>
+            <input type="range" id="nodeSize" min="1" max="20" value="5" oninput="updateSim()">
+        </div>
+        <div class="control-group">
+            <label>Grosor Aristas <span id="v-edgeWidth">1.0</span></label>
+            <input type="range" id="edgeWidth" min="0.1" max="5" step="0.1" value="1.0" oninput="updateSim()">
+        </div>
+        <div class="control-group">
+            <label>Distancia <span id="v-linkDist">70</span></label>
+            <input type="range" id="linkDist" min="20" max="300" value="70" oninput="updateSim()">
+        </div>
+        <div class="control-group">
+            <label>Repulsión <span id="v-charge">-200</span></label>
+            <input type="range" id="charge" min="-1000" max="-50" value="-200" oninput="updateSim()">
+        </div>
+
         <div class="stats"><span id="node-count">0 nodes</span><span id="link-count">0 links</span></div>
     </div>
     <div class="tooltip" id="tooltip"></div>
@@ -133,7 +155,6 @@ class NetworkEngine:
     <script>
         const data = {data_json};
         
-        // Sizing robusto para iframes (evita width/height 0)
         let width = window.innerWidth || 800;
         let height = window.innerHeight || 600;
         
@@ -142,34 +163,60 @@ class NetworkEngine:
             .attr("height", "100%")
             .attr("viewBox", [0, 0, width, height]);
 
-        if (data.nodes.length === 0) {
+        if (data.nodes.length === 0) {{
             d3.select("body").append("div")
-                .style("position", "absolute")
-                .style("top", "50%")
-                .style("left", "50%")
-                .style("transform", "translate(-50%, -50%)")
-                .style("color", "#888")
-                .text("No hay datos para mostrar en la red.");
-        }
+                .style("position", "absolute").style("top", "50%").style("left", "50%").style("transform", "translate(-50%, -50%)")
+                .style("color", "#888").text("No hay datos para mostrar en la red.");
+        }}
+
         const g = svg.append("g");
-        svg.call(d3.zoom().scaleExtent([0.1, 8]).on("zoom", (e) => g.attr("transform", e.transform)));
+        svg.call(d3.zoom().scaleExtent([0.05, 10]).on("zoom", (e) => g.attr("transform", e.transform)));
+
         const simulation = d3.forceSimulation(data.nodes)
-            .force("link", d3.forceLink(data.links).id(d => d.id).distance(60))
+            .force("link", d3.forceLink(data.links).id(d => d.id).distance(70))
             .force("charge", d3.forceManyBody().strength(-200))
             .force("center", d3.forceCenter(width / 2, height / 2))
-            .force("collision", d3.forceCollide().radius(d => Math.sqrt(d.weight) * 3 + 10));
+            .force("collision", d3.forceCollide().radius(d => Math.sqrt(d.weight) * 3 + 12));
+
         const colorScale = d3.scaleOrdinal(d3.schemeCategory10);
-        const link = g.append("g").selectAll("line").data(data.links).join("line").attr("class", "link").attr("stroke-width", d => Math.sqrt(d.weight) + 0.5);
+
+        const link = g.append("g").selectAll("line").data(data.links).join("line").attr("class", "link")
+            .attr("stroke-width", d => (Math.sqrt(d.weight) * 0.5) + 0.2);
+
         const node = g.append("g").selectAll("circle").data(data.nodes).join("circle").attr("class", "node")
-            .attr("r", d => Math.sqrt(d.weight) * 3 + 5).attr("fill", d => colorScale(d.cluster))
+            .attr("r", d => Math.sqrt(d.weight) * 2.5 + 5)
+            .attr("fill", d => colorScale(d.cluster))
             .on("mouseover", showTooltip).on("mouseout", hideTooltip)
             .call(d3.drag().on("start", dragstarted).on("drag", dragged).on("end", dragended));
+
         const labels = g.append("g").selectAll("text").data(data.nodes).join("text").attr("class", "label").attr("dx", 10).attr("dy", 4).text(d => d.label);
+
         simulation.on("tick", () => {{
             link.attr("x1", d => d.source.x).attr("y1", d => d.source.y).attr("x2", d => d.target.x).attr("y2", d => d.target.y);
             node.attr("cx", d => d.x).attr("cy", d => d.y);
             labels.attr("x", d => d.x).attr("y", d => d.y);
         }});
+
+        function updateSim() {{
+            const nS = +document.getElementById("nodeSize").value;
+            const eW = +document.getElementById("edgeWidth").value;
+            const lD = +document.getElementById("linkDist").value;
+            const ch = +document.getElementById("charge").value;
+
+            document.getElementById("v-nodeSize").innerText = nS;
+            document.getElementById("v-edgeWidth").innerText = eW.toFixed(1);
+            document.getElementById("v-linkDist").innerText = lD;
+            document.getElementById("v-charge").innerText = ch;
+
+            node.attr("r", d => Math.sqrt(d.weight) * (nS/2) + nS);
+            link.attr("stroke-width", d => (Math.sqrt(d.weight) * eW / 2) + 0.2);
+            
+            simulation.force("link").distance(lD);
+            simulation.force("charge").strength(ch);
+            simulation.force("collision").radius(d => Math.sqrt(d.weight) * (nS/2) + nS + 5);
+            simulation.alpha(0.2).restart();
+        }}
+
         function showTooltip(event, d) {{
             const tt = d3.select("#tooltip");
             tt.html(`<strong>${{d.label}}</strong><br>Type: ${{d.type}}<br>Cluster: ${{d.cluster}}`)
