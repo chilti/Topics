@@ -754,30 +754,39 @@ st.markdown("---")
 st.markdown("---")
 st.subheader("Tablas de Resumen General")
 res = get_summary_tables(df_data)
-df_countries, df_topics, _, df_ct_annual, df_ct_full, df_ct_2125 = res
+df_countries, df_topics, df_countries_total, df_ct_annual, df_ct_full, df_ct_2125, df_topics_total = res
 
 if df_countries is not None:
-    tab_sum_1, tab_sum_2, tab_sum_3, tab_sum_4, tab_sum_5, tab_sum_6, tab_sum_7, tab_sum_8, tab_fronts = st.tabs([
-        "🌎 Países (Anual)", 
-        "🧩 Tópicos (Anual)", 
-        "📚 Revistas (Anual)",
-        "📅 Evolución Países-Tópicos",
-        "📊 Totales 2021-2025",
-        "📈 Totales Históricos",
-        "🤝 Colaboración",
-        "🏢 Instituciones",
-        "🔬 Frentes de Investigación"
-    ])
+    tabs_list = [
+        "🌎 Países (Anual)", "🌎 Países (Totales)", 
+        "🧩 Tópicos (Anual)", "🧩 Tópicos (Totales)",
+        "📚 Revistas (Anual)", "📅 Evolución Países-Tópicos",
+        "📊 Totales 2021-2025", "📈 Totales Históricos",
+        "🤝 Colaboración", "🏢 Instituciones", "🔬 Frentes de Investigación"
+    ]
+    all_tabs = st.tabs(tabs_list)
+    (tab_sum_1, tab_sum_1b, tab_sum_2, tab_sum_2b, tab_sum_3, 
+     tab_sum_4, tab_sum_5, tab_sum_6, tab_sum_7, tab_sum_8, tab_fronts) = all_tabs
     
     with tab_sum_1:
         st.subheader("Producción e Impacto por País y Año")
         st.dataframe(df_countries, use_container_width=True, hide_index=True)
         download_csv_button(df_countries, "Paises_Anual")
         
+    with tab_sum_1b:
+        st.subheader("Producción e Impacto por País (Total Histórico)")
+        st.dataframe(df_countries_total, use_container_width=True, hide_index=True)
+        download_csv_button(df_countries_total, "Paises_Totales")
+        
     with tab_sum_2:
-        st.subheader("Producción e Impacto por Tópico y Año")
+        st.subheader("Producción e Impacto por Tópico y Año (Mundial)")
         st.dataframe(df_topics, use_container_width=True, hide_index=True)
         download_csv_button(df_topics, "Topicos_Anual")
+
+    with tab_sum_2b:
+        st.subheader("Producción e Impacto por Tópico (Total Histórico Mundial)")
+        st.dataframe(df_topics_total, use_container_width=True, hide_index=True)
+        download_csv_button(df_topics_total, "Topicos_Totales")
         
     with tab_sum_3:
         st.subheader("Top 100 Revistas Líderes (Periodo 2021-2025)")

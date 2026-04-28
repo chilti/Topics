@@ -220,11 +220,25 @@ def get_summary_tables(df):
         'fwci': 'FWCI', 'pct_top_10': '% Top 10%', 'pct_top_1': '% Top 1%', 'percentile': 'Percentil'
     })
     
+    # 1b. Tabla por Países (Total Histórico - Agregado solo por País)
+    df_countries_total = aggregate_metrics(df_countries_raw, ['entity_name'])
+    df_countries_total = df_countries_total.rename(columns={
+        'entity_name': 'País', 'doc_count': 'Documentos', 
+        'fwci': 'FWCI', 'pct_top_10': '% Top 10%', 'pct_top_1': '% Top 1%', 'percentile': 'Percentil'
+    })
+    
     # 2. Tabla por Tópicos (Mundial - Agregada por Tópico y Año)
     df_topics_raw = df[df['entity_type'] == 'Mundo'].copy()
     df_topics = aggregate_metrics(df_topics_raw, ['year', 'topic'])
     df_topics = df_topics.rename(columns={
         'year': 'Año', 'topic': 'Tópico', 'doc_count': 'Documentos',
+        'fwci': 'FWCI', 'pct_top_10': '% Top 10%', 'pct_top_1': '% Top 1%', 'percentile': 'Percentil'
+    })
+
+    # 2b. Tabla por Tópicos (Total Histórico - Agregado solo por Tópico)
+    df_topics_total = aggregate_metrics(df_topics_raw, ['topic'])
+    df_topics_total = df_topics_total.rename(columns={
+        'topic': 'Tópico', 'doc_count': 'Documentos',
         'fwci': 'FWCI', 'pct_top_10': '% Top 10%', 'pct_top_1': '% Top 1%', 'percentile': 'Percentil'
     })
 
@@ -268,4 +282,4 @@ def get_summary_tables(df):
     df_2125 = df[df['year'] >= 2021].groupby(['entity_name', 'topic'])['doc_count'].sum().reset_index()
     df_ct_2125 = generate_pivot_optimized(df_2125, 'entity_name', topic_order, entity_order)
 
-    return df_countries, df_topics, None, df_ct_annual, df_ct_full, df_ct_2125
+    return df_countries, df_topics, df_countries_total, df_ct_annual, df_ct_full, df_ct_2125, df_topics_total
