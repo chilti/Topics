@@ -502,9 +502,8 @@ def render_collaboration_network(df_collab):
             size=[min(50, max(15, (v / max_deg) * 50)) for v in node_adjacencies],
             colorbar=dict(
                 thickness=15,
-                title='Interacciones',
-                xanchor='left',
-                titleside='right'
+                title=dict(text='Interacciones', side='right'),
+                xanchor='left'
             ),
             line=dict(width=1, color='#ffffff')
         ))
