@@ -30,7 +30,10 @@ def get_ch_client():
             port=CH_PORT,
             username=CH_USER,
             password=CH_PASSWORD,
-            database=CH_DATABASE
+            database=CH_DATABASE,
+            connect_timeout=30,
+            send_receive_timeout=300,
+            pool_maxsize=50
         )
     except Exception as e:
         st.error(f"Error conectando a ClickHouse: {e}")

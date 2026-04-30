@@ -23,7 +23,10 @@ def get_ch_client():
             password=CH_PASSWORD,
             database=CH_DATABASE,
             secure=is_secure,
-            verify=False
+            verify=False,
+            connect_timeout=30,
+            send_receive_timeout=300,
+            pool_maxsize=50
         )
     except Exception:
         if is_secure:
