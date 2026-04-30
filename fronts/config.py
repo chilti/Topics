@@ -9,7 +9,7 @@ from pathlib import Path
 K_BINS = 20           # Vigintiles: análisis histórico completo
 WINDOW_YEARS = 3      # Ventana deslizante para análisis reciente (2010+)
 WINDOW_STEP = 1       # Paso en años para la ventana deslizante
-RECENT_FROM = 2010    # Año de inicio para análisis con ventana deslizante
+RECENT_FROM = 2020    # Año de inicio para análisis con ventana deslizante (restringido para pruebas)
 
 # ---------------------------------------------------------------------------
 # 2. Detección Estructural (Leiden + Acoplamiento Bibliográfico)
@@ -24,7 +24,7 @@ OPEN_CORPUS = True         # True: incluye referencias externas al subcampo
 # 3. Detección Semántica (SPECTER2 → UMAP → HDBSCAN)
 # ---------------------------------------------------------------------------
 SPECTER_MODEL = "allenai/specter2_base"
-SPECTER_BATCH_SIZE = 256      # Óptimo para RTX 4090 (24GB VRAM)
+SPECTER_BATCH_SIZE = 32       # Reducido para convivir con LM Studio (RTX 4090)
 
 UMAP_N_COMPONENTS = 30        # 768d → 30d (no 5d como antes)
 UMAP_N_NEIGHBORS = 30         # Más vecinos para subcampos grandes
