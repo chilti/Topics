@@ -627,26 +627,30 @@ def _render_fronts_tab(subfield_name: str):
 
     opt_col1, opt_col2, opt_col3 = st.columns(3)
     with opt_col1:
+        if "fronts_mode" not in st.session_state: st.session_state.fronts_mode = "sliding"
         mode = st.selectbox(
             "Segmentación temporal",
             ["sliding", "vigintiles", "both"],
-            index=0,
+            key="fronts_mode",
             help="sliding = ventanas de 3 años (recomendado para análisis reciente)",
             disabled=is_running
         )
     with opt_col2:
+        if "fronts_workers" not in st.session_state: st.session_state.fronts_workers = 4
         workers = st.number_input(
             "Workers paralelos",
-            min_value=1, max_value=16, value=4,
+            min_value=1, max_value=16, 
+            key="fronts_workers",
             help="Un proceso por bin temporal. Recomendado: N_cores / 2.",
             disabled=is_running
         )
     with opt_col3:
+        if "fronts_force_from" not in st.session_state: st.session_state.fronts_force_from = "ninguno"
         force_from = st.selectbox(
             "Forzar recálculo desde",
             ["ninguno", "windows", "citations", "structural",
              "umap", "semantic", "topological", "ami", "tracking"],
-            index=0,
+            key="fronts_force_from",
             help="'ninguno' = usa cache existente para todo lo posible.",
             disabled=is_running
         )
@@ -654,9 +658,13 @@ def _render_fronts_tab(subfield_name: str):
     st.markdown("---")
     c1, c2 = st.columns(2)
     with c1:
+        # Persistencia del estado del checkbox
+        if "fronts_use_cpu" not in st.session_state:
+            st.session_state.fronts_use_cpu = False
+            
         use_cpu = st.checkbox(
             "Forzar uso de CPU", 
-            value=False, 
+            key="fronts_use_cpu",
             help="Ignora la GPU (útil si hay conflictos de memoria con LM Studio o drivers antiguos).",
             disabled=is_running
         )
