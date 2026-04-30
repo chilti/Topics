@@ -279,8 +279,14 @@ Ejemplos:
                         choices=['windows', 'citations', 'structural', 'umap',
                                  'semantic', 'topological', 'ami', 'tracking', 'labeling'],
                         help='Re-ejecutar desde este nivel (ignora cache desde aquí)')
+    parser.add_argument('--cpu', action='store_true', help='Forzar uso de CPU (ignorar GPU)')
 
     args = parser.parse_args()
+
+    if args.cpu:
+        import os
+        os.environ["CUDA_VISIBLE_DEVICES"] = ""
+        print("\n   ⚠️  Modo CPU forzado. Se ignorará la GPU.")
 
     try:
         if args.step == 'setup':

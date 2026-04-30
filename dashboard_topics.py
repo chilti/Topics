@@ -650,8 +650,16 @@ def _render_fronts_tab(subfield_name: str):
             help="'ninguno' = usa cache existente para todo lo posible.",
             disabled=is_running
         )
-
+    
     st.markdown("---")
+    c1, c2 = st.columns(2)
+    with c1:
+        use_cpu = st.checkbox(
+            "Forzar uso de CPU", 
+            value=False, 
+            help="Ignora la GPU (útil si hay conflictos de memoria con LM Studio o drivers antiguos).",
+            disabled=is_running
+        )
     btn_col, status_col = st.columns([1, 3])
 
     with btn_col:
@@ -682,13 +690,14 @@ def _render_fronts_tab(subfield_name: str):
 
     if launch_btn and not is_running:
         force_arg = [] if force_from == "ninguno" else ["--force-from", force_from]
+        cpu_arg = ["--cpu"] if use_cpu else []
         cmd = [
             sys.executable, "-m", "fronts.run_pipeline",
             "--step", "all",
             "--subfield", subfield_name,
             "--mode", mode,
             "--workers", str(int(workers)),
-        ] + force_arg
+        ] + force_arg + cpu_arg
 
         log_path.unlink(missing_ok=True)
         done_path.unlink(missing_ok=True)
