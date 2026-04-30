@@ -286,7 +286,7 @@ def compute_subfield_data_flat(subfield):
         inst_type_q = """
         SELECT year, country_code, inst_type, count() as count
         FROM (
-            SELECT publication_year as year, institution_types, 
+            SELECT publication_year as year, arrayDistinct(institution_types) as institution_types, 
                    arrayConcat([''], country_codes) as codes
             FROM sandbox
         )

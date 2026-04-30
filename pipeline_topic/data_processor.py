@@ -70,7 +70,8 @@ def get_type_distribution(df_types, entity_name):
         # Priorizar el registro consolidado ('' o NaN) para evitar doble conteo
         mundo_df = df[df['country_code'].isna() | (df['country_code'] == '')]
         if not mundo_df.empty:
-            return mundo_df
+            # Asegurar agregación final por si hay duplicados residuales
+            return mundo_df.groupby(['year', 'doc_type'])['count'].sum().reset_index()
         return df.groupby(['year', 'doc_type'])['count'].sum().reset_index()
     
     if entity_name == 'México':
@@ -106,7 +107,8 @@ def get_inst_type_distribution(df_types, entity_name):
         # Priorizar el registro consolidado ('' o NaN) para evitar doble conteo
         mundo_df = df[df['country_code'].isna() | (df['country_code'] == '')]
         if not mundo_df.empty:
-            return mundo_df
+            # Asegurar agregación final por si hay duplicados residuales
+            return mundo_df.groupby(['year', 'inst_type'])['count'].sum().reset_index()
         return df.groupby(['year', 'inst_type'])['count'].sum().reset_index()
     
     if entity_name == 'México':
