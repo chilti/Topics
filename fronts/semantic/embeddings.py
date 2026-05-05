@@ -8,10 +8,16 @@ def generate_specter_embeddings(texts, model_name='allenai/specter2_base', batch
     Genera embeddings SPECTER2 para una lista de textos.
     Utiliza GPU si está disponible.
     """
+    from sentence_transformers import models
     device = "cuda" if torch.cuda.is_available() else "cpu"
     print(f"   [Embeddings] Usando dispositivo: {device}")
     
-    model = SentenceTransformer(model_name, device=device)
+    # Cargamos el modelo base y el pooling de forma explícita para evitar el warning
+    # "No sentence-transformers model found... Creating a new one with mean pooling"
+    word_embedding_model = models.Transformer(model_name)
+    pooling_model = models.Pooling(word_embedding_model.get_word_embedding_dimension(), pooling_mode='mean')
+    
+    model = SentenceTransformer(modules=[word_embedding_model, pooling_model], device=device)
     
     # En SPECTER2 base, el modelo ya maneja el formato si le pasamos los strings
     # Pero para mejores resultados, el paper sugiere: "Title: [T] [SEP] Abstract: [A]"

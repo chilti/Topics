@@ -196,14 +196,14 @@ def insert_embeddings(
         batch_years = publication_years[start:start + batch_size]
 
         rows = [
-            {
-                'id': bid,
-                'subfield_name': subfield_name,
-                'publication_year': yr,
-                model_col: emb.tolist(),
-                audit_col: now_str,
-                'updated_at': now_str,
-            }
+            (
+                bid,
+                subfield_name,
+                yr,
+                emb.tolist(),
+                now_str,
+                now_str
+            )
             for bid, yr, emb in zip(batch_ids, batch_years, batch_emb)
         ]
         client.insert('embeddings_cache', rows,

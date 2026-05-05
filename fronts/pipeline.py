@@ -142,10 +142,10 @@ def run_fronts_analysis(
     df_windows = None if _should_force(force_from, 'windows') else _load_parquet(windows_path)
 
     if df_windows is None:
-        log(f"\n📅 Nivel 1a: Calculando bins temporales para '{subfield_name}'...")
+        log(f"\n[BINS] Nivel 1a: Calculando bins temporales para '{subfield_name}'...")
         years = get_years_for_subfield(subfield_name)
         if not years:
-            log("❌ No hay datos para este subcampo.")
+            log("[!] No hay datos para este subcampo.")
             return pd.DataFrame()
 
         bins_vigintiles = compute_temporal_bins(years, k=K_BINS) if mode in ('vigintiles', 'both') else []
@@ -173,7 +173,7 @@ def run_fronts_analysis(
 
     if n_workers > 1:
         # ── Modo paralelo ────────────────────────────────────────────────────
-        log(f"\n⚙️  Modo paralelo: {n_workers} workers.")
+        log(f"\n[PARALLEL] Modo paralelo: {n_workers} workers.")
 
         # Fase 1: pre-embeber todos los papers (GPU secuencial)
         if prefetch:
@@ -199,7 +199,7 @@ def run_fronts_analysis(
 
         final_path = sub_dir / "fronts_result.parquet"
         _save_parquet(df_all, final_path)
-        log(f"\n✅ Pipeline paralelo completo: {len(df_all):,} papers. → {final_path}")
+        log(f"\n[OK] Pipeline paralelo completo: {len(df_all):,} papers. → {final_path}")
         return df_all
 
     # ── Modo secuencial (n_workers == 1) ─────────────────────────────────────

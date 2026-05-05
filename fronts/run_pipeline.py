@@ -39,9 +39,9 @@ sys.path.insert(0, str(_ROOT))
 # ---------------------------------------------------------------------------
 
 def step_setup(args):
-    print("\n" + "─" * 55)
+    print("\n" + "-",StartLine:1,TargetContent:" * 55)
     print("  PASO 1: Crear tabla embeddings_cache en ClickHouse")
-    print("─" * 55)
+    print("-",StartLine:1,TargetContent:" * 55)
 
     from fronts.embeddings.cache_manager import ensure_table_exists
     ensure_table_exists()
@@ -53,11 +53,11 @@ def step_setup(args):
 # ---------------------------------------------------------------------------
 
 def step_embed(args):
-    print("\n" + "─" * 55)
+    print("\n" + "-",StartLine:1,TargetContent:" * 55)
     print(f"  PASO 2: Generar embeddings SPECTER2")
     print(f"  Subcampo : {args.subfield}")
     print(f"  Modo     : {args.mode}")
-    print("─" * 55)
+    print("-",StartLine:1,TargetContent:" * 55)
 
     import torch
     device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -97,7 +97,7 @@ def step_embed(args):
     print("\n   Consultando distribución de años...")
     years = get_years_for_subfield(args.subfield)
     if not years:
-        print(f"   ❌ No hay datos para '{args.subfield}'")
+        print(f"   [!] No hay datos para '{args.subfield}'")
         return
 
     year_min, year_max = min(years), max(years)
@@ -125,7 +125,7 @@ def step_embed(args):
     missing = get_missing_ids(args.subfield, global_y_start, global_y_end, 'embedding_specter2')
 
     if not missing:
-        print("   ✅ Todos los papers ya tienen embeddings en cache. Nada que hacer.")
+        print("   [OK] Todos los papers ya tienen embeddings en cache. Nada que hacer.")
         step_status(args)
         return
 
@@ -141,7 +141,7 @@ def step_embed(args):
     print(f"   Papers descargados: {len(df_new):,}")
 
     if df_new.empty:
-        print("   ❌ Sin metadata para los papers. Revisar ClickHouse.")
+        print("   [!] Sin metadata para los papers. Revisar ClickHouse.")
         return
 
     # Generar embeddings
@@ -173,13 +173,13 @@ def step_embed(args):
 # ---------------------------------------------------------------------------
 
 def step_run(args):
-    print("\n" + "─" * 55)
+    print("\n" + "-",StartLine:1,TargetContent:" * 55)
     print(f"  PASO 3: Pipeline de clustering")
     print(f"  Subcampo  : {args.subfield}")
     print(f"  Modo      : {args.mode}")
     print(f"  Workers   : {args.workers}")
     print(f"  Force-from: {args.force_from or 'ninguno (usar cache)'}")
-    print("─" * 55)
+    print("-",StartLine:1,TargetContent:" * 55)
 
     from fronts.pipeline import run_fronts_analysis
 
@@ -212,10 +212,10 @@ def step_run(args):
 # ---------------------------------------------------------------------------
 
 def step_status(args):
-    print("\n" + "─" * 55)
+    print("\n" + "-",StartLine:1,TargetContent:" * 55)
     print(f"  STATUS: Cobertura de embeddings")
     print(f"  Subcampo: {args.subfield}")
-    print("─" * 55)
+    print("-",StartLine:1,TargetContent:" * 55)
 
     from fronts.embeddings.cache_manager import get_coverage_report
     df = get_coverage_report(args.subfield)
@@ -313,7 +313,7 @@ Ejemplos:
             print("  3. La IP o puerto en el archivo .env son incorrectos o inaccesibles.")
             print(f"\nDetalle técnico:\n{err_str}")
         else:
-            print("\n❌ ERROR INESPERADO EN EL PIPELINE:")
+            print("\n[!] ERROR INESPERADO EN EL PIPELINE:")
             traceback.print_exc()
         sys.exit(1)
 

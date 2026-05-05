@@ -11,9 +11,9 @@
 
 El sistema detectará frentes de investigación mediante tres enfoques que permiten detectar tanto áreas consolidadas como "silos" de conocimiento emergente:
 
-1.  **Estructural (Red de Citas):** Acoplamiento bibliográfico ($C_{BC}$, corpus abierto) + Leiden por bin temporal, umbral de Salton ≥ 0.1.
-2.  **Semántico (Contenido):** SPECTER2 → UMAP(768→30d, coseno) → HDBSCAN(coseno). Embeddings cacheados en ClickHouse.
-3.  **Topológico (Ecosistema):** FastRP sobre grafo heterogéneo (citas + autores + instituciones + revista) vía **igraph** (primario) o **cuGraph** (GPU). Una instancia por ventana temporal, sin bloqueo de Neo4j GDS.
+1.  **Estructural (Red de Citas):** Acoplamiento bibliográfico ($C_{BC}$, corpus abierto) + Leiden por bin temporal, umbral de Salton ≥ 0.1. [OPERACIONAL]
+2.  **Semántico (Contenido):** SPECTER2 → UMAP(768→30d, coseno) → HDBSCAN(coseno). Embeddings cacheados en ClickHouse. [OPERACIONAL - CUDA OK]
+3.  **Topológico (Ecosistema):** FastRP sobre grafo heterogéneo (citas + autores + instituciones + revista) vía **igraph** (primario) o **cuGraph** (GPU). [OPERACIONAL - igraph]
 
 ---
 
@@ -108,8 +108,9 @@ Normaliza la Ley de Price ($N(t) = N_0 e^{rt}$) mediante dos estrategias complem
   ```
 
 ### Módulo 3: `semantic/`
-- **SPECTER2:** `allenai/specter2_base`. Input: `Title: [t] [SEP] Abstract: [a]`.
-- **Batching:** `batch_size=256` (para RTX 4090, maximiza VRAM de 24GB).
+- **SPECTER2:** `allenai/specter2_base`. [ACTUALIZACIÓN]: Cargado mediante `SentenceTransformer` con módulos explícitos (`Transformer` + `Pooling`) para evitar el warning de fallback y asegurar consistencia en el mean pooling.
+- **Hardware:** Verificado soporte **CUDA** (RTX 4090). Inferencia ~10x más rápida que CPU.
+- **Batching:** `batch_size=32` (ajustado para convivir con LM Studio en la misma VRAM).
 - **Cache de embeddings:** Guardar `(id, embedding[768])` en Parquet por paper ID. Solo se embeben papers nuevos por ventana (~150K/año), evitando re-embeber el corpus completo en cada ventana. 6M embeddings float32 ≈ 18GB en disco.
 - **Reducción dimensional:** UMAP directamente de 768d → 30d con `metric='cosine'` y `n_neighbors=30`. La proyección no lineal de UMAP es superior a PCA para embeddings de transformers.
 - **HDBSCAN:** `cluster_selection_method='eom'`, `metric='cosine'`. La métrica coseno mantiene discriminabilidad en 30 dimensiones (McInnes & Healy, 2018).
@@ -235,16 +236,16 @@ FROM works_flat WHERE id IN ({ids_cluster})
 
 ## 8. Plan de Fases y Prioridades
 
-| Fase | Contenido | Prioridad |
-|------|-----------|----------|
-| **1** | `embeddings_cache` DDL + `cache_manager.py` | 🔴 ALTA |
-| **2** | Bins temporales (vigintiles + ventanas 3 años) | 🔴 ALTA |
-| **3** | Leiden por bin (corpus abierto, Salton ≥ 0.1) | 🔴 ALTA |
-| **4** | SPECTER2 → UMAP(30d) → HDBSCAN(coseno) | 🔴 ALTA |
-| **5** | FastRP heterogéneo vía igraph/cuGraph | 🔴 ALTA |
-| **6** | Tracking Jaccard + AMI + matriz contingencia | 🟡 MEDIA |
-| **7** | Etiquetado LLM Local y Visualizaciones Triples | 🟡 MEDIA |
-| **8** | Integración Final Dashboard | 🔴 ALTA |
+| Fase | Contenido | Estado | Prioridad |
+|------|-----------|--------|-----------|
+| **1** | `embeddings_cache` DDL + `cache_manager.py` | ✅ Hecho | 🔴 ALTA |
+| **2** | Bins temporales (vigintiles + ventanas 3 años) | ✅ Hecho | 🔴 ALTA |
+| **3** | Leiden por bin (corpus abierto, Salton ≥ 0.1) | ✅ Hecho | 🔴 ALTA |
+| **4** | SPECTER2 (CUDA OK) → UMAP(30d) → HDBSCAN | ✅ Hecho | 🔴 ALTA |
+| **5** | FastRP heterogéneo vía igraph | ✅ Hecho | 🔴 ALTA |
+| **6** | Tracking Jaccard + AMI + matriz contingencia | ✅ Hecho | 🟡 MEDIA |
+| **7** | Etiquetado LLM Local (TF-IDF + LM Studio) | 🚧 Pendiente | 🟡 MEDIA |
+| **8** | Integración Final Dashboard | 🚧 Pendiente | 🔴 ALTA |
 
 ---
 
