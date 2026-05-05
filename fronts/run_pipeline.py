@@ -38,10 +38,9 @@ sys.path.insert(0, str(_ROOT))
 # Paso 1: Setup — crear tabla embeddings_cache
 # ---------------------------------------------------------------------------
 
-def step_setup(args):
-    print("\n" + "-",StartLine:1,TargetContent:" * 55)
+    print("\n" + "=" * 55)
     print("  PASO 1: Crear tabla embeddings_cache en ClickHouse")
-    print("-",StartLine:1,TargetContent:" * 55)
+    print("=" * 55)
 
     from fronts.embeddings.cache_manager import ensure_table_exists
     ensure_table_exists()
@@ -53,11 +52,11 @@ def step_setup(args):
 # ---------------------------------------------------------------------------
 
 def step_embed(args):
-    print("\n" + "-",StartLine:1,TargetContent:" * 55)
+    print("\n" + "=" * 55)
     print(f"  PASO 2: Generar embeddings SPECTER2")
     print(f"  Subcampo : {args.subfield}")
     print(f"  Modo     : {args.mode}")
-    print("-",StartLine:1,TargetContent:" * 55)
+    print("=" * 55)
 
     import torch
     device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -173,13 +172,13 @@ def step_embed(args):
 # ---------------------------------------------------------------------------
 
 def step_run(args):
-    print("\n" + "-",StartLine:1,TargetContent:" * 55)
+    print("\n" + "=" * 55)
     print(f"  PASO 3: Pipeline de clustering")
     print(f"  Subcampo  : {args.subfield}")
     print(f"  Modo      : {args.mode}")
     print(f"  Workers   : {args.workers}")
     print(f"  Force-from: {args.force_from or 'ninguno (usar cache)'}")
-    print("-",StartLine:1,TargetContent:" * 55)
+    print("=" * 55)
 
     from fronts.pipeline import run_fronts_analysis
 
@@ -212,10 +211,10 @@ def step_run(args):
 # ---------------------------------------------------------------------------
 
 def step_status(args):
-    print("\n" + "-",StartLine:1,TargetContent:" * 55)
+    print("\n" + "=" * 55)
     print(f"  STATUS: Cobertura de embeddings")
     print(f"  Subcampo: {args.subfield}")
-    print("-",StartLine:1,TargetContent:" * 55)
+    print("=" * 55)
 
     from fronts.embeddings.cache_manager import get_coverage_report
     df = get_coverage_report(args.subfield)

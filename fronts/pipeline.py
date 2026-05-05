@@ -163,12 +163,12 @@ def run_fronts_analysis(
 
         df_windows = pd.DataFrame(all_bins)
         _save_parquet(df_windows, windows_path)
-        log(f"   ✅ {len(df_windows)} bins ({len(bins_vigintiles)} vigintiles + {len(bins_sliding)} sliding)")
+        log(f"   [OK] {len(df_windows)} bins ({len(bins_vigintiles)} vigintiles + {len(bins_sliding)} sliding)")
     else:
-        log(f"📦 Bins desde cache: {len(df_windows)} ventanas.")
+        log(f"   [OK] Bins desde cache: {len(df_windows)} ventanas.")
 
     # =========================================================================
-    # NIVEL 2: Procesamiento por bin — paralelo o secuencial
+    # NIVEL 2: Procesamiento por bin - paralelo o secuencial
     # =========================================================================
 
     if n_workers > 1:
@@ -192,7 +192,7 @@ def run_fronts_analysis(
         if not df_all.empty and 'cluster_leiden' in df_all.columns:
             tracking_path = sub_dir / "transitions.parquet"
             if _should_force(force_from, 'tracking') or not tracking_path.exists():
-                log("\n📊 Jaccard tracking longitudinal...")
+                log("\n[LOG] Jaccard tracking longitudinal...")
                 from fronts.longitudinal.cluster_tracker import track_clusters
                 df_tracking = track_clusters(df_all, 'cluster_leiden', 'bin_id')
                 _save_parquet(df_tracking, tracking_path)
@@ -203,14 +203,14 @@ def run_fronts_analysis(
         return df_all
 
     # ── Modo secuencial (n_workers == 1) ─────────────────────────────────────
-    log(f"\n⚙️  Modo secuencial (n_workers=1).")
+    log(f"\n[SEQUENTIAL] Modo secuencial (n_workers=1).")
     all_results = []
 
     for _, win in df_windows.iterrows():
         bin_id = int(win['bin_id'])
         y_start, y_end = int(win['y_start']), int(win['y_end'])
         win_dir = get_window_cache_dir(sub_clean, bin_id)
-        log(f"\n── Bin {bin_id:03d} [{y_start}-{y_end}] ({win['mode']}) ──")
+        log(f"\n-- Bin {bin_id:03d} [{y_start}-{y_end}] ({win['mode']}) --")
 
         # ── Nivel 1b: Pares de citas ─────────────────────────────────────────
         cit_path = win_dir / "citations.parquet"
@@ -219,9 +219,9 @@ def run_fronts_analysis(
             log("   Extrayendo pares de citas de ClickHouse...")
             df_cit = get_citation_pairs(subfield_name, y_start, y_end)
             _save_parquet(df_cit, cit_path)
-            log(f"   ✅ {len(df_cit):,} pares de citas.")
+            log(f"   [OK] {len(df_cit):,} pares de citas.")
         else:
-            log(f"   📦 Citas desde cache: {len(df_cit):,} pares.")
+            log(f"   [OK] Citas desde cache: {len(df_cit):,} pares.")
 
         # ── Nivel 2a: Metadata del bin para embeddings/topológico ─────────────
         meta_path = win_dir / "metadata.parquet"
@@ -237,11 +237,11 @@ def run_fronts_analysis(
 
         n_papers = len(df_meta)
 
-        # ── Nivel 2b: Leiden (Estructural) ────────────────────────────────────
+        # [STRUCTURAL] Nivel 2b: Leiden (Estructural)
         leiden_path = win_dir / "structural" / "leiden.parquet"
         df_leiden = None if _should_force(force_from, 'structural') else _load_parquet(leiden_path)
         if df_leiden is None:
-            log("   🔗 Construyendo matriz de acoplamiento...")
+            log("   [STRUCT] Construyendo matriz de acoplamiento...")
             # Añadir referenced_works a metadata para build_citation_matrix
             if 'referenced_works' in df_meta.columns:
                 C_BC, work_to_idx = build_citation_matrix(df_meta, open_corpus=OPEN_CORPUS)
