@@ -186,7 +186,7 @@ def insert_embeddings(
     from datetime import datetime
     client = get_ch_client()
     audit_col = model_col.replace("embedding_", "") + "_at"
-    now_str = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
+    now = datetime.utcnow()
 
     n = len(ids)
     inserted = 0
@@ -201,8 +201,8 @@ def insert_embeddings(
                 subfield_name,
                 yr,
                 emb.tolist(),
-                now_str,
-                now_str
+                now,
+                now
             )
             for bid, yr, emb in zip(batch_ids, batch_years, batch_emb)
         ]
