@@ -38,6 +38,7 @@ sys.path.insert(0, str(_ROOT))
 # Paso 1: Setup — crear tabla embeddings_cache
 # ---------------------------------------------------------------------------
 
+def step_setup(args):
     print("\n" + "=" * 55)
     print("  PASO 1: Crear tabla embeddings_cache en ClickHouse")
     print("=" * 55)
