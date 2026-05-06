@@ -413,16 +413,94 @@ def run_fronts_analysis(
     tracking_path = sub_dir / "transitions.parquet"
     df_tracking = None if _should_force(force_from, 'tracking') else _load_parquet(tracking_path)
     if df_tracking is None and 'cluster_leiden' in df_all.columns:
-        log("\n📊 Nivel 3b: Jaccard tracking longitudinal...")
+        log("\n[LOG] Nivel 3b: Jaccard tracking longitudinal...")
+        from fronts.longitudinal.cluster_tracker import track_clusters
         df_tracking = track_clusters(df_all, 'cluster_leiden', 'bin_id')
         _save_parquet(df_tracking, tracking_path)
-        log(f"   ✅ {len(df_tracking):,} transiciones entre bins.")
+        log(f"   [OK] {len(df_tracking):,} transiciones entre bins.")
+
+    # =========================================================================
+    # NIVEL 4: Etiquetado LLM (Fase 7)
+    # =========================================================================
+    labeling_path = sub_dir / "cluster_labels.parquet"
+    df_labels = None if _should_force(force_from, 'labeling') else _load_parquet(labeling_path)
+    if df_labels is None:
+        log("\n[LABELING] Nivel 4: Etiquetado de clusters con LLM...")
+        df_labels = run_labeling_step(df_all, subfield_name, verbose=verbose)
+        _save_parquet(df_labels, labeling_path)
+        log(f"   [OK] {len(df_labels)} clusters etiquetados.")
 
     # Guardar resultado final
     final_path = sub_dir / "fronts_result.parquet"
     _save_parquet(df_all, final_path)
-    log(f"\n✅ Pipeline completo. {len(df_all):,} papers procesados. Guardado en {final_path}")
+    log(f"\n[OK] Pipeline completo. {len(df_all):,} papers procesados. Guardado en {final_path}")
     return df_all
+
+
+def run_labeling_step(df_all: pd.DataFrame, subfield_name: str, verbose: bool = True) -> pd.DataFrame:
+    """
+    Asigna nombres a los clústeres más importantes usando TF-IDF y LLM.
+    Se enfoca en cluster_leiden por ser el método estructural base.
+    """
+    from fronts.labeling.tfidf_extractor import extract_cluster_keywords
+    from fronts.labeling.llm_namer import generate_cluster_name
+    from fronts.clickhouse_queries import get_bin_metadata
+    
+    log = print if verbose else lambda *a, **k: None
+    
+    # 1. Identificar clústeres únicos (excluyendo ruido -1)
+    if 'cluster_leiden' not in df_all.columns:
+        return pd.DataFrame()
+        
+    cluster_counts = df_all[df_all['cluster_leiden'] != -1].groupby(['bin_id', 'cluster_leiden']).size().reset_index(name='count')
+    # Filtrar clústeres muy pequeños (ej. < 5 papers) para no gastar tokens
+    cluster_counts = cluster_counts[cluster_counts['count'] >= 5]
+    
+    label_records = []
+    
+    # Agrupar por bin para minimizar llamadas a ClickHouse
+    for bin_id, group in cluster_counts.groupby('bin_id'):
+        log(f"   Etiquetando {len(group)} clústeres en bin {bin_id}...")
+        
+        # Obtener metadata de todos los papers del bin
+        sub_clean = subfield_name.strip().lower().replace(' ', '_')
+        win_dir = get_window_cache_dir(sub_clean, bin_id)
+        meta_path = win_dir / "metadata.parquet"
+        
+        if meta_path.exists():
+            df_meta = pd.read_parquet(meta_path)
+        else:
+            # Fallback a ClickHouse
+            y_start = int(df_all[df_all['bin_id'] == bin_id]['y_start'].iloc[0])
+            y_end = int(df_all[df_all['bin_id'] == bin_id]['y_end'].iloc[0])
+            df_meta = get_bin_metadata(subfield_name, y_start, y_end)
+
+        for _, row in group.iterrows():
+            cid = int(row['cluster_leiden'])
+            # IDs de los papers en este cluster
+            cluster_ids = df_all[(df_all['bin_id'] == bin_id) & (df_all['cluster_leiden'] == cid)]['id'].tolist()
+            df_cluster_meta = df_meta[df_meta['id'].isin(cluster_ids)]
+            
+            if df_cluster_meta.empty:
+                continue
+                
+            # A. Extraer palabras clave con TF-IDF
+            keywords = extract_cluster_keywords(df_cluster_meta, top_n=8)
+            
+            # B. Tomar algunos títulos representativos
+            sample_titles = df_cluster_meta['title'].dropna().head(5).tolist()
+            
+            # C. Pedir nombre al LLM
+            cluster_name = generate_cluster_name(keywords, sample_titles)
+            
+            label_records.append({
+                'bin_id': bin_id,
+                'cluster_id': cid,
+                'label': cluster_name,
+                'keywords': ", ".join(keywords)
+            })
+            
+    return pd.DataFrame(label_records)
 
 
 def get_consistency_metrics(df: pd.DataFrame) -> dict:
