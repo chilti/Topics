@@ -138,8 +138,7 @@ def _bin_worker(kwargs: dict) -> dict:
         else:
             df_l = pd.DataFrame({'id': df_meta['id'].tolist(),
                                   'cluster_leiden': [-1] * len(df_meta)})
-        df_l.to_parquet(leiden_path, index=False)
-        leiden_path.parent.mkdir(parents=True, exist_ok=True)
+        _save(df_l, leiden_path)
         return df_l
 
     # ── Función: FastRP (topological) ────────────────────────────────────────
@@ -158,8 +157,7 @@ def _bin_worker(kwargs: dict) -> dict:
         top_labels, _ = run_hdbscan(vecs, HDBSCAN_MIN_CLUSTER_SIZE, HDBSCAN_MIN_SAMPLES, HDBSCAN_METRIC)
         g_ids = df_meta['id'].tolist()[:vecs.shape[0]]
         df_t = pd.DataFrame({'id': g_ids, 'cluster_topological': top_labels})
-        hdb_top_path.parent.mkdir(parents=True, exist_ok=True)
-        df_t.to_parquet(hdb_top_path, index=False)
+        _save(df_t, hdb_top_path)
         return df_t
 
     # ── Función: UMAP + HDBSCAN (semantic) ───────────────────────────────────
@@ -202,8 +200,7 @@ def _bin_worker(kwargs: dict) -> dict:
         sem_labels, _ = run_hdbscan(projections, HDBSCAN_MIN_CLUSTER_SIZE,
                                     HDBSCAN_MIN_SAMPLES, HDBSCAN_METRIC)
         df_s = pd.DataFrame({'id': paper_ids, 'cluster_semantic': sem_labels})
-        hdb_sem_path.parent.mkdir(parents=True, exist_ok=True)
-        df_s.to_parquet(hdb_sem_path, index=False)
+        _save(df_s, hdb_sem_path)
         return df_s
 
     # ── Ejecutar structural + topológico en paralelo (mismo proceso) ──────────
@@ -253,8 +250,8 @@ def _bin_worker(kwargs: dict) -> dict:
             df_result = df_result.merge(df_cl[['id', col]], on='id', how='left')
 
     result_path = win_dir / "result.parquet"
-    df_result.to_parquet(result_path, index=False)
-    print(f"{prefix} DONE — {len(df_result):,} papers.")
+    _save(df_result, result_path)
+    print(f"{prefix} DONE - {len(df_result):,} papers.")
     return {'bin_id': bin_id, 'result_path': str(result_path)}
 
 
