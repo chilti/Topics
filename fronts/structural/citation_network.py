@@ -69,29 +69,42 @@ def build_citation_matrix(df: pd.DataFrame, open_corpus: bool = True):
     return C_BC, work_to_idx
 
 
-def normalize_salton(C) -> np.ndarray:
+def normalize_salton(C) -> csr_matrix:
     """
     Aplica normalización coseno de Salton: S_ik = C_ik / sqrt(k_i * k_k).
     Neutraliza el sesgo por tamaño de bibliografía.
-
-    Returns: matriz densa S (valores en [0, 1]).
+    Mantiene el formato sparse para evitar ArrayMemoryError.
     """
-    C_dense = C.toarray().astype(np.float64)
-    k = np.sqrt(np.diag(C_dense))
-    k_inv = np.where(k > 0, 1.0 / k, 0.0)
-    S = C_dense * k_inv[:, np.newaxis] * k_inv[np.newaxis, :]
+    from scipy.sparse import diags
+    
+    # k_i es la diagonal de C (número de referencias del paper i en este bin)
+    k = np.sqrt(C.diagonal())
+    
+    # 1 / sqrt(k_i)
+    with np.errstate(divide='ignore', invalid='ignore'):
+        k_inv = np.where(k > 0, 1.0 / k, 0.0)
+    
+    # Matriz diagonal D con 1/sqrt(k_i)
+    D = diags(k_inv)
+    
+    # S = D @ C @ D  (normalización coseno)
+    S = D @ C @ D
+    return S.tocsr()
+
+
+def apply_salton_threshold(S: csr_matrix, threshold: float = 0.1) -> csr_matrix:
+    """
+    Filtra aristas débiles en formato sparse.
+    threshold=0.1 es el estándar (Waltman, 2016).
+    """
+    # Eliminar autovínculos (diagonal)
+    S.setdiag(0)
+    S.eliminate_zeros()
+    
+    # Filtrar por umbral (operación in-place eficiente en sparse)
+    S.data[S.data < threshold] = 0
+    S.eliminate_zeros()
+    
+    n_edges = S.nnz // 2
+    print(f"   Aristas tras umbral Salton >= {threshold}: {n_edges:,}")
     return S
-
-
-def apply_salton_threshold(S: np.ndarray, threshold: float = 0.1) -> np.ndarray:
-    """
-    Filtra aristas débiles aplicando umbral sobre el coseno de Salton.
-    threshold=0.1 es el estándar de facto (Waltman, 2016) — scale-free.
-
-    Returns: S con valores < threshold puestos a 0.
-    """
-    S_filtered = np.where(S >= threshold, S, 0.0)
-    np.fill_diagonal(S_filtered, 0.0)
-    n_edges = np.count_nonzero(S_filtered) // 2
-    print(f"   Aristas tras umbral Salton ≥ {threshold}: {n_edges:,}")
-    return S_filtered

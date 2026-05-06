@@ -116,6 +116,19 @@ def _bin_worker(kwargs: dict) -> dict:
         print(f"{prefix} Sin datos, saltando.")
         return {'bin_id': bin_id, 'result_path': None}
 
+    # SEGURIDAD: Si hay muy pocos papers, saltar clustering avanzado para evitar errores (UMAP/HDBSCAN/Leiden)
+    MIN_PAPERS = 50
+    if len(df_meta) < MIN_PAPERS:
+        print(f"{prefix} Muy pocos papers ({len(df_meta)}), usando asignación trivial.")
+        df_res = df_meta[['id', 'publication_year']].copy()
+        df_res['bin_id'], df_res['y_start'], df_res['y_end'] = bin_id, y_start, y_end
+        df_res['cluster_leiden'] = 0
+        df_res['cluster_semantic'] = 0
+        df_res['cluster_topological'] = 0
+        result_path = win_dir / "result.parquet"
+        _save(df_res, result_path)
+        return {'bin_id': bin_id, 'result_path': str(result_path)}
+
     # ── Función: Leiden (structural) ─────────────────────────────────────────
     def compute_leiden():
         leiden_path = win_dir / "structural" / "leiden.parquet"
