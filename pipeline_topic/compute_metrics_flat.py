@@ -22,11 +22,12 @@ CH_PASSWORD = os.environ.get('CH_PASSWORD', '')
 CH_DATABASE = os.environ.get('CH_DATABASE', 'rag')
 
 # --- CLICKHOUSE CLIENT SETUP ---
-def get_ch_client():
+def get_ch_client(silent=False, timeout=None):
     import clickhouse_connect
     import uuid
     is_secure = (CH_PORT == 8124)
     session_id = f"topics_flat_{uuid.uuid4().hex}"
+    conn_timeout = timeout if timeout is not None else 30
     
     try:
         return clickhouse_connect.get_client(
@@ -38,41 +39,154 @@ def get_ch_client():
             secure=is_secure,
             verify=False,
             session_id=session_id,
-            connect_timeout=30,
-            send_receive_timeout=300,
-            pool_maxsize=50
+            connect_timeout=conn_timeout,
+            send_receive_timeout=300
         )
     except Exception as e:
         if is_secure:
             try:
                 return clickhouse_connect.get_client(
                     host=CH_HOST, port=CH_PORT, username=CH_USER, password=CH_PASSWORD,
-                    database=CH_DATABASE, secure=False, verify=False, session_id=session_id
+                    database=CH_DATABASE, secure=False, verify=False, session_id=session_id,
+                    connect_timeout=conn_timeout
                 )
             except Exception:
-                st.error(f"Error conectando a ClickHouse (incluso sin SSL): {e}")
+                if not silent:
+                    st.error(f"Error conectando a ClickHouse (incluso sin SSL): {e}")
         else:
-            st.error(f"Error conectando a ClickHouse: {e}")
+            if not silent:
+                st.error(f"Error conectando a ClickHouse: {e}")
+        return None
+
+def _generate_hierarchy_fallback_from_cache():
+    """Escanea cache_temas para encontrar archivos parquet precalculados y reconstruir una jerarquía básica."""
+    try:
+        if not CACHE_TEMAS_DIR.exists():
+            return None
+        
+        files = list(CACHE_TEMAS_DIR.glob("*.parquet"))
+        subfields = set()
+        for f in files:
+            name = f.stem
+            # Filtrar archivos auxiliares
+            if any(suffix in name for suffix in ['_collab', '_inst', '_types', '_journals', '_inst_types', '_flat']):
+                continue
+            # Reconstruir el nombre legible
+            parts = name.split('_')
+            readable_parts = []
+            for p in parts:
+                if p in ['and', 'or', 'of', 'for', 'to', 'in', 'on', 'with', 'by', 'at']:
+                    readable_parts.append(p)
+                else:
+                    readable_parts.append(p.capitalize())
+            sub_name = " ".join(readable_parts)
+            # Casos específicos conocidos
+            if name == 'pulmonary_and_respiratory_medicine':
+                sub_name = 'Pulmonary and Respiratory Medicine'
+            elif name == 'library_and_information_sciences':
+                sub_name = 'Library and Information Sciences'
+            
+            subfields.add(sub_name)
+            
+        if not subfields:
+            return None
+            
+        # Intentar mapear subcampos conocidos a sus campos y dominios reales
+        known_mapping = {
+            'Pulmonary and Respiratory Medicine': ('Health Sciences', 'Medicine'),
+            'Anatomy': ('Health Sciences', 'Medicine'),
+            'Library and Information Sciences': ('Social Sciences', 'Social Sciences (all)')
+        }
+        
+        rows = []
+        for sub in subfields:
+            if sub in known_mapping:
+                dom, fld = known_mapping[sub]
+            else:
+                dom, fld = 'Cached Data (Offline)', 'Local Cache'
+            rows.append({'domain': dom, 'field': fld, 'subfield': sub})
+            
+        return pd.DataFrame(rows)
+    except Exception:
         return None
 
 # --- JERARQUÍA ---
 @st.cache_data
 def get_hierarchy():
-    """Obtiene la jerarquía Domain > Field > Subfield de works_flat."""
-    try:
-        client = get_ch_client()
-        query = """
-        SELECT DISTINCT 
-            domain_name AS domain, 
-            field_name AS field, 
-            subfield_name AS subfield 
-        FROM works_flat 
-        ORDER BY domain, field, subfield
-        """
-        return client.query_df(query)
-    except Exception as e:
-        st.error(f"Error cargando jerarquía: {e}")
-        return pd.DataFrame()
+    """Obtiene la jerarquía Domain > Field > Subfield de works_flat, usando caché local o ClickHouse."""
+    hierarchy_path = DATA_DIR / 'cache' / 'topic_hierarchy_flat.parquet'
+    
+    # 1. Intentar cargar desde el archivo específico de jerarquía flat
+    if hierarchy_path.exists():
+        try:
+            return pd.read_parquet(hierarchy_path)
+        except Exception:
+            pass
+            
+    # 2. Intentar cargar de topic_hierarchy.parquet
+    alt_hierarchy_path = DATA_DIR / 'cache' / 'topic_hierarchy.parquet'
+    if alt_hierarchy_path.exists():
+        try:
+            return pd.read_parquet(alt_hierarchy_path)
+        except Exception:
+            pass
+    
+    # 3. Intentar extraer de sunburst_metrics_latam (si existe)
+    sunburst_path = DATA_DIR / 'cache' / 'sunburst_metrics_latam.parquet'
+    df_hier = None
+    
+    if sunburst_path.exists():
+        try:
+            df_hier = pd.read_parquet(sunburst_path)
+            df_hier = df_hier[df_hier['level'].isin(['domain', 'field', 'subfield'])]
+            df_hier = df_hier[['domain', 'field', 'subfield']].drop_duplicates()
+            df_hier = df_hier.replace('ALL', np.nan)
+        except Exception:
+            pass
+    
+    if df_hier is None or df_hier.empty:
+        # 4. Consultar ClickHouse como último recurso (silenciosamente con timeout corto)
+        client = get_ch_client(silent=True, timeout=3)
+        if client:
+            query = """
+            SELECT DISTINCT 
+                domain_name AS domain, 
+                field_name AS field, 
+                subfield_name AS subfield 
+            FROM works_flat 
+            ORDER BY domain, field, subfield
+            """
+            try:
+                df_hier = client.query_df(query)
+            except Exception:
+                df_hier = None
+
+    # Guardar para la próxima vez si logramos obtenerla
+    if df_hier is not None and not df_hier.empty:
+        try:
+            df_hier.to_parquet(hierarchy_path, index=False)
+            return df_hier
+        except Exception:
+            return df_hier
+            
+    # 5. Fallback final offline: escanear archivos parquet en cache_temas
+    df_fallback = _generate_hierarchy_fallback_from_cache()
+    if df_fallback is not None and not df_fallback.empty:
+        return df_fallback
+    
+    # 6. Fallback extremo hardcoded
+    return pd.DataFrame([
+        {
+            'domain': 'Health Sciences', 
+            'field': 'Medicine', 
+            'subfield': 'Pulmonary and Respiratory Medicine'
+        },
+        {
+            'domain': 'Life Sciences', 
+            'field': 'Agricultural and Biological Sciences', 
+            'subfield': 'Anatomy'
+        }
+    ])
 
 def compute_subfield_data_flat(subfield):
     """Calcula todas las métricas para un subcampo usando la tabla flat y optimización de Sandbox."""

@@ -25,8 +25,7 @@ def get_ch_client():
             secure=is_secure,
             verify=False,
             connect_timeout=30,
-            send_receive_timeout=300,
-            pool_maxsize=50
+            send_receive_timeout=300
         )
     except Exception:
         if is_secure:

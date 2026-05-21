@@ -58,7 +58,6 @@ def load_types_data(subfield, suffix=""):
             st.error(f"Error leyendo el archivo de tipos documentales: {e}")
             return None
     return None
-
 def get_type_distribution(df_types, entity_name):
     """Agrega la distribución de tipos documentales para una entidad específica."""
     if df_types is None or df_types.empty: return None
@@ -66,16 +65,18 @@ def get_type_distribution(df_types, entity_name):
     from regions import GLOBAL_REGIONS
     df = df_types.copy()
     
+    # LIMPIEZA: Asegurar consistencia en categorías para evitar artefactos visuales
+    df['doc_type'] = df['doc_type'].fillna('other').astype(str).str.strip().str.lower()
+    
     if entity_name == 'Mundo':
         # Priorizar el registro consolidado ('' o NaN) para evitar doble conteo
         mundo_df = df[df['country_code'].isna() | (df['country_code'] == '')]
         if not mundo_df.empty:
-            # Asegurar agregación final por si hay duplicados residuales
             return mundo_df.groupby(['year', 'doc_type'])['count'].sum().reset_index()
         return df.groupby(['year', 'doc_type'])['count'].sum().reset_index()
     
     if entity_name == 'México':
-        return df[df['country_code'] == 'MX']
+        return df[df['country_code'] == 'MX'].groupby(['year', 'doc_type'])['count'].sum().reset_index()
     
     # Regiones
     if entity_name in GLOBAL_REGIONS:
@@ -103,16 +104,19 @@ def get_inst_type_distribution(df_types, entity_name):
     from regions import GLOBAL_REGIONS
     df = df_types.copy()
     
+    # LIMPIEZA: Crucial para evitar los "slivers" y picos en la gráfica de áreas
+    df['inst_type'] = df['inst_type'].fillna('other').astype(str).str.strip().str.lower()
+    
     if entity_name == 'Mundo':
         # Priorizar el registro consolidado ('' o NaN) para evitar doble conteo
         mundo_df = df[df['country_code'].isna() | (df['country_code'] == '')]
         if not mundo_df.empty:
-            # Asegurar agregación final por si hay duplicados residuales
             return mundo_df.groupby(['year', 'inst_type'])['count'].sum().reset_index()
         return df.groupby(['year', 'inst_type'])['count'].sum().reset_index()
     
     if entity_name == 'México':
-        return df[df['country_code'] == 'MX']
+        # Agrupar explícitamente por si hay duplicados MX en el dataset
+        return df[df['country_code'] == 'MX'].groupby(['year', 'inst_type'])['count'].sum().reset_index()
     
     # Regiones
     if entity_name in GLOBAL_REGIONS:
@@ -158,6 +162,13 @@ def get_entity_metrics(df, entity_name, period="Últimos 5 años (2021-2025)"):
         metrics['top_10'] = wt_avg('pct_top_10')
         metrics['top_1'] = wt_avg('pct_top_1')
         
+        # Share: Ratio total de docs / total mundo docs en el periodo
+        if 'world_doc_count' in p.columns:
+            total_world_docs = p['world_doc_count'].sum()
+            metrics['share'] = (total_docs / total_world_docs * 100) if total_world_docs > 0 else 0
+        else:
+            metrics['share'] = 0
+
         # OA & Languages
         for col in [c for c in p.columns if c.startswith('pct_oa_') or c.startswith('pct_lang_')]:
             metrics[col] = wt_avg(col)
@@ -171,6 +182,7 @@ def get_entity_metrics(df, entity_name, period="Últimos 5 años (2021-2025)"):
         'pct_top_10': (x['pct_top_10'] * x['doc_count']).sum() / x['doc_count'].sum(),
         'pct_top_1': (x['pct_top_1'] * x['doc_count']).sum() / x['doc_count'].sum(),
         'percentile': (x['percentile'] * x['doc_count']).sum() / x['doc_count'].sum(),
+        'share': (x['share'] * x['doc_count']).sum() / x['doc_count'].sum() if 'share' in x.columns else 0
     })).reset_index()
     
     # 3. Tendencias por Tópico

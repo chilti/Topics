@@ -168,13 +168,7 @@ else:
     st.sidebar.error("No se pudo cargar la jerarquía de temas.")
     st.stop()
 
-st.sidebar.markdown("---")
-
-# Period Selection
-period_mode = st.sidebar.radio("Periodo de Análisis", ["Últimos 5 años (2021-2025)", "Periodo Completo"], index=0)
-
-st.sidebar.markdown("---")
-show_all_topics = st.sidebar.checkbox("Mostrar todos los tópicos en gráficas", value=False, help="Por defecto solo se muestran los tópicos principales (top 10) para evitar saturación.")
+show_all_topics = st.session_state.get("show_all_topics_chk", False)
 
 if st.sidebar.button("🔄 Forzar Recálculo", help="Borra el caché local y vuelve a consultar ClickHouse"):
     st.session_state.calculating = True
@@ -385,7 +379,7 @@ def render_document_types(entity_name, df_types):
     # IMPORTANTE: Rellenar años faltantes para cada tipo para evitar "zig-zags" en px.area
     dist = dist.pivot_table(index='year', columns='doc_type', values='count', aggfunc='sum').fillna(0)
     dist = dist.stack().reset_index(name='count')
-    dist = dist.sort_values(['year', 'doc_type'])
+    dist = dist.sort_values(['doc_type', 'year'])
     
     st.markdown(f"**📄 Análisis de Tipos Documentales: {entity_name}**")
     
@@ -428,7 +422,7 @@ def render_institution_types(entity_name, df_inst_types):
     # Rellenar años faltantes para evitar zig-zags
     dist = dist.pivot_table(index='year', columns='inst_type', values='count', aggfunc='sum').fillna(0)
     dist = dist.stack().reset_index(name='count')
-    dist = dist.sort_values(['year', 'inst_type'])
+    dist = dist.sort_values(['inst_type', 'year'])
     
     st.markdown(f"**🏢 Análisis de Sectores (Instituciones): {entity_name}**")
     
@@ -591,289 +585,403 @@ def render_entity_institutions(entity_name, df_inst_all, period_mode, x_col, y_c
 
 # --- COMPARISON LAYOUT ---
 if df_data is not None:
-    entities = ["Mundo", "México"] + sorted(list(GLOBAL_REGIONS.keys()))
+    tab_main_metrics, tab_main_reports = st.tabs(["📊 Métricas", "📥 Reportes"])
 
-    # Column Controls (Selectors)
-    col_A, col_B, col_C = st.columns(3)
-    with col_A:
-        ent1 = st.selectbox("Entidad A", entities, index=0)
-        st.markdown(f"### 🌏 {ent1}")
-    with col_B:
-        idx_latam = entities.index("Latinoamérica y Caribe") if "Latinoamérica y Caribe" in entities else 0
-        ent2 = st.selectbox("Entidad B", entities, index=idx_latam)
-        st.markdown(f"### 📍 {ent2}")
-    with col_C:
-        idx_mex = entities.index("México") if "México" in entities else 0
-        ent3 = st.selectbox("Entidad C", entities, index=idx_mex)
-        st.markdown(f"### 🇲🇽 {ent3}")
+    with tab_main_metrics:
+        period_mode = st.radio("Periodo de Análisis", ["Últimos 5 años (2021-2025)", "Periodo Completo"], index=0, horizontal=True)
+        st.markdown("---")
+        
+        entities = ["Mundo", "México"] + sorted(list(GLOBAL_REGIONS.keys()))
 
-    # 1. KPIs Row
-    ck1, ck2, ck3 = st.columns(3)
-    with ck1: data1 = render_entity_kpis(ent1, df_data, period_mode)
-    with ck2: data2 = render_entity_kpis(ent2, df_data, period_mode)
-    with ck3: data3 = render_entity_kpis(ent3, df_data, period_mode)
+        # Column Controls (Selectors)
+        col_A, col_B, col_C = st.columns(3)
+        with col_A:
+            ent1 = st.selectbox("Entidad A", entities, index=0)
+            st.markdown(f"### 🌏 {ent1}")
+        with col_B:
+            idx_latam = entities.index("Latinoamérica y Caribe") if "Latinoamérica y Caribe" in entities else 0
+            ent2 = st.selectbox("Entidad B", entities, index=idx_latam)
+            st.markdown(f"### 📍 {ent2}")
+        with col_C:
+            idx_mex = entities.index("México") if "México" in entities else 0
+            ent3 = st.selectbox("Entidad C", entities, index=idx_mex)
+            st.markdown(f"### 🇲🇽 {ent3}")
 
-    # 2. Synchronized Charts Tabs
-    st.markdown("#### Evolución Temporal Sincronizada")
-    tab_labels = ["📈 Producción", "💥 FWCI", "🏆 % Top 10%", "🌟 % Top 1%", "📊 Percentil"]
-    tabs = st.tabs(tab_labels)
-    
-    for i, tab in enumerate(tabs):
-        with tab:
-            # Fila 1: Totales de la Entidad
-            st.markdown(f"**Total {tab_labels[i]}**")
-            tc1, tc2, tc3 = st.columns(3)
-            with tc1: render_entity_charts_synced(ent1, data1, i)
-            with tc2: render_entity_charts_synced(ent2, data2, i)
-            with tc3: render_entity_charts_synced(ent3, data3, i)
-            
-            # Fila 2: Desglose por Tópicos
-            st.markdown(f"**Desglose por Tópicos: {tab_labels[i]}**")
-            tt1, tt2, tt3 = st.columns(3)
-            with tt1: render_topical_evolution(ent1, data1, i, show_all=show_all_topics)
-            with tt2: render_topical_evolution(ent2, data2, i, show_all=show_all_topics)
-            with tt3: render_topical_evolution(ent3, data3, i, show_all=show_all_topics)
+        # 1. KPIs Row
+        ck1, ck2, ck3 = st.columns(3)
+        with ck1: data1 = render_entity_kpis(ent1, df_data, period_mode)
+        with ck2: data2 = render_entity_kpis(ent2, df_data, period_mode)
+        with ck3: data3 = render_entity_kpis(ent3, df_data, period_mode)
 
-    # 2. Configuración de Ejes para Instituciones (Global)
-    with st.sidebar:
+        # 2. Synchronized Charts Tabs
+        st.markdown("#### Evolución Temporal Sincronizada")
+        tab_labels = ["📈 Producción", "💥 FWCI", "🏆 % Top 10%", "🌟 % Top 1%", "📊 Percentil"]
+        tabs = st.tabs(tab_labels)
+
+        for i, tab in enumerate(tabs):
+            with tab:
+                # Fila 1: Totales de la Entidad
+                st.markdown(f"**Total {tab_labels[i]}**")
+                tc1, tc2, tc3 = st.columns(3)
+                with tc1: render_entity_charts_synced(ent1, data1, i)
+                with tc2: render_entity_charts_synced(ent2, data2, i)
+                with tc3: render_entity_charts_synced(ent3, data3, i)
+
+                # Fila 2: Desglose por Tópicos
+                st.markdown(f"**Desglose por Tópicos: {tab_labels[i]}**")
+                if i == 0:
+                    show_all_topics = st.checkbox("Mostrar todos los tópicos", value=show_all_topics, key="show_all_topics_chk")
+                tt1, tt2, tt3 = st.columns(3)
+                with tt1: render_topical_evolution(ent1, data1, i, show_all=show_all_topics)
+                with tt2: render_topical_evolution(ent2, data2, i, show_all=show_all_topics)
+                with tt3: render_topical_evolution(ent3, data3, i, show_all=show_all_topics)
+
+        # 3. Details Row (Pie charts, etc.)
+        st.markdown("#### Detalles por Entidad")
+        cd1, cd2, cd3 = st.columns(3)
+        with cd1: 
+            render_entity_details(ent1, data1, df_types, df_inst_types, show_all=show_all_topics)
+        with cd2: 
+            render_entity_details(ent2, data2, df_types, df_inst_types, show_all=show_all_topics)
+        with cd3:
+            render_entity_details(ent3, data3, df_types, df_inst_types, show_all=show_all_topics)
+
+        # 4. Configuración de Ejes para Instituciones (Global)
         st.markdown("---")
         st.markdown("### 🏢 Gráficos de Instituciones")
-        inst_x_label = st.selectbox("Eje X (Burbujas)", list(INST_METRICS.keys()), index=0)
-        inst_y_label = st.selectbox("Eje Y (Burbujas)", list(INST_METRICS.keys()), index=1)
+        col_inst_x, col_inst_y = st.columns(2)
+        with col_inst_x:
+            inst_x_label = st.selectbox("Eje X (Burbujas)", list(INST_METRICS.keys()), index=0, key="inst_x_sel")
+        with col_inst_y:
+            inst_y_label = st.selectbox("Eje Y (Burbujas)", list(INST_METRICS.keys()), index=1, key="inst_y_sel")
         ix_col = INST_METRICS[inst_x_label]
         iy_col = INST_METRICS[inst_y_label]
 
-    # 3. Details Row (Pie charts, etc.)
-    cd1, cd2, cd3 = st.columns(3)
-    with cd1: 
-        render_entity_details(ent1, data1, df_types, df_inst_types, show_all=show_all_topics)
-        render_entity_institutions(ent1, df_inst, period_mode, ix_col, iy_col, inst_x_label, inst_y_label)
-    with cd2: 
-        render_entity_details(ent2, data2, df_types, df_inst_types, show_all=show_all_topics)
-        render_entity_institutions(ent2, df_inst, period_mode, ix_col, iy_col, inst_x_label, inst_y_label)
-    with cd3:
-        render_entity_details(ent3, data3, df_types, df_inst_types, show_all=show_all_topics)
-        render_entity_institutions(ent3, df_inst, period_mode, ix_col, iy_col, inst_x_label, inst_y_label)
+        ci1, ci2, ci3 = st.columns(3)
+        with ci1:
+            render_entity_institutions(ent1, df_inst, period_mode, ix_col, iy_col, inst_x_label, inst_y_label)
+        with ci2:
+            render_entity_institutions(ent2, df_inst, period_mode, ix_col, iy_col, inst_x_label, inst_y_label)
+        with ci3:
+            render_entity_institutions(ent3, df_inst, period_mode, ix_col, iy_col, inst_x_label, inst_y_label)
 
-    # --- GENERAL SUMMARY TABLES (WIDE) ---
-    st.markdown("---")
-    # Obtener todas las tablas de resumen (Histórica, Anual, Por Periodo)
-    res = get_summary_tables(df_data)
-    df_countries, df_topics, _, df_ct_annual, df_ct_full, df_ct_2125 = res
-    
-    if df_countries is not None:
-        tab_sum_1, tab_sum_2, tab_sum_3, tab_sum_4, tab_sum_5, tab_sum_6, tab_sum_7, tab_sum_8, tab_fronts = st.tabs([
-            "🌎 Países (Anual)", 
-            "🧩 Tópicos (Anual)", 
-            "📚 Revistas (Anual)",
-            "📅 Evolución Países-Tópicos",
-            "📊 Totales 2021-2025",
-            "📈 Totales Históricos",
-            "🤝 Colaboración",
-            "🏢 Instituciones",
-            "🔬 Frentes de Investigación"
-        ])
-        
-        with tab_sum_1:
-            st.subheader("Producción e Impacto por País y Año")
-            st.dataframe(df_countries, use_container_width=True, hide_index=True)
-            download_csv_button(df_countries, "Paises_Anual")
-            
-        with tab_sum_2:
-            st.subheader("Producción e Impacto por Tópico y Año")
-            st.dataframe(df_topics, use_container_width=True, hide_index=True)
-            download_csv_button(df_topics, "Topicos_Anual")
-            
-        with tab_sum_3:
-            st.subheader("Top 100 Revistas Líderes (Periodo 2021-2025)")
-            st.dataframe(df_journals_top, use_container_width=True, hide_index=True)
-            download_csv_button(df_journals_top, "Top_Revistas")
+        # --- GENERAL SUMMARY TABLES (WIDE) ---
+        st.markdown("---")
+        # Obtener todas las tablas de resumen (Histórica, Anual, Por Periodo)
+        res = get_summary_tables(df_data)
+        df_countries, df_topics, _, df_ct_annual, df_ct_full, df_ct_2125 = res
 
-        with tab_sum_4:
-            st.subheader("Evolución de Artículos por País y Tópico (Anual)")
-            st.dataframe(df_ct_annual, use_container_width=True, hide_index=True)
-            download_csv_button(df_ct_annual, "Evolucion_Anual")
+        if df_countries is not None:
+            tab_sum_1, tab_sum_2, tab_sum_3, tab_sum_4, tab_sum_5, tab_sum_6, tab_sum_7, tab_sum_8, tab_fronts = st.tabs([
+                "🌎 Países (Anual)", 
+                "🧩 Tópicos (Anual)", 
+                "📚 Revistas (Anual)",
+                "📅 Evolución Países-Tópicos",
+                "📊 Totales 2021-2025",
+                "📈 Totales Históricos",
+                "🤝 Colaboración",
+                "🏢 Instituciones",
+                "🔬 Frentes de Investigación"
+            ])
 
-        with tab_sum_5:
-            st.subheader("Totales de Producción Temática: 2021-2025")
-            st.info("Suma total de documentos por tópico para cada país/región en el periodo actual.")
-            st.dataframe(df_ct_2125, use_container_width=True, hide_index=True)
-            download_csv_button(df_ct_2125, "Totales_Recientes")
+            with tab_sum_1:
+                st.subheader("Producción e Impacto por País y Año")
+                st.dataframe(df_countries, use_container_width=True, hide_index=True)
+                download_csv_button(df_countries, "Paises_Anual")
 
-        with tab_sum_6:
-            st.subheader("Totales de Producción Temática: Periodo Completo")
-            st.info("Suma histórica acumulada de documentos por tópico para cada entidad.")
-            st.dataframe(df_ct_full, use_container_width=True, hide_index=True)
-            download_csv_button(df_ct_full, "Totales_Historicos")
+            with tab_sum_2:
+                st.subheader("Producción e Impacto por Tópico y Año")
+                st.dataframe(df_topics, use_container_width=True, hide_index=True)
+                download_csv_button(df_topics, "Topicos_Anual")
 
-        with tab_sum_7:
-            st.subheader("🤝 Matriz de Colaboración Internacional")
-            if df_collab is not None and not df_collab.empty:
-                st.info("Esta tabla muestra el número de co-autorías detectadas entre pares de países para este subcampo.")
-                st.dataframe(df_collab, use_container_width=True, hide_index=True)
-                download_csv_button(df_collab, "Colaboración")
-            else:
-                st.warning("No hay datos de colaboración para este subcampo. Intenta 'Forzar Recálculo'.")
-                
-        with tab_sum_8:
-            st.subheader("🏢 Análisis de Instituciones Líderes")
-            if df_inst is not None and not df_inst.empty:
-                # Filtros Locales para Instituciones
-                inst_col1, inst_col2 = st.columns([1, 2])
-                with inst_col1:
-                    inst_regions = ["Todas"] + sorted(df_inst['region'].unique().tolist())
-                    sel_inst_region = st.selectbox("Filtrar por Región (Institución)", inst_regions)
-                
-                # Filtrar DF de instituciones
-                df_inst_view = df_inst.copy()
-                if sel_inst_region != "Todas":
-                    df_inst_view = df_inst_view[df_inst_view['region'] == sel_inst_region]
-                
-                # Filtrar por Periodo (usando el global de la sidebar)
-                if period_mode == "Últimos 5 años (2021-2025)":
-                    df_inst_view = df_inst_view[(df_inst_view['year'] >= 2021) & (df_inst_view['year'] <= 2025)]
-                
-                # Agrupar con promedio ponderado
-                df_calc = df_inst_view.copy()
-                metrics_to_weight = ['fwci', 'percentile', 'pct_top_10', 'pct_top_1']
-                for m in metrics_to_weight:
-                    df_calc[f'{m}_prod'] = df_calc[m] * df_calc['doc_count']
+            with tab_sum_3:
+                st.subheader("Top 100 Revistas Líderes (Periodo 2021-2025)")
+                st.dataframe(df_journals_top, use_container_width=True, hide_index=True)
+                download_csv_button(df_journals_top, "Top_Revistas")
 
-                df_inst_rank = df_calc.groupby(['institution_id', 'institution_name', 'country_code', 'region']).agg({
-                    'doc_count': 'sum',
-                    'fwci_prod': 'sum',
-                    'percentile_prod': 'sum',
-                    'pct_top_10_prod': 'sum',
-                    'pct_top_1_prod': 'sum',
-                    'citations': 'sum',
-                    'intl_collab': 'sum',
-                    'sdg_docs': 'sum'
-                }).reset_index()
+            with tab_sum_4:
+                st.subheader("Evolución de Artículos por País y Tópico (Anual)")
+                st.dataframe(df_ct_annual, use_container_width=True, hide_index=True)
+                download_csv_button(df_ct_annual, "Evolucion_Anual")
 
-                for m in metrics_to_weight:
-                    df_inst_rank[m] = df_inst_rank[f'{m}_prod'] / df_inst_rank['doc_count']
-                    df_inst_rank[m] = df_inst_rank[m].fillna(0)
+            with tab_sum_5:
+                st.subheader("Totales de Producción Temática: 2021-2025")
+                st.info("Suma total de documentos por tópico para cada país/región en el periodo actual.")
+                st.dataframe(df_ct_2125, use_container_width=True, hide_index=True)
+                download_csv_button(df_ct_2125, "Totales_Recientes")
 
-                df_inst_rank = df_inst_rank.sort_values('doc_count', ascending=False)
-                
-                # 1. Benchmarking Plot (Burbujas)
-                st.markdown(f"#### 🚀 Benchmarking: {inst_x_label} vs {inst_y_label}")
-                fig_inst = px.scatter(
-                    df_inst_rank.head(50), 
-                    x=ix_col, y=iy_col, 
-                    size="citations", color="region",
-                    hover_name="institution_name",
-                    labels={ix_col: inst_x_label, iy_col: inst_y_label, "region": "Región", "citations": "Citas"},
-                    template="plotly_dark",
-                    height=600
-                )
-                st.plotly_chart(fig_inst, use_container_width=True)
-                
-                # 2. Ranking Table
-                st.markdown(f"#### 🏆 Ranking Top 100 ({sel_inst_region})")
-                st.dataframe(
-                    df_inst_rank.head(100).rename(columns={
-                        'institution_name': 'Institución',
-                        'country_code': 'País',
-                        'doc_count': 'Documentos',
-                        'fwci': 'FWCI',
-                        'pct_top_10': '% Top 10%',
-                        'citations': 'Citas',
-                        'intl_collab': 'Colab. Intl',
-                        'sdg_docs': 'ODS'
-                    })[['Institución', 'País', 'Documentos', 'FWCI', '% Top 10%', 'Citas', 'Colab. Intl', 'ODS']],
-                    use_container_width=True, hide_index=True
-                )
-                
-                # Botón de descarga específico para el reporte completo de instituciones
-                csv_inst = df_inst_rank.to_csv(index=False).encode('utf-8')
-                st.download_button(
-                    label="📥 Descargar Reporte Institucional Completo (CSV)",
-                    data=csv_inst,
-                    file_name=f"reporte_instituciones_{selected_subfield.lower()}.csv",
-                    mime='text/csv'
-                )
-            else:
-                st.warning("No hay datos institucionales calculados. Pulsa 'Forzar Recálculo' para generarlos.")
+            with tab_sum_6:
+                st.subheader("Totales de Producción Temática: Periodo Completo")
+                st.info("Suma histórica acumulada de documentos por tópico para cada entidad.")
+                st.dataframe(df_ct_full, use_container_width=True, hide_index=True)
+                download_csv_button(df_ct_full, "Totales_Historicos")
 
-        with tab_fronts:
-            st.markdown("""
-            <div style='background-color: #f8fafc; padding: 20px; border-radius: 10px; border: 1px solid #e2e8f0; margin-bottom: 20px;'>
-                <h3 style='margin-top: 0; color: #1e293b;'>🔬 Configuración de Frentes de Investigación</h3>
-                <p style='color: #64748b; font-size: 0.9rem;'>
-                    Detecta comunidades científicas emergentes mediante el cruce de topología de citas (Leiden), 
-                    similitud temática profunda (SPECTER2) y embeddings heterogéneos (FastRP).
-                </p>
-            </div>
-            """, unsafe_allow_html=True)
-            
-            ctrl_col1, ctrl_col2, ctrl_col3 = st.columns([2, 1, 1])
-            
-            with ctrl_col1:
-                front_methods = st.multiselect(
-                    "Algoritmos de Detección",
-                    ["Leiden (Estructural)", "SPECTER2 (Semántico)", "FastRP (Topológico)"],
-                    default=["Leiden (Estructural)", "SPECTER2 (Semántico)"],
-                    help="Selecciona los métodos para la validación cruzada (Triple View)."
-                )
-            
-            with ctrl_col2:
-                st.write("") # Espaciador
-                st.write("")
-                if st.button("🚀 Lanzar Análisis", use_container_width=True):
-                    st.session_state['run_fronts'] = True
-                    st.session_state['fronts_force_recalc'] = False
-            
-            with ctrl_col3:
-                st.write("") # Espaciador
-                st.write("")
-                if st.button("♻️ Recalcular", use_container_width=True):
-                    st.session_state['run_fronts'] = True
-                    st.session_state['fronts_force_recalc'] = True
-            
-            st.markdown("---")
-            
-            if st.session_state.get('run_fronts'):
-                with st.spinner("Analizando evolución temática y estructural..."):
-                    # Ejecutar pipeline
-                    force = st.session_state.get('fronts_force_recalc', False)
-                    df_fronts = fronts_pl.run_fronts_analysis(selected_subfield, force_recalc=force)
+            with tab_sum_7:
+                st.subheader("🤝 Matriz de Colaboración Internacional")
+                if df_collab is not None and not df_collab.empty:
+                    st.info("Esta tabla muestra el número de co-autorías detectadas entre pares de países para este subcampo.")
+                    st.dataframe(df_collab, use_container_width=True, hide_index=True)
+                    download_csv_button(df_collab, "Colaboración")
+                else:
+                    st.warning("No hay datos de colaboración para este subcampo. Intenta 'Forzar Recálculo'.")
+
+            with tab_sum_8:
+                st.subheader("🏢 Análisis de Instituciones Líderes")
+                if df_inst is not None and not df_inst.empty:
+                    # Filtros Locales para Instituciones
+                    inst_col1, inst_col2, inst_col3 = st.columns(3)
+                    with inst_col1:
+                        inst_regions = ["Todas"] + sorted(df_inst['region'].unique().tolist())
+                        sel_inst_region = st.selectbox("Filtrar por Región (Institución)", inst_regions, key="inst_tab_region_sel")
+                    with inst_col2:
+                        inst_tab_x_label = st.selectbox("Eje X (Benchmarking)", list(INST_METRICS.keys()), index=0, key="inst_tab_x_sel")
+                    with inst_col3:
+                        inst_tab_y_label = st.selectbox("Eje Y (Benchmarking)", list(INST_METRICS.keys()), index=1, key="inst_tab_y_sel")
                     
-                    if not df_fronts.empty:
-                        st.success(f"Análisis completado para {selected_subfield}")
-                        
-                        # 1. Métricas de Consistencia
-                        st.markdown("### 📊 Consistencia Multimodal")
-                        ami_metrics = fronts_pl.get_consistency_metrics(df_fronts)
-                        if ami_metrics:
-                            cols_ami = st.columns(len(ami_metrics))
-                            for i, (name, val) in enumerate(ami_metrics.items()):
-                                with cols_ami[i]:
-                                    st.metric(name, f"{val:.4f}")
-                        
-                        # 2. Visualizaciones Side-by-Side
-                        st.markdown("### 🕸️ Comparativa de Redes")
-                        col_net1, col_net2 = st.columns(2)
-                        with col_net1:
-                            st.markdown("**Estructural (Leiden)**")
-                            st.info("Visualización de la red de citas internas.")
-                            # Aquí iría el componente de red
-                            
-                        with col_net2:
-                            st.markdown("**Semántica (SPECTER2)**")
-                            st.info("Visualización de la dispersión temática (UMAP).")
-                            # Aquí iría el scatter de Plotly
-                            
-                        # 3. Evolución Temporal (Alluvial)
-                        st.markdown("### 🌊 Evolución de Frentes (Diagrama de Aluvión)")
-                        st.info("Próximamente: Diagrama de flujo de frentes a través de vigintiles.")
-                        
-                        # Limpiar flag de ejecución para no repetir al refrescar
+                    tab_ix_col = INST_METRICS[inst_tab_x_label]
+                    tab_iy_col = INST_METRICS[inst_tab_y_label]
+
+                    # Filtrar DF de instituciones
+                    df_inst_view = df_inst.copy()
+                    if sel_inst_region != "Todas":
+                        df_inst_view = df_inst_view[df_inst_view['region'] == sel_inst_region]
+
+                    # Filtrar por Periodo (usando el global de la sidebar)
+                    if period_mode == "Últimos 5 años (2021-2025)":
+                        df_inst_view = df_inst_view[(df_inst_view['year'] >= 2021) & (df_inst_view['year'] <= 2025)]
+
+                    # Agrupar con promedio ponderado
+                    df_calc = df_inst_view.copy()
+                    metrics_to_weight = ['fwci', 'percentile', 'pct_top_10', 'pct_top_1']
+                    for m in metrics_to_weight:
+                        df_calc[f'{m}_prod'] = df_calc[m] * df_calc['doc_count']
+
+                    df_inst_rank = df_calc.groupby(['institution_id', 'institution_name', 'country_code', 'region']).agg({
+                        'doc_count': 'sum',
+                        'fwci_prod': 'sum',
+                        'percentile_prod': 'sum',
+                        'pct_top_10_prod': 'sum',
+                        'pct_top_1_prod': 'sum',
+                        'citations': 'sum',
+                        'intl_collab': 'sum',
+                        'sdg_docs': 'sum'
+                    }).reset_index()
+
+                    for m in metrics_to_weight:
+                        df_inst_rank[m] = df_inst_rank[f'{m}_prod'] / df_inst_rank['doc_count']
+                        df_inst_rank[m] = df_inst_rank[m].fillna(0)
+
+                    df_inst_rank = df_inst_rank.sort_values('doc_count', ascending=False)
+
+                    # 1. Benchmarking Plot (Burbujas)
+                    st.markdown(f"#### 🚀 Benchmarking: {inst_tab_x_label} vs {inst_tab_y_label}")
+                    fig_inst = px.scatter(
+                        df_inst_rank.head(50), 
+                        x=tab_ix_col, y=tab_iy_col, 
+                        size="citations", color="region",
+                        hover_name="institution_name",
+                        labels={tab_ix_col: inst_tab_x_label, tab_iy_col: inst_tab_y_label, "region": "Región", "citations": "Citas"},
+                        template="plotly_dark",
+                        height=600
+                    )
+                    st.plotly_chart(fig_inst, use_container_width=True)
+
+                    # 2. Ranking Table
+                    st.markdown(f"#### 🏆 Ranking Top 100 ({sel_inst_region})")
+                    st.dataframe(
+                        df_inst_rank.head(100).rename(columns={
+                            'institution_name': 'Institución',
+                            'country_code': 'País',
+                            'doc_count': 'Documentos',
+                            'fwci': 'FWCI',
+                            'pct_top_10': '% Top 10%',
+                            'citations': 'Citas',
+                            'intl_collab': 'Colab. Intl',
+                            'sdg_docs': 'ODS'
+                        })[['Institución', 'País', 'Documentos', 'FWCI', '% Top 10%', 'Citas', 'Colab. Intl', 'ODS']],
+                        use_container_width=True, hide_index=True
+                    )
+
+                    # Botón de descarga específico para el reporte completo de instituciones
+                    csv_inst = df_inst_rank.to_csv(index=False).encode('utf-8')
+                    st.download_button(
+                        label="📥 Descargar Reporte Institucional Completo (CSV)",
+                        data=csv_inst,
+                        file_name=f"reporte_instituciones_{selected_subfield.lower()}.csv",
+                        mime='text/csv'
+                    )
+                else:
+                    st.warning("No hay datos institucionales calculados. Pulsa 'Forzar Recálculo' para generarlos.")
+
+            with tab_fronts:
+                st.markdown("""
+                <div style='background-color: #f8fafc; padding: 20px; border-radius: 10px; border: 1px solid #e2e8f0; margin-bottom: 20px;'>
+                    <h3 style='margin-top: 0; color: #1e293b;'>🔬 Configuración de Frentes de Investigación</h3>
+                    <p style='color: #64748b; font-size: 0.9rem;'>
+                        Detecta comunidades científicas emergentes mediante el cruce de topología de citas (Leiden), 
+                        similitud temática profunda (SPECTER2) y embeddings heterogéneos (FastRP).
+                    </p>
+                </div>
+                """, unsafe_allow_html=True)
+
+                ctrl_col1, ctrl_col2, ctrl_col3 = st.columns([2, 1, 1])
+
+                with ctrl_col1:
+                    front_methods = st.multiselect(
+                        "Algoritmos de Detección",
+                        ["Leiden (Estructural)", "SPECTER2 (Semántico)", "FastRP (Topológico)"],
+                        default=["Leiden (Estructural)", "SPECTER2 (Semántico)"],
+                        help="Selecciona los métodos para la validación cruzada (Triple View)."
+                    )
+
+                with ctrl_col2:
+                    st.write("") # Espaciador
+                    st.write("")
+                    if st.button("🚀 Lanzar Análisis", use_container_width=True):
+                        st.session_state['run_fronts'] = True
                         st.session_state['fronts_force_recalc'] = False
-                    else:
-                        st.warning("No se encontraron resultados para este subcampo. Asegúrate de que el Sandbox tenga datos.")
+
+                with ctrl_col3:
+                    st.write("") # Espaciador
+                    st.write("")
+                    if st.button("♻️ Recalcular", use_container_width=True):
+                        st.session_state['run_fronts'] = True
+                        st.session_state['fronts_force_recalc'] = True
+
+                st.markdown("---")
+
+                if st.session_state.get('run_fronts'):
+                    with st.spinner("Analizando evolución temática y estructural..."):
+                        # Ejecutar pipeline
+                        force = st.session_state.get('fronts_force_recalc', False)
+                        df_fronts = fronts_pl.run_fronts_analysis(selected_subfield, force_recalc=force)
+
+                        if not df_fronts.empty:
+                            st.success(f"Análisis completado para {selected_subfield}")
+
+                            # 1. Métricas de Consistencia
+                            st.markdown("### 📊 Consistencia Multimodal")
+                            ami_metrics = fronts_pl.get_consistency_metrics(df_fronts)
+                            if ami_metrics:
+                                cols_ami = st.columns(len(ami_metrics))
+                                for i, (name, val) in enumerate(ami_metrics.items()):
+                                    with cols_ami[i]:
+                                        st.metric(name, f"{val:.4f}")
+
+                            # 2. Visualizaciones Side-by-Side
+                            st.markdown("### 🕸️ Comparativa de Redes")
+                            col_net1, col_net2 = st.columns(2)
+                            with col_net1:
+                                st.markdown("**Estructural (Leiden)**")
+                                st.info("Visualización de la red de citas internas.")
+                                # Aquí iría el componente de red
+
+                            with col_net2:
+                                st.markdown("**Semántica (SPECTER2)**")
+                                st.info("Visualización de la dispersión temática (UMAP).")
+                                # Aquí iría el scatter de Plotly
+
+                            # 3. Evolución Temporal (Alluvial)
+                            st.markdown("### 🌊 Evolución de Frentes (Diagrama de Aluvión)")
+                            st.info("Próximamente: Diagrama de flujo de frentes a través de vigintiles.")
+
+                            # Limpiar flag de ejecución para no repetir al refrescar
+                            st.session_state['fronts_force_recalc'] = False
+                        else:
+                            st.warning("No se encontraron resultados para este subcampo. Asegúrate de que el Sandbox tenga datos.")
+                else:
+                    st.info("Haz clic en '🚀 Lanzar Análisis de Frentes' en la barra lateral para iniciar el proceso.")
+
+
+    with tab_main_reports:
+        st.markdown(
+            """
+            <div style="font-size: 1.05rem; color: #555; margin-bottom: 12px;">
+            Genera un reporte cientométrico completo (estilo Journal académico) para el subcampo y entidad seleccionada.
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+        
+        # Selector de entidad
+        from regions import GLOBAL_REGIONS
+        report_entities = ["Global (Comparativo Multiescala)", "México", "Mundo"] + sorted(list(GLOBAL_REGIONS.keys()))
+        
+        # Inicializar variables de estado del reporte en session_state
+        if "report_html" not in st.session_state:
+            st.session_state.report_html = None
+            st.session_state.report_filename = None
+            st.session_state.last_compiled_key = None
+            
+        # Controles en fila horizontal
+        ctrl_col1, ctrl_col2, ctrl_col3 = st.columns([2, 1.2, 1.2])
+        
+        with ctrl_col1:
+            target_entity_rep = st.selectbox(
+                "Entidad Objetivo", 
+                report_entities, 
+                index=0, 
+                key="report_entity_sel"
+            )
+            
+        current_report_key = f"{selected_subfield}_{target_entity_rep}"
+        if st.session_state.get("last_compiled_key") != current_report_key:
+            st.session_state.report_html = None
+            st.session_state.report_filename = None
+            
+        with ctrl_col2:
+            st.markdown("<div style='height: 28px;'></div>", unsafe_allow_html=True)
+            if st.button("🚀 Compilar Reporte Académico", key="generate_report_btn", use_container_width=True):
+                with st.spinner("Compilando reporte cienciométrico (puede tardar unos segundos)..."):
+                    try:
+                        from Report.report_generator import generate_report
+                        out_path = generate_report(
+                            subfield=selected_subfield,
+                            target_entity=target_entity_rep,
+                            suffix="",
+                            output_path=None
+                        )
+                        if out_path and out_path.exists():
+                            st.session_state.report_html = out_path.read_text(encoding="utf-8")
+                            st.session_state.report_filename = f"reporte_{selected_subfield.lower().replace(' ', '_')}_{target_entity_rep.lower().replace(' ', '_')}.html"
+                            st.session_state.last_compiled_key = current_report_key
+                            st.success("✅ ¡Reporte Compilado con Éxito!")
+                            st.rerun()
+                    except Exception as e:
+                        st.error(f"Error generando reporte: {e}")
+                        
+        with ctrl_col3:
+            st.markdown("<div style='height: 28px;'></div>", unsafe_allow_html=True)
+            # Botón de descarga si ya existe el reporte
+            if st.session_state.report_html is not None:
+                st.download_button(
+                    label="⬇️ Descargar Reporte HTML",
+                    data=st.session_state.report_html,
+                    file_name=st.session_state.report_filename,
+                    mime="text/html",
+                    key="download_report_btn",
+                    use_container_width=True
+                )
             else:
-                st.info("Haz clic en '🚀 Lanzar Análisis de Frentes' en la barra lateral para iniciar el proceso.")
+                st.button("⬇️ Descargar Reporte HTML", disabled=True, key="download_report_btn_disabled", use_container_width=True)
+                
+        st.markdown("---")
+        
+        # Visor en Ancho Completo
+        st.markdown("### 🔍 Visor de Reportes Interactivos")
+        if st.session_state.report_html is not None:
+            # Mostrar el reporte en un iframe responsive de Streamlit a lo ancho
+            components.html(st.session_state.report_html, height=1000, scrolling=True)
+        else:
+            st.markdown(
+                """
+                <div style="border: 2px dashed #cbd5e1; border-radius: 12px; padding: 60px; text-align: center; color: #64748b; background-color: #f8fafc; margin-top: 20px;">
+                    <h4 style="margin: 0 0 10px 0; color: #475569;">Ningún reporte seleccionado o compilado</h4>
+                    <p style="margin: 0; font-size: 0.95rem;">Selecciona una entidad en la parte superior y haz clic en <b>'Compilar Reporte Académico'</b> para visualizar e interactuar aquí con el informe cientométrico premium (Journal Style) en ancho completo.</p>
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
 
 else:
     st.info("Por favor, selecciona un tema y lanza el cálculo si es necesario.")

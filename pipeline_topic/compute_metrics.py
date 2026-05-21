@@ -22,7 +22,8 @@ CH_PASSWORD = os.environ.get('CH_PASSWORD', '')
 CH_DATABASE = os.environ.get('CH_DATABASE', 'rag')
 
 # --- CLICKHOUSE CLIENT SETUP ---
-def get_ch_client():
+def get_ch_client(silent=False, timeout=None):
+    conn_timeout = timeout if timeout is not None else 30
     try:
         import clickhouse_connect
         return clickhouse_connect.get_client(
@@ -31,12 +32,64 @@ def get_ch_client():
             username=CH_USER,
             password=CH_PASSWORD,
             database=CH_DATABASE,
-            connect_timeout=30,
-            send_receive_timeout=300,
-            pool_maxsize=50
+            connect_timeout=conn_timeout,
+            send_receive_timeout=300
         )
     except Exception as e:
-        st.error(f"Error conectando a ClickHouse: {e}")
+        if not silent:
+            st.error(f"Error conectando a ClickHouse: {e}")
+        return None
+
+def _generate_hierarchy_fallback_from_cache():
+    """Escanea cache_temas para encontrar archivos parquet precalculados y reconstruir una jerarquía básica."""
+    try:
+        if not CACHE_TEMAS_DIR.exists():
+            return None
+        
+        files = list(CACHE_TEMAS_DIR.glob("*.parquet"))
+        subfields = set()
+        for f in files:
+            name = f.stem
+            # Filtrar archivos auxiliares
+            if any(suffix in name for suffix in ['_collab', '_inst', '_types', '_journals', '_inst_types', '_flat']):
+                continue
+            # Reconstruir el nombre legible
+            parts = name.split('_')
+            readable_parts = []
+            for p in parts:
+                if p in ['and', 'or', 'of', 'for', 'to', 'in', 'on', 'with', 'by', 'at']:
+                    readable_parts.append(p)
+                else:
+                    readable_parts.append(p.capitalize())
+            sub_name = " ".join(readable_parts)
+            # Casos específicos conocidos
+            if name == 'pulmonary_and_respiratory_medicine':
+                sub_name = 'Pulmonary and Respiratory Medicine'
+            elif name == 'library_and_information_sciences':
+                sub_name = 'Library and Information Sciences'
+            
+            subfields.add(sub_name)
+            
+        if not subfields:
+            return None
+            
+        # Intentar mapear subcampos conocidos a sus campos y dominios reales
+        known_mapping = {
+            'Pulmonary and Respiratory Medicine': ('Health Sciences', 'Medicine'),
+            'Anatomy': ('Health Sciences', 'Medicine'),
+            'Library and Information Sciences': ('Social Sciences', 'Social Sciences (all)')
+        }
+        
+        rows = []
+        for sub in subfields:
+            if sub in known_mapping:
+                dom, fld = known_mapping[sub]
+            else:
+                dom, fld = 'Cached Data (Offline)', 'Local Cache'
+            rows.append({'domain': dom, 'field': fld, 'subfield': sub})
+            
+        return pd.DataFrame(rows)
+    except Exception:
         return None
 
 # --- JERARQUÍA ---
@@ -47,42 +100,75 @@ def get_hierarchy():
     
     # 1. Intentar cargar desde el archivo específico de jerarquía
     if hierarchy_path.exists():
-        return pd.read_parquet(hierarchy_path)
+        try:
+            return pd.read_parquet(hierarchy_path)
+        except Exception:
+            pass
+            
+    # 2. Intentar cargar de topic_hierarchy_flat.parquet
+    alt_hierarchy_path = DATA_DIR / 'cache' / 'topic_hierarchy_flat.parquet'
+    if alt_hierarchy_path.exists():
+        try:
+            return pd.read_parquet(alt_hierarchy_path)
+        except Exception:
+            pass
     
-    # 2. Intentar extraer de sunburst_metrics_latam (si existe)
+    # 3. Intentar extraer de sunburst_metrics_latam (si existe)
     sunburst_path = DATA_DIR / 'cache' / 'sunburst_metrics_latam.parquet'
     df_hier = None
     
     if sunburst_path.exists():
-        df_hier = pd.read_parquet(sunburst_path)
-        df_hier = df_hier[df_hier['level'].isin(['domain', 'field', 'subfield'])]
-        df_hier = df_hier[['domain', 'field', 'subfield']].drop_duplicates()
-        df_hier = df_hier.replace('ALL', np.nan)
-    else:
-        # 3. Consultar ClickHouse como último recurso
-        client = get_ch_client()
-        if not client: return None
-        
-        query = """
-        SELECT DISTINCT
-            domain,
-            field,
-            subfield
-        FROM works
-        WHERE domain != ''
-        """
         try:
-            df_hier = client.query_df(query)
-        except Exception as e:
-            st.error(f"Error cargando jerarquía de ClickHouse: {e}")
-            return None
+            df_hier = pd.read_parquet(sunburst_path)
+            df_hier = df_hier[df_hier['level'].isin(['domain', 'field', 'subfield'])]
+            df_hier = df_hier[['domain', 'field', 'subfield']].drop_duplicates()
+            df_hier = df_hier.replace('ALL', np.nan)
+        except Exception:
+            pass
+    
+    if df_hier is None or df_hier.empty:
+        # 4. Consultar ClickHouse como último recurso (silenciosamente con timeout corto)
+        client = get_ch_client(silent=True, timeout=3)
+        if client:
+            query = """
+            SELECT DISTINCT
+                domain,
+                field,
+                subfield
+            FROM works
+            WHERE domain != ''
+            """
+            try:
+                df_hier = client.query_df(query)
+            except Exception:
+                df_hier = None
 
     # Guardar para la próxima vez si logramos obtenerla
     if df_hier is not None and not df_hier.empty:
-        df_hier.to_parquet(hierarchy_path, index=False)
-        return df_hier
+        try:
+            df_hier.to_parquet(hierarchy_path, index=False)
+            return df_hier
+        except Exception:
+            return df_hier
+            
+    # 5. Fallback final offline: escanear archivos parquet en cache_temas
+    df_fallback = _generate_hierarchy_fallback_from_cache()
+    if df_fallback is not None and not df_fallback.empty:
+        return df_fallback
     
-    return None
+    # 6. Fallback extremo hardcoded
+    return pd.DataFrame([
+        {
+            'domain': 'Health Sciences', 
+            'field': 'Medicine', 
+            'subfield': 'Pulmonary and Respiratory Medicine'
+        },
+        {
+            'domain': 'Life Sciences', 
+            'field': 'Agricultural and Biological Sciences', 
+            'subfield': 'Anatomy'
+        }
+    ])
 
 # --- CALCULATION LOGIC ---
 def compute_subfield_data(subfield):
@@ -156,6 +242,13 @@ def compute_subfield_data(subfield):
             return False
             
         # 3. Post-procesamiento: Calcular ratios en Python
+        # --- Cálculo de SHARE (%) ---
+        # Obtenemos el total de Mundo por año y tópico para comparar
+        mundo_totals = df_mundo.groupby(['year', 'topic'])['doc_count'].sum().rename('world_doc_count')
+        df = df.merge(mundo_totals, on=['year', 'topic'], how='left')
+        df['share'] = np.where(df['world_doc_count'] > 0, (df['doc_count'] / df['world_doc_count']) * 100, 0)
+        # ----------------------------
+
         df['fwci'] = np.where(df['doc_count'] > 0, df['fwci_sum'] / df['doc_count'], 0)
         df['percentile'] = np.where(df['doc_count'] > 0, (df['percentile_sum'] / df['doc_count']) * 100, 0)
         df['pct_top_10'] = np.where(df['doc_count'] > 0, (df['top_10_sum'] / df['doc_count']) * 100, 0)
@@ -286,16 +379,17 @@ def compute_subfield_data(subfield):
         except Exception as e:
             st.error(f"Error calculando distribución de tipos documentales: {e}")
 
-        # 8. Distribución de Tipos de Instituciones
+        # 8. Distribución de Tipos de Instituciones (Optimizado: Join vs JSON)
         try:
             inst_type_query = f"""
             SELECT 
                 publication_year as year,
                 country_code,
-                arrayJoin(arrayDistinct(arrayFlatten(arrayMap(x -> arrayMap(i -> JSONExtractString(i, 'type'), x.institutions), 
-                    JSONExtract(raw_data, 'authorships', 'Array(Tuple(institutions Array(String)))'))))) as inst_type,
-                count() as count
-            FROM works
+                I.type as inst_type,
+                uniq(W.id) as count
+            FROM works AS W
+            ARRAY JOIN institution_ids AS inst_id
+            LEFT JOIN institutions AS I ON inst_id = I.id
             WHERE subfield = '{subfield}' AND publication_year >= 1900
               AND length(institution_ids) > 0
             GROUP BY year, country_code, inst_type
