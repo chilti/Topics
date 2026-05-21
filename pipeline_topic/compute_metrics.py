@@ -23,21 +23,39 @@ CH_DATABASE = os.environ.get('CH_DATABASE', 'rag')
 
 # --- CLICKHOUSE CLIENT SETUP ---
 def get_ch_client(silent=False, timeout=None):
+    import clickhouse_connect
+    import uuid
+    is_secure = (CH_PORT == 8124)
+    session_id = f"topics_std_{uuid.uuid4().hex}"
     conn_timeout = timeout if timeout is not None else 30
+    
     try:
-        import clickhouse_connect
         return clickhouse_connect.get_client(
             host=CH_HOST,
             port=CH_PORT,
             username=CH_USER,
             password=CH_PASSWORD,
             database=CH_DATABASE,
+            secure=is_secure,
+            verify=False,
+            session_id=session_id,
             connect_timeout=conn_timeout,
             send_receive_timeout=300
         )
     except Exception as e:
-        if not silent:
-            st.error(f"Error conectando a ClickHouse: {e}")
+        if is_secure:
+            try:
+                return clickhouse_connect.get_client(
+                    host=CH_HOST, port=CH_PORT, username=CH_USER, password=CH_PASSWORD,
+                    database=CH_DATABASE, secure=False, verify=False, session_id=session_id,
+                    connect_timeout=conn_timeout
+                )
+            except Exception:
+                if not silent:
+                    st.error(f"Error conectando a ClickHouse (incluso sin SSL): {e}")
+        else:
+            if not silent:
+                st.error(f"Error conectando a ClickHouse: {e}")
         return None
 
 def _generate_hierarchy_fallback_from_cache():

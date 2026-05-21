@@ -17,6 +17,9 @@ load_dotenv()
 # Configuración de rutas
 sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'src'))
 
+# Importar visualizaciones avanzadas de bibliometría
+import viz_bibliometrics
+
 # From pipeline_topic import all necessary calculation logic
 from pipeline_topic import (
     get_hierarchy, 
@@ -455,7 +458,13 @@ def render_entity_details(entity_name, data, df_types, df_inst_types, show_all=F
 
     # Diversidad Temática (Topics)
     with st.expander("🧩 Desglose de Tópicos Internos", expanded=True):
-        if not data['top_topics'].empty:
+        # Intentar renderizar la composición jerárquica Sunburst interactiva
+        fig_sunburst = viz_bibliometrics.render_sunburst_hierarchy(
+            df_data, entity_name, selected_domain, selected_field, selected_subfield
+        )
+        if fig_sunburst is not None:
+            st.plotly_chart(fig_sunburst, use_container_width=True)
+        elif not data['top_topics'].empty:
             topics_to_show = data['top_topics'] if show_all else data['top_topics'].head(10)
             fig_topics = px.pie(values=topics_to_show.values, names=topics_to_show.index,
                                hole=0.4, color_discrete_sequence=px.colors.qualitative.Pastel)
@@ -470,15 +479,24 @@ def render_entity_details(entity_name, data, df_types, df_inst_types, show_all=F
     col_oa, col_lang = st.columns(2)
     with col_oa:
         st.markdown("**Acceso Abierto**")
-        oa_data = pd.DataFrame({
-            'Tipo': ['Diamond', 'Gold', 'Green', 'Hybrid', 'Bronze', 'Closed'],
-            'Valor': [m['pct_oa_diamond'], m['pct_oa_gold'], m['pct_oa_green'], 
-                     m['pct_oa_hybrid'], m['pct_oa_bronze'], m['pct_oa_closed']]
-        })
-        fig_oa = px.bar(oa_data[oa_data['Valor']>0], x='Tipo', y='Valor', color='Tipo', 
-                       color_discrete_sequence=px.colors.qualitative.Set3)
-        fig_oa.update_layout(showlegend=False, height=300, xaxis_title=None, yaxis_title="%")
-        st.plotly_chart(fig_oa, use_container_width=True)
+        fig_oa_donut = viz_bibliometrics.render_oa_donut(m, title_prefix=f"({entity_name})")
+        if fig_oa_donut is not None:
+            st.plotly_chart(fig_oa_donut, use_container_width=True)
+        else:
+            oa_data = pd.DataFrame({
+                'Tipo': ['Diamond', 'Gold', 'Green', 'Hybrid', 'Bronze', 'Closed'],
+                'Valor': [m['pct_oa_diamond'], m['pct_oa_gold'], m['pct_oa_green'], 
+                         m['pct_oa_hybrid'], m['pct_oa_bronze'], m['pct_oa_closed']]
+            })
+            fig_oa = px.bar(oa_data[oa_data['Valor']>0], x='Tipo', y='Valor', color='Tipo', 
+                           color_discrete_sequence=px.colors.qualitative.Set3)
+            fig_oa.update_layout(showlegend=False, height=300, xaxis_title=None, yaxis_title="%")
+            st.plotly_chart(fig_oa, use_container_width=True)
+
+        # Evolución Histórica de Acceso Abierto justo abajo de la dona
+        fig_oa_evol = viz_bibliometrics.render_oa_evolution(df_data, entity_name)
+        if fig_oa_evol is not None:
+            st.plotly_chart(fig_oa_evol, use_container_width=True)
 
     with col_lang:
         st.markdown("**Idiomas (Predominantes)**")
@@ -685,6 +703,11 @@ if df_data is not None:
             ])
 
             with tab_sum_1:
+                st.subheader("🌎 Posicionamiento Geopolítico por Regiones")
+                fig_quad = viz_bibliometrics.render_geopolitical_quadrants(df_data, period_mode)
+                if fig_quad is not None:
+                    st.plotly_chart(fig_quad, use_container_width=True)
+                st.markdown("---")
                 st.subheader("Producción e Impacto por País y Año")
                 st.dataframe(df_countries, use_container_width=True, hide_index=True)
                 download_csv_button(df_countries, "Paises_Anual")
@@ -717,11 +740,32 @@ if df_data is not None:
                 download_csv_button(df_ct_full, "Totales_Historicos")
 
             with tab_sum_7:
-                st.subheader("🤝 Matriz de Colaboración Internacional")
+                st.subheader("🤝 Colaboración Científica Internacional")
                 if df_collab is not None and not df_collab.empty:
-                    st.info("Esta tabla muestra el número de co-autorías detectadas entre pares de países para este subcampo.")
-                    st.dataframe(df_collab, use_container_width=True, hide_index=True)
-                    download_csv_button(df_collab, "Colaboración")
+                    # Determinar dinámicamente el código de país a partir de los selectores de la parte superior
+                    target_country_code = 'MX'
+                    inv_country_names = {v: k for k, v in viz_bibliometrics.COUNTRY_NAMES.items()}
+                    for ent in [ent2, ent3, ent1]:
+                        if ent in inv_country_names:
+                            target_country_code = inv_country_names[ent]
+                            break
+                    
+                    # 1. Mapa Coroplético de Alianzas Científicas
+                    fig_map = viz_bibliometrics.render_collaboration_map(df_collab, target_country_code)
+                    if fig_map is not None:
+                        st.plotly_chart(fig_map, use_container_width=True)
+                    
+                    # 2. Red Topológica de Coautoría con Física Interactiva (PyVis)
+                    st.markdown("### 🕸️ Red Topológica de Coautorías Internacionales")
+                    pyvis_html = viz_bibliometrics.render_pyvis_network(df_collab, limit=80)
+                    if pyvis_html:
+                        st.components.v1.html(pyvis_html, height=450, scrolling=False)
+                    
+                    # 3. Matriz tabular oculta bajo acordeón expandible
+                    with st.expander("📊 Ver Matriz de Datos de Colaboración"):
+                        st.info("Esta tabla muestra el número de co-autorías detectadas entre pares de países para este subcampo.")
+                        st.dataframe(df_collab, use_container_width=True, hide_index=True)
+                        download_csv_button(df_collab, "Colaboración")
                 else:
                     st.warning("No hay datos de colaboración para este subcampo. Intenta 'Forzar Recálculo'.")
 
@@ -772,6 +816,15 @@ if df_data is not None:
                         df_inst_rank[m] = df_inst_rank[m].fillna(0)
 
                     df_inst_rank = df_inst_rank.sort_values('doc_count', ascending=False)
+
+                    # 0. Contribución a ODS (Desarrollo Sostenible)
+                    st.markdown("#### 🌿 Alineación con Objetivos de Desarrollo Sostenible (ODS)")
+                    fig_sdg = viz_bibliometrics.render_sdg_contributions(df_inst, sel_inst_region, period_mode)
+                    if fig_sdg is not None:
+                        st.plotly_chart(fig_sdg, use_container_width=True)
+                    else:
+                        st.info("Sin datos ODS para la región seleccionada.")
+                    st.markdown("---")
 
                     # 1. Benchmarking Plot (Burbujas)
                     st.markdown(f"#### 🚀 Benchmarking: {inst_tab_x_label} vs {inst_tab_y_label}")
