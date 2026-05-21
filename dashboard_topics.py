@@ -402,13 +402,7 @@ def render_entity_details(entity_name, data, df_types, df_inst_types, show_all=F
 
     # Diversidad Temática (Topics)
     with st.expander("🧩 Desglose de Tópicos Internos", expanded=True):
-        # Intentar renderizar la composición jerárquica Sunburst interactiva
-        fig_sunburst = viz_bibliometrics.render_sunburst_hierarchy(
-            df_data, entity_name, selected_domain, selected_field, selected_subfield
-        )
-        if fig_sunburst is not None:
-            st.plotly_chart(fig_sunburst, use_container_width=True)
-        elif not data['top_topics'].empty:
+        if not data['top_topics'].empty:
             topics_to_show = data['top_topics'] if show_all else data['top_topics'].head(10)
             fig_topics = px.pie(values=topics_to_show.values, names=topics_to_show.index,
                                hole=0.4, color_discrete_sequence=px.colors.qualitative.Pastel)
@@ -436,11 +430,6 @@ def render_entity_details(entity_name, data, df_types, df_inst_types, show_all=F
             fig_oa.update_layout(showlegend=False, height=300, xaxis_title=None, yaxis_title="%")
             st.plotly_chart(fig_oa, use_container_width=True)
 
-        # Evolución Histórica de Acceso Abierto justo abajo de la dona
-        fig_oa_evol = viz_bibliometrics.render_oa_evolution(df_data, entity_name)
-        if fig_oa_evol is not None:
-            st.plotly_chart(fig_oa_evol, use_container_width=True)
-
     with col_lang:
         st.markdown("**Idiomas (Predominantes)**")
         l_data = pd.DataFrame({
@@ -450,6 +439,11 @@ def render_entity_details(entity_name, data, df_types, df_inst_types, show_all=F
         fig_l = px.pie(l_data[l_data['Pct']>0], values='Pct', names='Idioma', color_discrete_sequence=['#3b82f6', '#10b981', '#f59e0b'])
         fig_l.update_layout(showlegend=True, height=300, margin=dict(l=0,r=0,t=0,b=0))
         st.plotly_chart(fig_l, use_container_width=True)
+
+    # Evolución Histórica de Acceso Abierto justo abajo de la dona y los idiomas, a ancho completo de la entidad
+    fig_oa_evol = viz_bibliometrics.render_oa_evolution(df_data, entity_name)
+    if fig_oa_evol is not None:
+        st.plotly_chart(fig_oa_evol, use_container_width=True)
 
     # Document Types & Institution Types
     st.markdown("---")
