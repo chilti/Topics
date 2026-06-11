@@ -239,58 +239,91 @@ else:
             if not new_query_name or not new_query_str:
                 st.error("Nombre y Query son obligatorios.")
             else:
-                with st.spinner("Descargando de Scopus... esto puede tardar un poco dependiendo del volumen."):
-                    import subprocess
-                    import re
-                    
-                    # 1. Bajar datos de Scopus
-                    # Limpiamos el nombre para el archivo igual que en scopus_downloader.py
-                    clean_name = re.sub(r'[^a-zA-Z0-9]', '_', new_query_name).lower()
-                    clean_name = re.sub(r'_+', '_', clean_name).strip('_')
-                    
-                    cmd_down = [
-                        sys.executable, str(BASE_PATH / "pipeline_scopus" / "scopus_downloader.py"),
-                        "--mode", "custom",
-                        "--query", new_query_str,
-                        "--name", clean_name
-                    ]
-                    
-                    if use_years:
-                        cmd_down.extend(["--years", f"{start_y}-{end_y}"])
-                    else:
-                        cmd_down.extend(["--years", "1900-2025"]) # Rango máximo por defecto para Scopus
-                        start_y, end_y = 1900, 2025
-                    
-                    try:
-                        res = subprocess.run(cmd_down, capture_output=True, text=True)
-                        if res.returncode != 0 or "[!] No se descargaron datos" in res.stdout:
-                            st.error("Error en la descarga de Scopus. Verifica el query.")
-                            with st.expander("Ver Logs de Scopus"):
-                                st.code(res.stdout + "\n" + res.stderr)
-                            st.stop()
-                            
-                        # 2. Procesar y cruzar con OpenAlex
-                        raw_parquet = DATA_DIR / "cache_scopus" / "raw" / f"full_custom_{clean_name}_{start_y}_{end_y}.parquet"
-                        if raw_parquet.exists():
-                            st.info("Descarga exitosa. Cruzando con ClickHouse...")
-                            cmd_proc = [
-                                sys.executable, str(BASE_PATH / "pipeline_scopus" / "scopus_processor.py"),
-                                "--input", str(raw_parquet)
-                            ]
-                            res_proc = subprocess.run(cmd_proc, capture_output=True, text=True)
-                            if res_proc.returncode != 0:
-                                st.error("Error al cruzar con ClickHouse.")
-                                with st.expander("Ver Logs ClickHouse"):
-                                    st.code(res_proc.stdout + "\n" + res_proc.stderr)
-                                st.stop()
-                            else:
-                                st.success("¡Búsqueda y cruce finalizados con éxito!")
-                                time.sleep(1)
-                                st.rerun()
-                        else:
-                            st.error("No se encontró el archivo raw descargado.")
-                    except Exception as e:
-                        st.error(f"Error de ejecución: {str(e)}")
+                import subprocess
+                import re
+                
+                # 1. Bajar datos de Scopus
+                clean_name = re.sub(r'[^a-zA-Z0-9]', '_', new_query_name).lower()
+                clean_name = re.sub(r'_+', '_', clean_name).strip('_')
+                
+                cmd_down = [
+                    sys.executable, str(BASE_PATH / "pipeline_scopus" / "scopus_downloader.py"),
+                    "--mode", "custom",
+                    "--query", new_query_str,
+                    "--name", clean_name
+                ]
+                
+                if use_years:
+                    cmd_down.extend(["--years", f"{start_y}-{end_y}"])
+                else:
+                    cmd_down.extend(["--years", "1900-2025"]) 
+                    start_y, end_y = 1900, 2025
+                
+                log_dir = DATA_DIR / 'cache_scopus' / 'logs'
+                log_dir.mkdir(parents=True, exist_ok=True)
+                log_path = log_dir / f"download_{clean_name}.log"
+                done_path = log_dir / f"download_{clean_name}.done"
+                pid_path = log_dir / f"download_{clean_name}.pid"
+                
+                log_path.unlink(missing_ok=True)
+                done_path.unlink(missing_ok=True)
+                
+                log_file = open(log_path, "w", encoding="utf-8", buffering=1)
+                proc = subprocess.Popen(
+                    cmd_down,
+                    stdout=log_file,
+                    stderr=subprocess.STDOUT,
+                    cwd=str(BASE_PATH),
+                    text=True
+                )
+                
+                pid_path.write_text(str(proc.pid))
+                st.session_state["scopus_running"] = True
+                st.session_state["scopus_active_log"] = str(log_path)
+                st.session_state["scopus_active_name"] = clean_name
+                st.rerun()
+                
+    # --- SECCIÓN DE MONITOREO DE LOGS DE SCOPUS ---
+    if st.session_state.get("scopus_running", False) or st.session_state.get("scopus_active_log", ""):
+        active_log = Path(st.session_state.get("scopus_active_log", ""))
+        active_name = st.session_state.get("scopus_active_name", "")
+        
+        if active_log.exists() and active_log.stat().st_size > 0:
+            st.sidebar.markdown(f"#### 📋 Descarga en progreso: {active_name}")
+            st.sidebar.caption("Esta tarea continuará en el servidor aunque cierres la pestaña.")
+            try:
+                lines = active_log.read_text(encoding="utf-8", errors="replace").splitlines()
+                tail = lines[-15:] if len(lines) > 15 else lines
+                st.sidebar.code("\n".join(tail), language="", wrap_lines=False)
+            except:
+                pass
+            
+            import psutil
+            is_alive = False
+            pid_file = DATA_DIR / 'cache_scopus' / 'logs' / f"download_{active_name}.pid"
+            if pid_file.exists():
+                try:
+                    pid = int(pid_file.read_text())
+                    if psutil.pid_exists(pid):
+                        is_alive = True
+                except:
+                    pass
+            
+            if is_alive or st.session_state.get("scopus_running", False):
+                import time
+                time.sleep(0.5)
+                st.sidebar.caption("🔄 Actualizando automáticamente...")
+                st.markdown("""<meta http-equiv="refresh" content="5">""", unsafe_allow_html=True)
+                
+                if not is_alive and len(lines) > 5:
+                    st.session_state["scopus_running"] = False
+                    pid_file.unlink(missing_ok=True)
+            else:
+                st.sidebar.success("✅ Tarea finalizada o detenida.")
+                if st.sidebar.button("Limpiar Visor de Log", key="clear_log"):
+                    st.session_state["scopus_running"] = False
+                    st.session_state["scopus_active_log"] = ""
+                    st.rerun()
 
     st.sidebar.markdown("---")
     
@@ -691,19 +724,50 @@ with tab_main_metrics:
     period_mode = st.radio("Periodo de Análisis", ["Últimos 5 años (2021-2025)", "Periodo Completo"], index=0, horizontal=True, key="period_mode_sel_flat")
     st.markdown("---")
     
+    def render_export_section(entity_name, col_key):
+        if st.button(f"📥 Exportar Metadatos Scopus", key=f"prep_export_{col_key}", use_container_width=True):
+            with st.spinner("Preparando archivo de exportación..."):
+                from pipeline_topic.export_scopus import fetch_export_data, dataframe_to_scopus_txt
+                engine = "OpenAlex" if "OpenAlex" in data_source else "Scopus"
+                ctx = selected_subfield if engine == "OpenAlex" else str(selected_file)
+                df_ex = fetch_export_data(engine, ctx, entity_name, period_mode)
+                if df_ex is not None and not df_ex.empty:
+                    txt = dataframe_to_scopus_txt(df_ex)
+                    st.session_state[f"export_txt_{col_key}"] = txt
+                    st.session_state[f"export_len_{col_key}"] = len(df_ex)
+                else:
+                    st.session_state[f"export_txt_{col_key}"] = None
+                    st.warning("No hay datos para exportar")
+                    
+        if st.session_state.get(f"export_txt_{col_key}"):
+            txt = st.session_state[f"export_txt_{col_key}"]
+            n_docs = st.session_state.get(f"export_len_{col_key}", 0)
+            st.download_button(
+                label=f"⬇️ Descargar .txt ({n_docs} docs)",
+                data=txt,
+                file_name=f"scopus_{entity_name.replace(' ', '_')}.txt",
+                mime="text/plain",
+                key=f"dl_txt_{col_key}",
+                use_container_width=True,
+                type="primary"
+            )
+
     entities = ["Mundo", "México"] + sorted(list(GLOBAL_REGIONS.keys()))
     col_A, col_B, col_C = st.columns(3)
     with col_A:
         ent1 = st.selectbox("Entidad A", entities, index=0)
         st.markdown(f"### 🌏 {ent1}")
+        render_export_section(ent1, "A")
     with col_B:
         idx_latam = entities.index("Latinoamérica y Caribe") if "Latinoamérica y Caribe" in entities else 0
         ent2 = st.selectbox("Entidad B", entities, index=idx_latam)
         st.markdown(f"### 📍 {ent2}")
+        render_export_section(ent2, "B")
     with col_C:
         idx_mex = entities.index("México") if "México" in entities else 0
         ent3 = st.selectbox("Entidad C", entities, index=idx_mex)
         st.markdown(f"### 🇲🇽 {ent3}")
+        render_export_section(ent3, "C")
 
     ck1, ck2, ck3 = st.columns(3)
     with ck1: data1 = render_entity_kpis(ent1, df_data, period_mode)
