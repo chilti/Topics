@@ -194,96 +194,7 @@ else:
     # SCOPUS CUSTOM
     st.sidebar.title("🔍 Scopus Queries")
     
-    # --- FORMULARIO NUEVA BÚSQUEDA ---
-    with st.sidebar.expander("➕ Nueva Búsqueda Scopus", expanded=False):
-        st.markdown("<small>Descarga un nuevo conjunto desde la API de Scopus y extrae sus métricas de ClickHouse.</small>", unsafe_allow_html=True)
-        new_query_name = st.text_input("Nombre de la Búsqueda", placeholder="ej. UNAM Lab Nucl", key="scopus_new_name")
-        new_query_str = st.text_area("Query Scopus (Avanzado)", placeholder="ej. AFFIL(\"UNAM\")", key="scopus_new_query")
-        
-        use_years = st.checkbox("Filtrar por periodo de tiempo", value=False)
-        start_y, end_y = 1990, 2025 # defaults
-        if use_years:
-            col1, col2 = st.columns(2)
-            with col1:
-                start_y = st.number_input("Año Inicio", min_value=1990, max_value=2025, value=2015, step=1)
-            with col2:
-                end_y = st.number_input("Año Fin", min_value=1990, max_value=2025, value=2025, step=1)
-                
-        # Botón para estimar volumen
-        if st.button("🔍 Estimar Volumen"):
-            if not new_query_str:
-                st.error("Ingresa el Query primero.")
-            else:
-                with st.spinner("Consultando API de Scopus..."):
-                    import subprocess
-                    cmd_check = [sys.executable, str(BASE_PATH / "pipeline_scopus" / "scopus_downloader.py"), "--mode", "check", "--query", new_query_str]
-                    res = subprocess.run(cmd_check, capture_output=True, text=True)
-                    
-                    # El script puede imprimir alertas de inicialización antes del número
-                    output_lines = [line.strip() for line in res.stdout.split('\n') if line.strip()]
-                    error_lines = [line.strip() for line in res.stderr.split('\n') if line.strip()]
-                    
-                    if res.returncode != 0 or not output_lines or 'Error' in res.stdout:
-                        st.error("Hubo un error al validar el Query en Scopus.")
-                        with st.expander("Ver detalle técnico"):
-                            st.code(res.stderr + "\n" + res.stdout)
-                    else:
-                        # Extraemos el último renglón que debería ser el número
-                        result_num = output_lines[-1]
-                        if result_num.isdigit():
-                            st.info(f"Resultados estimados en Scopus: **{int(result_num):,} documentos**")
-                        else:
-                            st.warning(f"Respuesta inesperada: {result_num}")
-            
-        if st.button("🚀 Ejecutar Búsqueda y Descargar"):
-            if not new_query_name or not new_query_str:
-                st.error("Nombre y Query son obligatorios.")
-            else:
-                import subprocess
-                import re
-                
-                # 1. Bajar datos de Scopus
-                clean_name = re.sub(r'[^a-zA-Z0-9]', '_', new_query_name).lower()
-                clean_name = re.sub(r'_+', '_', clean_name).strip('_')
-                
-                cmd_down = [
-                    sys.executable, str(BASE_PATH / "pipeline_scopus" / "scopus_downloader.py"),
-                    "--mode", "custom",
-                    "--query", new_query_str,
-                    "--name", clean_name
-                ]
-                
-                if use_years:
-                    cmd_down.extend(["--years", f"{start_y}-{end_y}"])
-                else:
-                    cmd_down.extend(["--years", "1900-2025"]) 
-                    start_y, end_y = 1900, 2025
-                
-                log_dir = DATA_DIR / 'cache_scopus' / 'logs'
-                log_dir.mkdir(parents=True, exist_ok=True)
-                log_path = log_dir / f"download_{clean_name}.log"
-                done_path = log_dir / f"download_{clean_name}.done"
-                pid_path = log_dir / f"download_{clean_name}.pid"
-                
-                log_path.unlink(missing_ok=True)
-                done_path.unlink(missing_ok=True)
-                
-                log_file = open(log_path, "w", encoding="utf-8", buffering=1)
-                proc = subprocess.Popen(
-                    cmd_down,
-                    stdout=log_file,
-                    stderr=subprocess.STDOUT,
-                    cwd=str(BASE_PATH),
-                    text=True
-                )
-                
-                pid_path.write_text(str(proc.pid))
-                st.session_state["scopus_running"] = True
-                st.session_state["scopus_active_log"] = str(log_path)
-                st.session_state["scopus_active_name"] = clean_name
-                st.rerun()
-                
-    # --- SECCIÓN DE MONITOREO DE LOGS DE SCOPUS ---
+    # Checar si hay una descarga activa antes de mostrar el formulario
     import psutil
     log_dir = DATA_DIR / 'cache_scopus' / 'logs'
     active_name = None
@@ -307,11 +218,99 @@ else:
                     except psutil.NoSuchProcess:
                         pid_file.unlink(missing_ok=True)
                 else:
-                    # Cleanup dead pid file
                     pid_file.unlink(missing_ok=True)
             except:
                 pass
 
+    if is_alive:
+        st.sidebar.warning("⚠️ Hay una descarga en progreso. Debes esperar a que finalice para iniciar una nueva.")
+    else:
+        # --- FORMULARIO NUEVA BÚSQUEDA ---
+        with st.sidebar.expander("➕ Nueva Búsqueda Scopus", expanded=False):
+            st.markdown("<small>Descarga un nuevo conjunto desde la API de Scopus y extrae sus métricas de ClickHouse.</small>", unsafe_allow_html=True)
+            new_query_name = st.text_input("Nombre de la Búsqueda", placeholder="ej. UNAM Lab Nucl", key="scopus_new_name")
+            new_query_str = st.text_area("Query Scopus (Avanzado)", placeholder="ej. AFFIL(\"UNAM\")", key="scopus_new_query")
+            
+            use_years = st.checkbox("Filtrar por periodo de tiempo", value=False)
+            start_y, end_y = 1990, 2025 # defaults
+            if use_years:
+                col1, col2 = st.columns(2)
+                with col1:
+                    start_y = st.number_input("Año Inicio", min_value=1990, max_value=2025, value=2015, step=1)
+                with col2:
+                    end_y = st.number_input("Año Fin", min_value=1990, max_value=2025, value=2025, step=1)
+                    
+            # Botón para estimar volumen
+            if st.button("🔍 Estimar Volumen"):
+                if not new_query_str:
+                    st.error("Ingresa el Query primero.")
+                else:
+                    with st.spinner("Consultando API de Scopus..."):
+                        import subprocess
+                        cmd_check = [sys.executable, str(BASE_PATH / "pipeline_scopus" / "scopus_downloader.py"), "--mode", "check", "--query", new_query_str]
+                        res = subprocess.run(cmd_check, capture_output=True, text=True)
+                        
+                        output_lines = [line.strip() for line in res.stdout.split('\n') if line.strip()]
+                        error_lines = [line.strip() for line in res.stderr.split('\n') if line.strip()]
+                        
+                        if res.returncode != 0 or not output_lines or 'Error' in res.stdout:
+                            st.error("Hubo un error al validar el Query en Scopus.")
+                            with st.expander("Ver detalle técnico"):
+                                st.code(res.stderr + "\n" + res.stdout)
+                        else:
+                            result_num = output_lines[-1]
+                            if result_num.isdigit():
+                                st.info(f"Resultados estimados en Scopus: **{int(result_num):,} documentos**")
+                            else:
+                                st.warning(f"Respuesta inesperada: {result_num}")
+                
+            if st.button("🚀 Ejecutar Búsqueda y Descargar"):
+                if not new_query_name or not new_query_str:
+                    st.error("Nombre y Query son obligatorios.")
+                else:
+                    import subprocess
+                    import re
+                    
+                    clean_name = re.sub(r'[^a-zA-Z0-9]', '_', new_query_name).lower()
+                    clean_name = re.sub(r'_+', '_', clean_name).strip('_')
+                    
+                    cmd_down = [
+                        sys.executable, str(BASE_PATH / "pipeline_scopus" / "scopus_downloader.py"),
+                        "--mode", "custom",
+                        "--query", new_query_str,
+                        "--name", clean_name
+                    ]
+                    
+                    if use_years:
+                        cmd_down.extend(["--years", f"{start_y}-{end_y}"])
+                    else:
+                        cmd_down.extend(["--years", "1900-2025"]) 
+                        start_y, end_y = 1900, 2025
+                    
+                    log_dir.mkdir(parents=True, exist_ok=True)
+                    log_path = log_dir / f"download_{clean_name}.log"
+                    done_path = log_dir / f"download_{clean_name}.done"
+                    pid_path = log_dir / f"download_{clean_name}.pid"
+                    
+                    log_path.unlink(missing_ok=True)
+                    done_path.unlink(missing_ok=True)
+                    
+                    log_file = open(log_path, "w", encoding="utf-8", buffering=1)
+                    proc = subprocess.Popen(
+                        cmd_down,
+                        stdout=log_file,
+                        stderr=subprocess.STDOUT,
+                        cwd=str(BASE_PATH),
+                        text=True
+                    )
+                    
+                    pid_path.write_text(str(proc.pid))
+                    st.session_state["scopus_running"] = True
+                    st.session_state["scopus_active_log"] = str(log_path)
+                    st.session_state["scopus_active_name"] = clean_name
+                    st.rerun()
+                
+    # --- SECCIÓN DE MONITOREO DE LOGS DE SCOPUS ---
     if active_name and active_log and active_log.exists():
         st.sidebar.markdown(f"#### 📋 Descarga en progreso: {active_name}")
         st.sidebar.caption("Esta tarea continuará en el servidor aunque cierres la pestaña.")
