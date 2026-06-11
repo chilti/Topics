@@ -138,9 +138,41 @@ def download_custom_query(query, start_year, end_year, name_prefix=None):
     for year in range(start_year, end_year + 1):
         # Query delimitado por año
         q_year = f"({query}) AND PUBYEAR = {year}"
-        df_year = fetch_chunk(q_year, f"custom_{query_id}_{year}")
-        if df_year is not None:
-            all_dfs.append(df_year)
+        
+        # 1. Checar el volumen del año
+        size = 0
+        try:
+            from pybliometrics.scopus import ScopusSearch
+            s_check = ScopusSearch(q_year, download=False, subscriber=False)
+            size = s_check.get_results_size()
+        except Exception as e:
+            import re
+            m = re.search(r'Found ([\d,]+) matches', str(e))
+            if m:
+                size = int(m.group(1).replace(',', ''))
+            
+        if size <= 5000:
+            # Seguro descargar el año entero
+            df_year = fetch_chunk(q_year, f"custom_{query_id}_{year}")
+            if df_year is not None:
+                all_dfs.append(df_year)
+        else:
+            print(f"[*] Año {year} tiene {size} resultados (>5000). Dividiendo por meses...")
+            months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+            
+            # Descargar mes por mes
+            for month in months:
+                q_month = f"({query}) AND PUBYEAR = {year} AND PUBDATETXT(* {month} *)"
+                df_m = fetch_chunk(q_month, f"custom_{query_id}_{year}_{month}")
+                if df_m is not None:
+                    all_dfs.append(df_m)
+                    
+            # Descargar documentos que no especifican mes
+            q_undef = f"({query}) AND PUBYEAR = {year} AND NOT PUBDATETXT(* Jan *) AND NOT PUBDATETXT(* Feb *) AND NOT PUBDATETXT(* Mar *) AND NOT PUBDATETXT(* Apr *) AND NOT PUBDATETXT(* May *) AND NOT PUBDATETXT(* Jun *) AND NOT PUBDATETXT(* Jul *) AND NOT PUBDATETXT(* Aug *) AND NOT PUBDATETXT(* Sep *) AND NOT PUBDATETXT(* Oct *) AND NOT PUBDATETXT(* Nov *) AND NOT PUBDATETXT(* Dec *)"
+            df_undef = fetch_chunk(q_undef, f"custom_{query_id}_{year}_UNDEF")
+            if df_undef is not None:
+                all_dfs.append(df_undef)
+            
             
     if all_dfs:
         final_df = pd.concat(all_dfs, ignore_index=True)
@@ -173,7 +205,16 @@ def check_query_size(query):
         s = ScopusSearch(query, download=False, subscriber=False)
         print(s.get_results_size())
     except Exception as e:
-        print(f"Error: {e}")
+        import re
+        error_msg = str(e)
+        # Pybliometrics throws an error if > 5000 even when download=False
+        # e.g., "Found 54,485 matches. The query fails to return more than 5000 entries..."
+        m = re.search(r'Found ([\d,]+) matches', error_msg)
+        if m:
+            num_str = m.group(1).replace(',', '')
+            print(num_str)
+        else:
+            print(f"Error: {e}")
 
 def download_by_cluster(cluster_id, start_year, end_year):
     """
