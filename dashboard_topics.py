@@ -332,13 +332,11 @@ else:
                 st.rerun()
         elif len(lines) > 5:
             # Finalizado
-            pass
-            else:
-                st.sidebar.success("✅ Tarea finalizada o detenida.")
-                if st.sidebar.button("Limpiar Visor de Log", key="clear_log"):
-                    st.session_state["scopus_running"] = False
-                    st.session_state["scopus_active_log"] = ""
-                    st.rerun()
+            st.sidebar.success("✅ Tarea finalizada o detenida.")
+            if st.sidebar.button("Limpiar Visor de Log", key="clear_log"):
+                st.session_state["scopus_running"] = False
+                st.session_state["scopus_active_log"] = ""
+                st.rerun()
 
     st.sidebar.markdown("---")
     
