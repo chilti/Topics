@@ -14,6 +14,49 @@ BASE_PATH = Path(__file__).parent.parent
 DATA_DIR = BASE_PATH / "data" / "cache_scopus" / "raw"
 DATA_DIR.mkdir(parents=True, exist_ok=True)
 
+# Áreas de conocimiento de Scopus (ASJC) en orden de probable volumen
+SCOPUS_SUBJECT_AREAS = [
+    ('MEDI', 'Medicine'),
+    ('SOCI', 'Social Sciences'),
+    ('PSYC', 'Psychology'),
+    ('NURS', 'Nursing'),
+    ('HEAL', 'Health Professions'),
+    ('BIOC', 'Biochemistry'),
+    ('ENVI', 'Environmental Science'),
+    ('AGRI', 'Agricultural and Biological Sciences'),
+    ('COMP', 'Computer Science'),
+    ('ENGI', 'Engineering'),
+    ('BUSI', 'Business'),
+    ('ECON', 'Economics'),
+    ('MATH', 'Mathematics'),
+    ('NEUR', 'Neuroscience'),
+    ('PHAR', 'Pharmacology'),
+    ('ARTS', 'Arts and Humanities'),
+    ('PHYS', 'Physics and Astronomy'),
+    ('CHEM', 'Chemistry'),
+    ('EART', 'Earth and Planetary Sciences'),
+    ('DECI', 'Decision Sciences'),
+    ('IMMU', 'Immunology'),
+    ('MATE', 'Materials Science'),
+    ('ENER', 'Energy'),
+    ('VETE', 'Veterinary'),
+    ('DENT', 'Dentistry'),
+    ('MULT', 'Multidisciplinary'),
+]
+
+def check_size(query):
+    """Retorna el numero de resultados de un query sin descargarlo."""
+    try:
+        from pybliometrics.scopus import ScopusSearch
+        s = ScopusSearch(query, download=False, subscriber=False)
+        return s.get_results_size()
+    except Exception as e:
+        import re as _re
+        m = _re.search(r'Found ([\d,]+) matches', str(e))
+        if m:
+            return int(m.group(1).replace(',', ''))
+        return 0
+
 def init_pybliometrics():
     """Asegurar que pybliometrics esté configurado y con la API key correcta."""
     # Obtenemos API key desde entorno, o usamos la nueva institucional de la UNAM
@@ -200,42 +243,45 @@ def download_custom_query(query, start_year, end_year, name_prefix=None):
             else:
                 print(f"[*] Año {year} UNDEF tiene {size_undef} resultados (>5000). Dividiendo por DOCTYPE...")
                 doctypes = ['ar', 're', 'cp', 'bk', 'ch', 'ed', 'sh', 'le', 'no', 'er', 'cr']
+                seen_doctypes = []
                 for dt in doctypes:
                     q_dt = f"({q_undef}) AND DOCTYPE({dt})"
                     chunk_name = f"custom_{query_id}_{year}_UNDEF_{dt}"
-                    
-                    # Verificar si este sub-chunk también supera 5000
-                    size_dt = 0
-                    try:
-                        from pybliometrics.scopus import ScopusSearch
-                        s_dt = ScopusSearch(q_dt, download=False, subscriber=False)
-                        size_dt = s_dt.get_results_size()
-                    except Exception as e_dt:
-                        import re as _re
-                        m = _re.search(r'Found ([\d,]+) matches', str(e_dt))
-                        if m:
-                            size_dt = int(m.group(1).replace(',', ''))
+                    size_dt = check_size(q_dt)
+                    seen_doctypes.append(dt)
                     
                     if size_dt <= 5000:
                         df_dt = fetch_chunk(q_dt, chunk_name)
                         if df_dt is not None:
                             all_dfs.append(df_dt)
-                    else:
-                        # Tercer nivel: subdividir por idioma
-                        print(f"[*] {chunk_name} tiene {size_dt} resultados (>5000). Subdividiendo por idioma...")
-                        languages = ['English', 'Spanish', 'French', 'German', 'Portuguese', 'Chinese', 'Italian', 'Russian', 'Japanese', 'Korean']
-                        for lang in languages:
-                            q_lang = f"({q_dt}) AND LANGUAGE({lang})"
-                            df_lang = fetch_chunk(q_lang, f"{chunk_name}_{lang[:3].lower()}")
-                            if df_lang is not None:
-                                all_dfs.append(df_lang)
-                        # Y los que no son de esos idiomas
-                        not_langs = " AND ".join([f"NOT LANGUAGE({l})" for l in languages])
-                        df_lang_other = fetch_chunk(f"({q_dt}) AND {not_langs}", f"{chunk_name}_lang_other")
-                        if df_lang_other is not None:
-                            all_dfs.append(df_lang_other)
+                    elif size_dt > 0:
+                        # Tercer nivel: subdividir por AREA DE CONOCIMIENTO (SUBJAREA)
+                        print(f"[*] {chunk_name} tiene {size_dt} resultados (>5000). Subdividiendo por SUBJAREA...")
+                        seen_areas = []
+                        for area_code, area_name in SCOPUS_SUBJECT_AREAS:
+                            q_area = f"({q_dt}) AND SUBJAREA({area_code})"
+                            area_chunk_name = f"{chunk_name}_{area_code.lower()}"
+                            size_area = check_size(q_area)
+                            seen_areas.append(area_code)
+                            if size_area > 0:
+                                if size_area <= 5000:
+                                    df_area = fetch_chunk(q_area, area_chunk_name)
+                                    if df_area is not None:
+                                        all_dfs.append(df_area)
+                                else:
+                                    print(f"[!] {area_chunk_name} sigue teniendo {size_area} resultados. Se descargará en bloques de 5000 máximo.")
+                                    # Último recurso: intentar descargar de todos modos (pybliometrics cortara en 5000)
+                                    df_area = fetch_chunk(q_area, area_chunk_name)
+                                    if df_area is not None:
+                                        all_dfs.append(df_area)
+                        # Complemento de áreas
+                        not_areas = " AND ".join([f"NOT SUBJAREA({a})" for a in seen_areas])
+                        if not_areas:
+                            df_area_other = fetch_chunk(f"({q_dt}) AND {not_areas}", f"{chunk_name}_area_other")
+                            if df_area_other is not None:
+                                all_dfs.append(df_area_other)
                 
-                # Y los que no entran en esos doctypes
+                # Complemento de DOCTYPEs
                 not_dt = " AND ".join([f"NOT DOCTYPE({dt})" for dt in doctypes])
                 q_not_dt = f"({q_undef}) AND {not_dt}"
                 df_not_dt = fetch_chunk(q_not_dt, f"custom_{query_id}_{year}_UNDEF_OTHER")
