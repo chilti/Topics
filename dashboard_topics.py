@@ -32,10 +32,14 @@ from pipeline_topic import (
     load_types_data,
     get_type_distribution,
     load_inst_types_data,
+    get_type_distribution,
+    load_inst_types_data,
     get_inst_type_distribution,
     get_entity_metrics,
-    get_summary_tables
+    get_summary_tables,
+    compute_custom_data_flat
 )
+from regions import GLOBAL_REGIONS
 
 # Nuevo: Pipeline de Frentes de Investigación (lanzado como subproceso, no bloquea)
 import subprocess
@@ -145,41 +149,197 @@ INST_METRICS = {
     "Percentil": "percentile"
 }
 
-# --- SIDEBAR: JERARQUÍA ---
-st.sidebar.title("🧬 Análisis de Tópicos")
-st.sidebar.info("Utilizando motor optimizado `works_flat`.")
+# --- SIDEBAR: DATASOURCE ---
+st.sidebar.title("🛠️ Fuente de Datos")
+data_source = st.sidebar.radio("Motor de Búsqueda:", ["OpenAlex (Global)", "Scopus (Custom)"])
 st.sidebar.markdown("---")
-
-# Hierarchy retrieval
-from regions import GLOBAL_REGIONS
-
-df_hier = get_hierarchy()
-
-if df_hier is not None:
-    domains = sorted(df_hier['domain'].dropna().unique())
-    selected_domain = st.sidebar.selectbox("1. Dominio", domains, index=domains.index('Health Sciences') if 'Health Sciences' in domains else 0)
-    
-    fields = sorted(df_hier[df_hier['domain'] == selected_domain]['field'].dropna().unique())
-    selected_field = st.sidebar.selectbox("2. Campo", fields, index=fields.index('Medicine') if 'Medicine' in fields else 0)
-    
-    subfields = sorted(df_hier[df_hier['field'] == selected_field]['subfield'].dropna().unique())
-    default_sub = "Pulmonary and Respiratory Medicine"
-    selected_subfield = st.sidebar.selectbox("3. Subcampo", subfields, index=subfields.index(default_sub) if default_sub in subfields else 0)
-else:
-    st.sidebar.error("No se pudo cargar la jerarquía de temas desde `works_flat`.")
-    st.stop()
 
 show_all_topics = st.session_state.get("show_all_topics_chk_flat", False)
 
-if st.sidebar.button("🔄 Forzar Recálculo (Flat)", help="Borra el caché local y vuelve a consultar ClickHouse"):
-    st.session_state.calculating = True
-    st.session_state.has_cache = False
-    st.rerun()
+if data_source == "OpenAlex (Global)":
+    # --- SIDEBAR: JERARQUÍA ---
+    st.sidebar.title("🧬 Análisis de Tópicos")
+    st.sidebar.info("Utilizando motor optimizado `works_flat`.")
+    st.sidebar.markdown("---")
 
-# --- MAIN CONTENT ---
-st.title(f"Tema (Flat): {selected_subfield}")
-st.markdown(f"**Dominio:** {selected_domain} | **Campo:** {selected_field}")
-st.markdown("---")
+    # Hierarchy retrieval
+    df_hier = get_hierarchy()
+
+    if df_hier is not None:
+        domains = sorted(df_hier['domain'].dropna().unique())
+        selected_domain = st.sidebar.selectbox("1. Dominio", domains, index=domains.index('Health Sciences') if 'Health Sciences' in domains else 0)
+        
+        fields = sorted(df_hier[df_hier['domain'] == selected_domain]['field'].dropna().unique())
+        selected_field = st.sidebar.selectbox("2. Campo", fields, index=fields.index('Medicine') if 'Medicine' in fields else 0)
+        
+        subfields = sorted(df_hier[df_hier['field'] == selected_field]['subfield'].dropna().unique())
+        default_sub = "Pulmonary and Respiratory Medicine"
+        selected_subfield = st.sidebar.selectbox("3. Subcampo", subfields, index=subfields.index(default_sub) if default_sub in subfields else 0)
+    else:
+        st.sidebar.error("No se pudo cargar la jerarquía de temas desde `works_flat`.")
+        st.stop()
+
+
+
+    if st.sidebar.button("🔄 Forzar Recálculo (Flat)", help="Borra el caché local y vuelve a consultar ClickHouse"):
+        st.session_state.calculating = True
+        st.session_state.has_cache = False
+        st.rerun()
+
+    # --- MAIN CONTENT ---
+    st.title(f"Tema (Flat): {selected_subfield}")
+    st.markdown(f"**Dominio:** {selected_domain} | **Campo:** {selected_field}")
+    st.markdown("---")
+else:
+    # SCOPUS CUSTOM
+    st.sidebar.title("🔍 Scopus Queries")
+    
+    # --- FORMULARIO NUEVA BÚSQUEDA ---
+    with st.sidebar.expander("➕ Nueva Búsqueda Scopus", expanded=False):
+        st.markdown("<small>Descarga un nuevo conjunto desde la API de Scopus y extrae sus métricas de ClickHouse.</small>", unsafe_allow_html=True)
+        new_query_name = st.text_input("Nombre de la Búsqueda", placeholder="ej. UNAM Lab Nucl")
+        new_query_str = st.text_area("Query Scopus (Avanzado)", placeholder="ej. AFFIL(\"UNAM\")")
+        
+        use_years = st.checkbox("Filtrar por periodo de tiempo", value=False)
+        start_y, end_y = 1990, 2025 # defaults
+        if use_years:
+            col1, col2 = st.columns(2)
+            with col1:
+                start_y = st.number_input("Año Inicio", min_value=1990, max_value=2025, value=2015, step=1)
+            with col2:
+                end_y = st.number_input("Año Fin", min_value=1990, max_value=2025, value=2025, step=1)
+                
+        # Botón para estimar volumen
+        if st.button("🔍 Estimar Volumen"):
+            if not new_query_str:
+                st.error("Ingresa el Query primero.")
+            else:
+                with st.spinner("Consultando API de Scopus..."):
+                    import subprocess
+                    cmd_check = [sys.executable, str(BASE_PATH / "pipeline_scopus" / "scopus_downloader.py"), "--mode", "check", "--query", new_query_str]
+                    res = subprocess.run(cmd_check, capture_output=True, text=True)
+                    
+                    # El script puede imprimir alertas de inicialización antes del número
+                    output_lines = [line.strip() for line in res.stdout.split('\n') if line.strip()]
+                    error_lines = [line.strip() for line in res.stderr.split('\n') if line.strip()]
+                    
+                    if res.returncode != 0 or not output_lines or 'Error' in res.stdout:
+                        st.error("Hubo un error al validar el Query en Scopus.")
+                        with st.expander("Ver detalle técnico"):
+                            st.code(res.stderr + "\n" + res.stdout)
+                    else:
+                        # Extraemos el último renglón que debería ser el número
+                        result_num = output_lines[-1]
+                        if result_num.isdigit():
+                            st.info(f"Resultados estimados en Scopus: **{int(result_num):,} documentos**")
+                        else:
+                            st.warning(f"Respuesta inesperada: {result_num}")
+            
+        if st.button("🚀 Ejecutar Búsqueda y Descargar"):
+            if not new_query_name or not new_query_str:
+                st.error("Nombre y Query son obligatorios.")
+            else:
+                with st.spinner("Descargando de Scopus... esto puede tardar un poco dependiendo del volumen."):
+                    import subprocess
+                    import re
+                    
+                    # 1. Bajar datos de Scopus
+                    # Limpiamos el nombre para el archivo igual que en scopus_downloader.py
+                    clean_name = re.sub(r'[^a-zA-Z0-9]', '_', new_query_name).lower()
+                    clean_name = re.sub(r'_+', '_', clean_name).strip('_')
+                    
+                    cmd_down = [
+                        sys.executable, str(BASE_PATH / "pipeline_scopus" / "scopus_downloader.py"),
+                        "--mode", "custom",
+                        "--query", new_query_str,
+                        "--name", clean_name
+                    ]
+                    
+                    if use_years:
+                        cmd_down.extend(["--years", f"{start_y}-{end_y}"])
+                    else:
+                        cmd_down.extend(["--years", "1900-2025"]) # Rango máximo por defecto para Scopus
+                        start_y, end_y = 1900, 2025
+                    
+                    try:
+                        res = subprocess.run(cmd_down, capture_output=True, text=True)
+                        if res.returncode != 0 or "[!] No se descargaron datos" in res.stdout:
+                            st.error("Error en la descarga de Scopus. Verifica el query.")
+                            with st.expander("Ver Logs de Scopus"):
+                                st.code(res.stdout + "\n" + res.stderr)
+                            st.stop()
+                            
+                        # 2. Procesar y cruzar con OpenAlex
+                        raw_parquet = DATA_DIR / "cache_scopus" / "raw" / f"full_custom_{clean_name}_{start_y}_{end_y}.parquet"
+                        if raw_parquet.exists():
+                            st.info("Descarga exitosa. Cruzando con ClickHouse...")
+                            cmd_proc = [
+                                sys.executable, str(BASE_PATH / "pipeline_scopus" / "scopus_processor.py"),
+                                "--input", str(raw_parquet)
+                            ]
+                            res_proc = subprocess.run(cmd_proc, capture_output=True, text=True)
+                            if res_proc.returncode != 0:
+                                st.error("Error al cruzar con ClickHouse.")
+                                with st.expander("Ver Logs ClickHouse"):
+                                    st.code(res_proc.stdout + "\n" + res_proc.stderr)
+                                st.stop()
+                            else:
+                                st.success("¡Búsqueda y cruce finalizados con éxito!")
+                                time.sleep(1)
+                                st.rerun()
+                        else:
+                            st.error("No se encontró el archivo raw descargado.")
+                    except Exception as e:
+                        st.error(f"Error de ejecución: {str(e)}")
+
+    st.sidebar.markdown("---")
+    
+    # Listar parquet pre-procesados
+    PROCESSED_SCOPUS_DIR = DATA_DIR / 'cache_scopus' / 'processed'
+    if not PROCESSED_SCOPUS_DIR.exists():
+        PROCESSED_SCOPUS_DIR.mkdir(parents=True)
+        
+    scopus_files = list(PROCESSED_SCOPUS_DIR.glob("*_openalex.parquet"))
+    if not scopus_files:
+        st.sidebar.warning("No hay descargas de Scopus pre-procesadas.")
+        st.stop()
+        
+    # Formatear nombres para humanos
+    # El archivo viene como full_custom_NOMBRE_START_END_openalex.parquet
+    query_options = {}
+    for f in scopus_files:
+        stem = f.stem.replace('_openalex', '')
+        # Intentar extraer el nombre limpio si cumple el patron full_custom_...
+        import re
+        m = re.match(r'full_custom_(.+)_\d{4}_\d{4}', stem)
+        human_name = m.group(1).replace('_', ' ').title() if m else stem
+        query_options[human_name] = f
+        
+    selected_query_human = st.sidebar.selectbox("Selecciona la Búsqueda:", list(query_options.keys()))
+    selected_file = query_options[selected_query_human]
+    selected_subfield = selected_file.stem.replace('_openalex', '')
+    
+    if st.sidebar.button("🔄 Recalcular Métricas Scopus"):
+        st.session_state.calculating = True
+        st.session_state.has_cache = False
+        st.rerun()
+        
+    st.title(f"Scopus Custom: {selected_query_human}")
+    
+    # Intentar cargar metadata de la búsqueda
+    meta_path = DATA_DIR / 'cache_scopus' / 'raw' / f"{selected_subfield}.json"
+    if meta_path.exists():
+        import json
+        try:
+            with open(meta_path, 'r', encoding='utf-8') as f:
+                meta = json.load(f)
+                st.markdown(f"**Query Scopus:** `{meta.get('query', '')}`")
+                st.markdown(f"**Periodo:** {meta.get('start_year')} - {meta.get('end_year')}")
+        except:
+            pass
+            
+    st.markdown(f"**Fuente:** Scopus API cruzado con OpenAlex")
+    st.markdown("---")
 
 # Cache check
 if 'selected_subfield' not in st.session_state or st.session_state.selected_subfield != selected_subfield:
@@ -198,14 +358,21 @@ if not st.session_state.has_cache:
 
 if not st.session_state.has_cache and st.session_state.get('calculating'):
     with st.spinner("Calculando métricas globales desde works_flat..."):
-        success = compute_subfield_data(selected_subfield)
+        if data_source == "OpenAlex (Global)":
+            success = compute_subfield_data(selected_subfield)
+        else:
+            # Para Scopus leemos el parquet de DOIs
+            df_scopus_oa = pd.read_parquet(selected_file)
+            dois = df_scopus_oa['doi'].dropna().tolist()
+            success = compute_custom_data_flat(selected_subfield, dois)
+            
         st.session_state.calculating = False
         if success:
             st.success("¡Cálculo finalizado!")
             st.session_state.has_cache = True
             st.rerun()
         else:
-            st.error("No se encontraron datos en works_flat para este subcampo.")
+            st.error("No se encontraron datos en works_flat para esta selección.")
             st.session_state.calculating = False
     st.stop()
 
@@ -599,6 +766,45 @@ with tab_main_metrics:
         render_entity_institutions(ent3, df_inst, period_mode, ix_col, iy_col, inst_x_label, inst_y_label)
 
     # ---------------------------------------------------------------------------
+    # 🤝 Colaboración Internacional (Mapa y Red) - Elevado a Sección Principal
+    # ---------------------------------------------------------------------------
+    st.markdown("---")
+    st.markdown("### 🤝 Colaboración Científica Internacional")
+    if df_collab is not None and not df_collab.empty:
+        # Determinar dinámicamente el código de país a partir de los selectores de la parte superior
+        target_country_code = 'MX'
+        inv_country_names = {v: k for k, v in viz_bibliometrics.COUNTRY_NAMES.items()}
+        for ent in [ent2, ent3, ent1]:
+            if ent in inv_country_names:
+                target_country_code = inv_country_names[ent]
+                break
+        
+        col_map, col_net = st.columns([1.3, 1])
+        with col_map:
+            st.markdown(f"**🌎 Alianzas Científicas de {viz_bibliometrics.COUNTRY_NAMES.get(target_country_code, target_country_code)}**")
+            fig_map = viz_bibliometrics.render_collaboration_map(df_collab, target_country_code)
+            if fig_map is not None:
+                st.plotly_chart(fig_map, use_container_width=True)
+            else:
+                st.info("Sin datos para generar el mapa mundial coroplético.")
+                
+        with col_net:
+            st.markdown("**🕸️ Red Topológica de Coautorías**")
+            pyvis_html = viz_bibliometrics.render_pyvis_network(df_collab, limit=80)
+            if pyvis_html:
+                st.components.v1.html(pyvis_html, height=450, scrolling=False)
+            else:
+                st.info("Sin datos para generar la red de coautorías.")
+                
+        # Matriz de datos opcional abajo a lo ancho
+        with st.expander("📊 Ver Matriz de Datos de Colaboración"):
+            st.info("Esta tabla muestra el número de co-autorías detectadas entre pares de países para este subcampo.")
+            st.dataframe(df_collab, use_container_width=True, hide_index=True)
+            download_csv_button(df_collab, "Colaboración")
+    else:
+        st.warning("No hay datos de colaboración para este subcampo. Intenta 'Forzar Recálculo'.")
+
+    # ---------------------------------------------------------------------------
     # Frentes de Investigación: función definida antes de usarse
     # ---------------------------------------------------------------------------
 
@@ -800,11 +1006,11 @@ with tab_main_metrics:
             "🧩 Tópicos (Anual)", "🧩 Tópicos (Totales)",
             "📚 Revistas (Anual)", "📅 Evolución Países-Tópicos",
             "📊 Totales 2021-2025", "📈 Totales Históricos",
-            "🤝 Colaboración", "🏢 Instituciones", "🔬 Frentes de Investigación"
+            "🏢 Instituciones", "🔬 Frentes de Investigación"
         ]
         all_tabs = st.tabs(tabs_list)
         (tab_sum_1, tab_sum_1b, tab_sum_2, tab_sum_2b, tab_sum_3, 
-         tab_sum_4, tab_sum_5, tab_sum_6, tab_sum_7, tab_sum_8, tab_fronts) = all_tabs
+         tab_sum_4, tab_sum_5, tab_sum_6, tab_sum_8, tab_fronts) = all_tabs
 
         with tab_sum_1:
             st.subheader("🌎 Posicionamiento Geopolítico por Regiones")
@@ -853,35 +1059,7 @@ with tab_main_metrics:
             st.dataframe(df_ct_full, use_container_width=True, hide_index=True)
             download_csv_button(df_ct_full, "Totales_Historicos")
 
-        with tab_sum_7:
-            st.subheader("🤝 Colaboración Científica Internacional")
-            if df_collab is not None and not df_collab.empty:
-                # Determinar dinámicamente el código de país a partir de los selectores de la parte superior
-                target_country_code = 'MX'
-                inv_country_names = {v: k for k, v in viz_bibliometrics.COUNTRY_NAMES.items()}
-                for ent in [ent2, ent3, ent1]:
-                    if ent in inv_country_names:
-                        target_country_code = inv_country_names[ent]
-                        break
-                
-                # 1. Mapa Coroplético de Alianzas Científicas
-                fig_map = viz_bibliometrics.render_collaboration_map(df_collab, target_country_code)
-                if fig_map is not None:
-                    st.plotly_chart(fig_map, use_container_width=True)
-                
-                # 2. Red Topológica de Coautoría con Física Interactiva (PyVis)
-                st.markdown("### 🕸️ Red Topológica de Coautorías Internacionales")
-                pyvis_html = viz_bibliometrics.render_pyvis_network(df_collab, limit=80)
-                if pyvis_html:
-                    st.components.v1.html(pyvis_html, height=450, scrolling=False)
-                
-                # 3. Matriz tabular oculta bajo acordeón expandible
-                with st.expander("📊 Ver Matriz de Datos de Colaboración"):
-                    st.info("Esta tabla muestra el número de co-autorías detectadas entre pares de países para este subcampo.")
-                    st.dataframe(df_collab, use_container_width=True, hide_index=True)
-                    download_csv_button(df_collab, "Colaboración")
-            else:
-                st.warning("No hay datos de colaboración para este subcampo. Intenta 'Forzar Recálculo'.")
+
 
         with tab_sum_8:
             st.subheader("🏢 Análisis de Instituciones Líderes")

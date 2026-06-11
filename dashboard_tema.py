@@ -458,13 +458,7 @@ def render_entity_details(entity_name, data, df_types, df_inst_types, show_all=F
 
     # Diversidad Temática (Topics)
     with st.expander("🧩 Desglose de Tópicos Internos", expanded=True):
-        # Intentar renderizar la composición jerárquica Sunburst interactiva
-        fig_sunburst = viz_bibliometrics.render_sunburst_hierarchy(
-            df_data, entity_name, selected_domain, selected_field, selected_subfield
-        )
-        if fig_sunburst is not None:
-            st.plotly_chart(fig_sunburst, use_container_width=True)
-        elif not data['top_topics'].empty:
+        if not data['top_topics'].empty:
             topics_to_show = data['top_topics'] if show_all else data['top_topics'].head(10)
             fig_topics = px.pie(values=topics_to_show.values, names=topics_to_show.index,
                                hole=0.4, color_discrete_sequence=px.colors.qualitative.Pastel)

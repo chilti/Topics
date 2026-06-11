@@ -190,6 +190,19 @@ def get_hierarchy():
 
 def compute_subfield_data_flat(subfield):
     """Calcula todas las métricas para un subcampo usando la tabla flat y optimización de Sandbox."""
+    return _compute_sandbox_data(f"subfield_name = '{subfield}'", subfield)
+
+def compute_custom_data_flat(custom_name, doi_list):
+    """Calcula todas las métricas para un query custom basado en una lista de DOIs."""
+    if not doi_list:
+        return False
+    # Pasamos la lista como string formateado para ClickHouse o usamos parametros.
+    # Dado que la funcion base arma SQL, podemos escapar los DOIs.
+    dois_sql = ", ".join([f"'{d}'" for d in doi_list])
+    return _compute_sandbox_data(f"doi IN ({dois_sql})", custom_name)
+
+def _compute_sandbox_data(where_clause, subfield):
+    """Función interna que crea el sandbox y calcula métricas."""
     try:
         import sys, os as _os
         _src = _os.path.join(_os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))), 'src')
@@ -209,11 +222,16 @@ def compute_subfield_data_flat(subfield):
                 cited_by_count, oa_status, language, country_codes, 
                 institution_ids, institution_types, source_id, sdgs, `type`, 
                 if(T.display_name = '', W.topic_id, T.display_name) as topic_name
-            FROM works_flat AS W FINAL
+            FROM (
+                SELECT * FROM works_flat
+                WHERE {where_clause}
+                ORDER BY publication_year DESC
+                LIMIT 1 BY id
+            ) AS W
             LEFT JOIN (
                 SELECT id, any(display_name) as display_name FROM topics GROUP BY id
             ) AS T ON W.topic_id = T.id
-            WHERE subfield_name = '{subfield}'
+            WHERE {where_clause}
         """)
         status.write("Sandbox listo. Calculando métricas de impacto...")
         q_base = """
