@@ -104,16 +104,29 @@ def procesar_scopus(input_parquet_path):
     
     # Evitamos usar FINAL porque colapsa la memoria o tarda horas. 
     # Mejor traemos todo sin FINAL y limpiamos duplicados en pandas si los hay.
-    query = """
-        SELECT *
-        FROM works_flat
-        WHERE doi IN {dois:Array(String)}
-    """
-    
     try:
-        # Consultamos a Clickhouse usando un parametro
-        print(f"[*] Ejecutando query_df con {len(doi_list)} parametros...", flush=True)
-        df_openalex = client.query_df(query, parameters={'dois': doi_list})
+        print(f"[*] Ejecutando query_df con {len(doi_list)} parametros en chunks de 5000...", flush=True)
+        chunk_size = 5000
+        all_dfs = []
+        for i in range(0, len(doi_list), chunk_size):
+            chunk = doi_list[i:i + chunk_size]
+            # Formateamos la lista de strings para inyectarla directo en SQL y forzar POST body en el driver
+            formatted_dois = ", ".join(f"'{str(doi).replace(chr(39), chr(39)+chr(39))}'" for doi in chunk)
+            
+            chunk_query = f"""
+                SELECT *
+                FROM works_flat
+                WHERE doi IN ({formatted_dois})
+            """
+            
+            df_chunk = client.query_df(chunk_query)
+            if len(df_chunk) > 0:
+                all_dfs.append(df_chunk)
+                
+        if all_dfs:
+            df_openalex = pd.concat(all_dfs, ignore_index=True)
+        else:
+            df_openalex = pd.DataFrame()
         
         # ClickHouse puede devolver duplicados si hay un ReplacingMergeTree sin FINAL
         if 'id' in df_openalex.columns:
