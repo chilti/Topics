@@ -197,8 +197,8 @@ else:
     # --- FORMULARIO NUEVA BÚSQUEDA ---
     with st.sidebar.expander("➕ Nueva Búsqueda Scopus", expanded=False):
         st.markdown("<small>Descarga un nuevo conjunto desde la API de Scopus y extrae sus métricas de ClickHouse.</small>", unsafe_allow_html=True)
-        new_query_name = st.text_input("Nombre de la Búsqueda", placeholder="ej. UNAM Lab Nucl")
-        new_query_str = st.text_area("Query Scopus (Avanzado)", placeholder="ej. AFFIL(\"UNAM\")")
+        new_query_name = st.text_input("Nombre de la Búsqueda", placeholder="ej. UNAM Lab Nucl", key="scopus_new_name")
+        new_query_str = st.text_area("Query Scopus (Avanzado)", placeholder="ej. AFFIL(\"UNAM\")", key="scopus_new_query")
         
         use_years = st.checkbox("Filtrar por periodo de tiempo", value=False)
         start_y, end_y = 1990, 2025 # defaults
@@ -288,15 +288,20 @@ else:
         active_log = Path(st.session_state.get("scopus_active_log", ""))
         active_name = st.session_state.get("scopus_active_name", "")
         
-        if active_log.exists() and active_log.stat().st_size > 0:
+        if active_log.exists():
             st.sidebar.markdown(f"#### 📋 Descarga en progreso: {active_name}")
             st.sidebar.caption("Esta tarea continuará en el servidor aunque cierres la pestaña.")
-            try:
-                lines = active_log.read_text(encoding="utf-8", errors="replace").splitlines()
-                tail = lines[-15:] if len(lines) > 15 else lines
-                st.sidebar.code("\n".join(tail), language="", wrap_lines=False)
-            except:
-                pass
+            
+            lines = []
+            if active_log.stat().st_size > 0:
+                try:
+                    lines = active_log.read_text(encoding="utf-8", errors="replace").splitlines()
+                    tail = lines[-15:] if len(lines) > 15 else lines
+                    st.sidebar.code("\n".join(tail), language="", wrap_lines=False)
+                except:
+                    pass
+            else:
+                st.sidebar.code("Inicializando descarga...", language="", wrap_lines=False)
             
             import psutil
             is_alive = False
