@@ -295,10 +295,17 @@ else:
             try:
                 pid = int(pid_file.read_text())
                 if psutil.pid_exists(pid):
-                    is_alive = True
-                    active_name = pid_file.stem.replace("download_", "")
-                    active_log = log_dir / f"download_{active_name}.log"
-                    break
+                    try:
+                        p = psutil.Process(pid)
+                        if p.is_running() and p.status() not in [psutil.STATUS_ZOMBIE, psutil.STATUS_DEAD]:
+                            is_alive = True
+                            active_name = pid_file.stem.replace("download_", "")
+                            active_log = log_dir / f"download_{active_name}.log"
+                            break
+                        else:
+                            pid_file.unlink(missing_ok=True)
+                    except psutil.NoSuchProcess:
+                        pid_file.unlink(missing_ok=True)
                 else:
                     # Cleanup dead pid file
                     pid_file.unlink(missing_ok=True)
