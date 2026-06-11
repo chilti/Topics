@@ -193,35 +193,30 @@ def compute_subfield_data_flat(subfield):
     return _compute_sandbox_data(f"subfield_name = '{subfield}'", subfield)
 
 def compute_custom_data_flat(custom_name, doi_list):
-    """Calcula todas las métricas para un query custom basado en una lista de DOIs."""
+    """Calcula todas las metricas para un query custom basado en lista de DOIs."""
     if not doi_list:
         return False
-    
-    # Para listas grandes (>5000 DOIs), no podemos meterlos en un IN() de SQL
-    # porque ClickHouse lanza max_query_size. Usamos una tabla temporal.
+    import uuid
+    staging = '_staging_dois_' + uuid.uuid4().hex[:12]
+    client = get_ch_client()
     try:
-        client = get_ch_client()
-        
-        # 1. Crear tabla temporal con los DOIs
-        client.command("DROP TEMPORARY TABLE IF EXISTS tmp_custom_dois")
-        client.command("CREATE TEMPORARY TABLE tmp_custom_dois (doi String)")
-        
-        # 2. Insertar DOIs en chunks de 5000
-        chunk_size = 5000
-        for i in range(0, len(doi_list), chunk_size):
-            chunk = [[d] for d in doi_list[i:i + chunk_size]]
-            client.insert("tmp_custom_dois", chunk, column_names=["doi"])
-        
-        # 3. Usar subquery en lugar de IN() con valores inline
-        where_clause = "doi IN (SELECT doi FROM tmp_custom_dois)"
+        client.command('CREATE TABLE IF NOT EXISTS ' + staging + ' (doi String) ENGINE = Memory')
+        for i in range(0, len(doi_list), 5000):
+            chunk = [[d] for d in doi_list[i:i + 5000]]
+            client.insert(staging, chunk, column_names=['doi'])
+        where_clause = 'doi IN (SELECT doi FROM ' + staging + ')'
         return _compute_sandbox_data(where_clause, custom_name)
-        
     except Exception as e:
-        # Fallback: si la lista es pequeña, usar IN directo
         if len(doi_list) <= 2000:
-            dois_sql = ", ".join([f"'{d}'" for d in doi_list])
-            return _compute_sandbox_data(f"doi IN ({dois_sql})", custom_name)
+            dois_sql = ', '.join(["'" + d + "'" for d in doi_list])
+            return _compute_sandbox_data('doi IN (' + dois_sql + ')', custom_name)
         raise e
+    finally:
+        try:
+            client.command('DROP TABLE IF EXISTS ' + staging)
+        except:
+            pass
+
 
 def _compute_sandbox_data(where_clause, subfield):
     """Función interna que crea el sandbox y calcula métricas."""
