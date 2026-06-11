@@ -16,6 +16,15 @@ data/
 scratch/
 .env
 
+# Pybliometrics API cache (no debe subirse al repo)
+scopus_search/
+scopus_author/
+scopus_author_retrieval/
+abstract_retrieval/
+affiliation_retrieval/
+serial_title/
+subject_classifications/
+
 # IDE
 .vscode/
 .idea/
