@@ -10,7 +10,8 @@ import warnings
 warnings.filterwarnings('ignore')
 
 # Directorio base para guardar datos
-DATA_DIR = Path(__file__).parent.parent / "data" / "cache_scopus" / "raw"
+BASE_PATH = Path(__file__).parent.parent
+DATA_DIR = BASE_PATH / "data" / "cache_scopus" / "raw"
 DATA_DIR.mkdir(parents=True, exist_ok=True)
 
 def init_pybliometrics():
