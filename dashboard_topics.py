@@ -391,6 +391,32 @@ else:
             pass
             
     st.markdown(f"**Fuente:** Scopus API cruzado con OpenAlex")
+    
+    # Mostrar reporte de cobertura si existe
+    coverage_path = DATA_DIR / 'cache_scopus' / 'processed' / f"{selected_subfield}_coverage.json"
+    if coverage_path.exists():
+        import json
+        try:
+            with open(coverage_path, 'r', encoding='utf-8') as f:
+                cov = json.load(f)
+            col1, col2, col3, col4 = st.columns(4)
+            col1.metric("📥 Scopus API (raw)", f"{cov.get('total_scopus_raw', 0):,}")
+            col2.metric("🔗 Con DOI válido", f"{cov.get('con_doi', 0):,}")
+            col3.metric("✅ Match OpenAlex", f"{cov.get('matched_openalex', 0):,}",
+                       delta=f"{cov.get('cobertura_pct', 0)}% cobertura")
+            col4.metric("❌ No en OpenAlex", f"{cov.get('no_match_openalex', 0):,}")
+            unmatched_path = DATA_DIR / 'cache_scopus' / 'processed' / f"{selected_subfield}_no_en_openalex.parquet"
+            if unmatched_path.exists():
+                df_unmatched = pd.read_parquet(unmatched_path)
+                csv_unmatched = df_unmatched.to_csv(index=False).encode('utf-8')
+                st.download_button(
+                    label="⬇️ Descargar artículos NO en OpenAlex (.csv)",
+                    data=csv_unmatched,
+                    file_name=f"{selected_subfield}_no_en_openalex.csv",
+                    mime="text/csv"
+                )
+        except:
+            pass
     st.markdown("---")
 
 # Cache check

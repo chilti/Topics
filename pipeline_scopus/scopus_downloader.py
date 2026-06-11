@@ -202,9 +202,38 @@ def download_custom_query(query, start_year, end_year, name_prefix=None):
                 doctypes = ['ar', 're', 'cp', 'bk', 'ch', 'ed', 'sh', 'le', 'no', 'er', 'cr']
                 for dt in doctypes:
                     q_dt = f"({q_undef}) AND DOCTYPE({dt})"
-                    df_dt = fetch_chunk(q_dt, f"custom_{query_id}_{year}_UNDEF_{dt}")
-                    if df_dt is not None:
-                        all_dfs.append(df_dt)
+                    chunk_name = f"custom_{query_id}_{year}_UNDEF_{dt}"
+                    
+                    # Verificar si este sub-chunk también supera 5000
+                    size_dt = 0
+                    try:
+                        from pybliometrics.scopus import ScopusSearch
+                        s_dt = ScopusSearch(q_dt, download=False, subscriber=False)
+                        size_dt = s_dt.get_results_size()
+                    except Exception as e_dt:
+                        import re as _re
+                        m = _re.search(r'Found ([\d,]+) matches', str(e_dt))
+                        if m:
+                            size_dt = int(m.group(1).replace(',', ''))
+                    
+                    if size_dt <= 5000:
+                        df_dt = fetch_chunk(q_dt, chunk_name)
+                        if df_dt is not None:
+                            all_dfs.append(df_dt)
+                    else:
+                        # Tercer nivel: subdividir por idioma
+                        print(f"[*] {chunk_name} tiene {size_dt} resultados (>5000). Subdividiendo por idioma...")
+                        languages = ['English', 'Spanish', 'French', 'German', 'Portuguese', 'Chinese', 'Italian', 'Russian', 'Japanese', 'Korean']
+                        for lang in languages:
+                            q_lang = f"({q_dt}) AND LANGUAGE({lang})"
+                            df_lang = fetch_chunk(q_lang, f"{chunk_name}_{lang[:3].lower()}")
+                            if df_lang is not None:
+                                all_dfs.append(df_lang)
+                        # Y los que no son de esos idiomas
+                        not_langs = " AND ".join([f"NOT LANGUAGE({l})" for l in languages])
+                        df_lang_other = fetch_chunk(f"({q_dt}) AND {not_langs}", f"{chunk_name}_lang_other")
+                        if df_lang_other is not None:
+                            all_dfs.append(df_lang_other)
                 
                 # Y los que no entran en esos doctypes
                 not_dt = " AND ".join([f"NOT DOCTYPE({dt})" for dt in doctypes])

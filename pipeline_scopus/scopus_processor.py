@@ -134,6 +134,37 @@ def procesar_scopus(input_parquet_path):
             
         print(f"   -> {len(df_openalex)} registros únicos encontrados en ClickHouse.", flush=True)
         
+        # --- COBERTURA ---
+        # Artículos en Scopus sin DOI
+        sin_doi = int(df_scopus['doi'].isna().sum())
+        # Artículos con DOI que NO hicieron match en OpenAlex
+        dois_en_openalex = set(df_openalex['doi'].dropna().str.lower().str.replace('https://doi.org/', '', regex=False)) if len(df_openalex) > 0 else set()
+        df_scopus_con_doi = df_scopus.dropna(subset=['doi']).copy()
+        df_scopus_con_doi['doi_clean'] = df_scopus_con_doi['doi'].astype(str).str.strip().str.lower()
+        df_no_match = df_scopus_con_doi[~df_scopus_con_doi['doi_clean'].isin(dois_en_openalex)]
+        
+        coverage = {
+            "total_scopus_raw": int(len(df_scopus)),
+            "sin_doi": sin_doi,
+            "con_doi": int(len(df_scopus) - sin_doi),
+            "matched_openalex": int(len(df_openalex)),
+            "no_match_openalex": int(len(df_no_match)),
+            "cobertura_pct": round(len(df_openalex) / max(len(df_scopus) - sin_doi, 1) * 100, 1)
+        }
+        
+        # Guardar cobertura
+        coverage_path = PROCESSED_SCOPUS_DIR / (input_path.stem + "_coverage.json")
+        import json
+        with open(coverage_path, 'w', encoding='utf-8') as f:
+            json.dump(coverage, f, indent=4, ensure_ascii=False)
+        print(f"[*] Cobertura: {coverage['matched_openalex']}/{coverage['con_doi']} DOIs encontrados en OpenAlex ({coverage['cobertura_pct']}%)", flush=True)
+        
+        # Guardar artículos no encontrados en OpenAlex
+        if len(df_no_match) > 0:
+            unmatched_path = PROCESSED_SCOPUS_DIR / (input_path.stem + "_no_en_openalex.parquet")
+            df_no_match.drop(columns=['doi_clean'], errors='ignore').to_parquet(unmatched_path, index=False)
+            print(f"[*] {len(df_no_match)} artículos sin match guardados en: {unmatched_path.name}", flush=True)
+        
         if len(df_openalex) > 0:
             # Guardamos los registros completos de OpenAlex
             output_filename = input_path.stem + "_openalex.parquet"
@@ -141,9 +172,6 @@ def procesar_scopus(input_parquet_path):
             
             df_openalex.to_parquet(output_path, index=False)
             print(f"[OK] Registros combinados/OpenAlex guardados en: {output_path}", flush=True)
-            
-            # TODO: Aqui se podria hacer un merge si se quiere un solo archivo combinado,
-            # pero el plan decia "traernos el registro completo" y "los resumenes" de OpenAlex.
             return output_path
         else:
             print("[!] Ningun DOI hizo match en OpenAlex.", flush=True)
