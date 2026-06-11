@@ -169,9 +169,37 @@ def download_custom_query(query, start_year, end_year, name_prefix=None):
                     
             # Descargar documentos que no especifican mes
             q_undef = f"({query}) AND PUBYEAR = {year} AND NOT PUBDATETXT(* Jan *) AND NOT PUBDATETXT(* Feb *) AND NOT PUBDATETXT(* Mar *) AND NOT PUBDATETXT(* Apr *) AND NOT PUBDATETXT(* May *) AND NOT PUBDATETXT(* Jun *) AND NOT PUBDATETXT(* Jul *) AND NOT PUBDATETXT(* Aug *) AND NOT PUBDATETXT(* Sep *) AND NOT PUBDATETXT(* Oct *) AND NOT PUBDATETXT(* Nov *) AND NOT PUBDATETXT(* Dec *)"
-            df_undef = fetch_chunk(q_undef, f"custom_{query_id}_{year}_UNDEF")
-            if df_undef is not None:
-                all_dfs.append(df_undef)
+            
+            size_undef = 0
+            try:
+                from pybliometrics.scopus import ScopusSearch
+                s_undef = ScopusSearch(q_undef, download=False, subscriber=False)
+                size_undef = s_undef.get_results_size()
+            except Exception as e:
+                import re
+                m = re.search(r'Found ([\d,]+) matches', str(e))
+                if m:
+                    size_undef = int(m.group(1).replace(',', ''))
+            
+            if size_undef <= 5000:
+                df_undef = fetch_chunk(q_undef, f"custom_{query_id}_{year}_UNDEF")
+                if df_undef is not None:
+                    all_dfs.append(df_undef)
+            else:
+                print(f"[*] Año {year} UNDEF tiene {size_undef} resultados (>5000). Dividiendo por DOCTYPE...")
+                doctypes = ['ar', 're', 'cp', 'bk', 'ch', 'ed', 'sh', 'le', 'no', 'er', 'cr']
+                for dt in doctypes:
+                    q_dt = f"({q_undef}) AND DOCTYPE({dt})"
+                    df_dt = fetch_chunk(q_dt, f"custom_{query_id}_{year}_UNDEF_{dt}")
+                    if df_dt is not None:
+                        all_dfs.append(df_dt)
+                
+                # Y los que no entran en esos doctypes
+                not_dt = " AND ".join([f"NOT DOCTYPE({dt})" for dt in doctypes])
+                q_not_dt = f"({q_undef}) AND {not_dt}"
+                df_not_dt = fetch_chunk(q_not_dt, f"custom_{query_id}_{year}_UNDEF_OTHER")
+                if df_not_dt is not None:
+                    all_dfs.append(df_not_dt)
             
             
     if all_dfs:
