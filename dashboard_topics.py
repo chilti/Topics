@@ -284,45 +284,55 @@ else:
                 st.rerun()
                 
     # --- SECCIÓN DE MONITOREO DE LOGS DE SCOPUS ---
-    if st.session_state.get("scopus_running", False) or st.session_state.get("scopus_active_log", ""):
-        active_log = Path(st.session_state.get("scopus_active_log", ""))
-        active_name = st.session_state.get("scopus_active_name", "")
-        
-        if active_log.exists():
-            st.sidebar.markdown(f"#### 📋 Descarga en progreso: {active_name}")
-            st.sidebar.caption("Esta tarea continuará en el servidor aunque cierres la pestaña.")
-            
-            lines = []
-            if active_log.stat().st_size > 0:
-                try:
-                    lines = active_log.read_text(encoding="utf-8", errors="replace").splitlines()
-                    tail = lines[-15:] if len(lines) > 15 else lines
-                    st.sidebar.code("\n".join(tail), language="", wrap_lines=False)
-                except:
-                    pass
-            else:
-                st.sidebar.code("Inicializando descarga...", language="", wrap_lines=False)
-            
-            import psutil
-            is_alive = False
-            pid_file = DATA_DIR / 'cache_scopus' / 'logs' / f"download_{active_name}.pid"
-            if pid_file.exists():
-                try:
-                    pid = int(pid_file.read_text())
-                    if psutil.pid_exists(pid):
-                        is_alive = True
-                except:
-                    pass
-            
-            if is_alive or st.session_state.get("scopus_running", False):
-                import time
-                time.sleep(0.5)
-                st.sidebar.caption("🔄 Actualizando automáticamente...")
-                st.markdown("""<meta http-equiv="refresh" content="5">""", unsafe_allow_html=True)
-                
-                if not is_alive and len(lines) > 5:
-                    st.session_state["scopus_running"] = False
+    import psutil
+    log_dir = DATA_DIR / 'cache_scopus' / 'logs'
+    active_name = None
+    active_log = None
+    is_alive = False
+    
+    if log_dir.exists():
+        for pid_file in log_dir.glob("*.pid"):
+            try:
+                pid = int(pid_file.read_text())
+                if psutil.pid_exists(pid):
+                    is_alive = True
+                    active_name = pid_file.stem.replace("download_", "")
+                    active_log = log_dir / f"download_{active_name}.log"
+                    break
+                else:
+                    # Cleanup dead pid file
                     pid_file.unlink(missing_ok=True)
+            except:
+                pass
+
+    if active_name and active_log and active_log.exists():
+        st.sidebar.markdown(f"#### 📋 Descarga en progreso: {active_name}")
+        st.sidebar.caption("Esta tarea continuará en el servidor aunque cierres la pestaña.")
+        
+        lines = []
+        if active_log.stat().st_size > 0:
+            try:
+                lines = active_log.read_text(encoding="utf-8", errors="replace").splitlines()
+                tail = lines[-15:] if len(lines) > 15 else lines
+                st.sidebar.code("\n".join(tail), language="", wrap_lines=False)
+            except:
+                pass
+        else:
+            st.sidebar.code("Inicializando descarga...", language="", wrap_lines=False)
+        
+        if is_alive:
+            try:
+                from streamlit_autorefresh import st_autorefresh
+                st.sidebar.caption("🔄 Actualizando automáticamente (no interrumpirá tu navegación)")
+                st_autorefresh(interval=3000, key="scopus_download_monitor")
+            except ImportError:
+                # Fallback to rerun
+                import time
+                time.sleep(3)
+                st.rerun()
+        elif len(lines) > 5:
+            # Finalizado
+            pass
             else:
                 st.sidebar.success("✅ Tarea finalizada o detenida.")
                 if st.sidebar.button("Limpiar Visor de Log", key="clear_log"):
