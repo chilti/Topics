@@ -116,6 +116,17 @@ def download_by_asjc(asjc_code, start_year, end_year):
         output_path = DATA_DIR / f"full_asjc_{asjc_code}_{start_year}_{end_year}.parquet"
         final_df.to_parquet(output_path, index=False)
         print(f"\n[OK] Descarga completa. {len(final_df)} papers guardados en {output_path}")
+        
+        # Procesamiento automático post-descarga
+        try:
+            print("[*] Iniciando cruce con OpenAlex...")
+            sys.path.append(str(BASE_PATH))
+            from pipeline_scopus.scopus_processor import procesar_scopus
+            procesar_scopus(output_path)
+            print("[OK] Cruce y procesamiento completo.")
+        except Exception as e:
+            print(f"[!] Error durante el cruce con OpenAlex: {e}")
+            
         return final_df
     else:
         print("\n[!] No se descargaron datos.")
@@ -221,6 +232,17 @@ def download_custom_query(query, start_year, end_year, name_prefix=None):
             }, f, indent=4)
             
         print(f"\n[OK] Descarga custom completa. {len(final_df)} papers guardados en {output_path}")
+        
+        # Procesamiento automático post-descarga
+        try:
+            print("[*] Iniciando cruce con OpenAlex...")
+            sys.path.append(str(BASE_PATH))
+            from pipeline_scopus.scopus_processor import procesar_scopus
+            procesar_scopus(output_path)
+            print("[OK] Cruce y procesamiento completo.")
+        except Exception as e:
+            print(f"[!] Error durante el cruce con OpenAlex: {e}")
+            
         return final_df
     else:
         print("\n[!] No se descargaron datos.")
