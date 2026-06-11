@@ -196,10 +196,32 @@ def compute_custom_data_flat(custom_name, doi_list):
     """Calcula todas las métricas para un query custom basado en una lista de DOIs."""
     if not doi_list:
         return False
-    # Pasamos la lista como string formateado para ClickHouse o usamos parametros.
-    # Dado que la funcion base arma SQL, podemos escapar los DOIs.
-    dois_sql = ", ".join([f"'{d}'" for d in doi_list])
-    return _compute_sandbox_data(f"doi IN ({dois_sql})", custom_name)
+    
+    # Para listas grandes (>5000 DOIs), no podemos meterlos en un IN() de SQL
+    # porque ClickHouse lanza max_query_size. Usamos una tabla temporal.
+    try:
+        client = get_ch_client()
+        
+        # 1. Crear tabla temporal con los DOIs
+        client.command("DROP TEMPORARY TABLE IF EXISTS tmp_custom_dois")
+        client.command("CREATE TEMPORARY TABLE tmp_custom_dois (doi String)")
+        
+        # 2. Insertar DOIs en chunks de 5000
+        chunk_size = 5000
+        for i in range(0, len(doi_list), chunk_size):
+            chunk = [[d] for d in doi_list[i:i + chunk_size]]
+            client.insert("tmp_custom_dois", chunk, column_names=["doi"])
+        
+        # 3. Usar subquery en lugar de IN() con valores inline
+        where_clause = "doi IN (SELECT doi FROM tmp_custom_dois)"
+        return _compute_sandbox_data(where_clause, custom_name)
+        
+    except Exception as e:
+        # Fallback: si la lista es pequeña, usar IN directo
+        if len(doi_list) <= 2000:
+            dois_sql = ", ".join([f"'{d}'" for d in doi_list])
+            return _compute_sandbox_data(f"doi IN ({dois_sql})", custom_name)
+        raise e
 
 def _compute_sandbox_data(where_clause, subfield):
     """Función interna que crea el sandbox y calcula métricas."""
@@ -231,7 +253,6 @@ def _compute_sandbox_data(where_clause, subfield):
             LEFT JOIN (
                 SELECT id, any(display_name) as display_name FROM topics GROUP BY id
             ) AS T ON W.topic_id = T.id
-            WHERE {where_clause}
         """)
         status.write("Sandbox listo. Calculando métricas de impacto...")
         q_base = """
