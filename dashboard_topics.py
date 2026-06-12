@@ -293,10 +293,10 @@ else:
                     country_filter = st.text_input("País (opcional)", placeholder="ej. Mexico", help="Filtra los resultados a un país específico.", key="subarea_country")
                     
                     if country_filter:
-                        new_query_str_auto = f'SUBJAREA({selected_subarea_code}) AND AFFILCOUNTRY("{country_filter}")'
+                        new_query_str_auto = f'SUBJTERMS({selected_subarea_code}) AND AFFILCOUNTRY("{country_filter}")'
                         default_name = f"{selected_subarea_name} {country_filter}"
                     else:
-                        new_query_str_auto = f"SUBJAREA({selected_subarea_code})"
+                        new_query_str_auto = f"SUBJTERMS({selected_subarea_code})"
                         default_name = selected_subarea_name
                         
                     new_query_name = st.text_input("Nombre de la Búsqueda", value=default_name, key="scopus_new_name_subarea")

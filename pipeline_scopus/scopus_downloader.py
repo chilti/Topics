@@ -52,9 +52,27 @@ def check_size(query):
         return s.get_results_size()
     except Exception as e:
         import re as _re
-        m = _re.search(r'Found ([\d,]+) matches', str(e))
+        error_msg = str(e)
+        m = _re.search(r'Found ([\d,]+) matches', error_msg)
         if m:
             return int(m.group(1).replace(',', ''))
+        elif "Exceeds the maximum number" in error_msg:
+            # Fallback to direct HTTP request
+            import requests
+            import os
+            from urllib.parse import quote
+            api_key = os.environ.get("PYBLIOMETRICS_API_KEY", "72952ef45b534fa6e6f386ad415f89d9")
+            headers = {"X-ELS-APIKey": api_key, "Accept": "application/json"}
+            url = f"https://api.elsevier.com/content/search/scopus?query={quote(query)}&count=1"
+            try:
+                res = requests.get(url, headers=headers)
+                if res.status_code == 200:
+                    data = res.json()
+                    total = data.get('search-results', {}).get('opensearch:totalResults')
+                    if total is not None:
+                        return int(total)
+            except Exception as inner_e:
+                print(f"[!] Error en fallback HTTP de check_size: {inner_e}")
         return 0
 
 def init_pybliometrics():
@@ -195,16 +213,7 @@ def download_custom_query(query, start_year, end_year, name_prefix=None):
         q_year = f"({query}) AND PUBYEAR = {year}"
         
         # 1. Checar el volumen del año
-        size = 0
-        try:
-            from pybliometrics.scopus import ScopusSearch
-            s_check = ScopusSearch(q_year, download=False, subscriber=False)
-            size = s_check.get_results_size()
-        except Exception as e:
-            import re
-            m = re.search(r'Found ([\d,]+) matches', str(e))
-            if m:
-                size = int(m.group(1).replace(',', ''))
+        size = check_size(q_year)
             
         if size <= 5000:
             # Seguro descargar el año entero
@@ -225,16 +234,7 @@ def download_custom_query(query, start_year, end_year, name_prefix=None):
             # Descargar documentos que no especifican mes
             q_undef = f"({query}) AND PUBYEAR = {year} AND NOT PUBDATETXT(* Jan *) AND NOT PUBDATETXT(* Feb *) AND NOT PUBDATETXT(* Mar *) AND NOT PUBDATETXT(* Apr *) AND NOT PUBDATETXT(* May *) AND NOT PUBDATETXT(* Jun *) AND NOT PUBDATETXT(* Jul *) AND NOT PUBDATETXT(* Aug *) AND NOT PUBDATETXT(* Sep *) AND NOT PUBDATETXT(* Oct *) AND NOT PUBDATETXT(* Nov *) AND NOT PUBDATETXT(* Dec *)"
             
-            size_undef = 0
-            try:
-                from pybliometrics.scopus import ScopusSearch
-                s_undef = ScopusSearch(q_undef, download=False, subscriber=False)
-                size_undef = s_undef.get_results_size()
-            except Exception as e:
-                import re
-                m = re.search(r'Found ([\d,]+) matches', str(e))
-                if m:
-                    size_undef = int(m.group(1).replace(',', ''))
+            size_undef = check_size(q_undef)
             
             if size_undef <= 5000:
                 df_undef = fetch_chunk(q_undef, f"custom_{query_id}_{year}_UNDEF")
@@ -326,21 +326,7 @@ def download_custom_query(query, start_year, end_year, name_prefix=None):
 
 def check_query_size(query):
     """Retorna el número de resultados para un query sin descargarlos."""
-    try:
-        from pybliometrics.scopus import ScopusSearch
-        s = ScopusSearch(query, download=False, subscriber=False)
-        print(s.get_results_size())
-    except Exception as e:
-        import re
-        error_msg = str(e)
-        # Pybliometrics throws an error if > 5000 even when download=False
-        # e.g., "Found 54,485 matches. The query fails to return more than 5000 entries..."
-        m = re.search(r'Found ([\d,]+) matches', error_msg)
-        if m:
-            num_str = m.group(1).replace(',', '')
-            print(num_str)
-        else:
-            print(f"Error: {e}")
+    print(check_size(query))
 
 def download_by_cluster(cluster_id, start_year, end_year):
     """
