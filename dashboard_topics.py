@@ -266,7 +266,7 @@ else:
                 selected_area_name = st.selectbox("Área de Investigación (Scopus):", list(SCOPUS_AREAS.values()))
                 selected_area_code = [k for k, v in SCOPUS_AREAS.items() if v == selected_area_name][0]
                 
-                country_filter = st.text_input("País (opcional)", placeholder="ej. Mexico", help="Filtra los resultados a un país específico para evitar descargas masivas.")
+                country_filter = st.text_input("País (opcional)", placeholder="ej. Mexico", help="Filtra los resultados a un país específico para evitar descargas masivas.", key="area_country")
                 
                 if country_filter:
                     new_query_str_auto = f'SUBJAREA({selected_area_code}) AND AFFILCOUNTRY("{country_filter}")'
@@ -274,6 +274,19 @@ else:
                 else:
                     new_query_str_auto = f"SUBJAREA({selected_area_code})"
                     default_name = selected_area_name
+                    
+                # Update default name programmatically when selection changes
+                if "prev_selected_area" not in st.session_state:
+                    st.session_state["prev_selected_area"] = selected_area_name
+                if "prev_country_filter_area" not in st.session_state:
+                    st.session_state["prev_country_filter_area"] = country_filter
+                    
+                if (st.session_state["prev_selected_area"] != selected_area_name or 
+                    st.session_state["prev_country_filter_area"] != country_filter or 
+                    "scopus_new_name_area" not in st.session_state):
+                    st.session_state["scopus_new_name_area"] = default_name
+                    st.session_state["prev_selected_area"] = selected_area_name
+                    st.session_state["prev_country_filter_area"] = country_filter
                     
                 new_query_name = st.text_input("Nombre de la Búsqueda", value=default_name, key="scopus_new_name_area")
                 new_query_str = new_query_str_auto
@@ -298,6 +311,19 @@ else:
                     else:
                         new_query_str_auto = f"SUBJTERMS({selected_subarea_code})"
                         default_name = selected_subarea_name
+                        
+                    # Update default name programmatically when selection changes
+                    if "prev_selected_subarea" not in st.session_state:
+                        st.session_state["prev_selected_subarea"] = selected_subarea_name
+                    if "prev_country_filter_subarea" not in st.session_state:
+                        st.session_state["prev_country_filter_subarea"] = country_filter
+                        
+                    if (st.session_state["prev_selected_subarea"] != selected_subarea_name or 
+                        st.session_state["prev_country_filter_subarea"] != country_filter or 
+                        "scopus_new_name_subarea" not in st.session_state):
+                        st.session_state["scopus_new_name_subarea"] = default_name
+                        st.session_state["prev_selected_subarea"] = selected_subarea_name
+                        st.session_state["prev_country_filter_subarea"] = country_filter
                         
                     new_query_name = st.text_input("Nombre de la Búsqueda", value=default_name, key="scopus_new_name_subarea")
                     new_query_str = new_query_str_auto
