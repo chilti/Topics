@@ -228,8 +228,84 @@ else:
         # --- FORMULARIO NUEVA BÚSQUEDA ---
         with st.sidebar.expander("➕ Nueva Búsqueda Scopus", expanded=False):
             st.markdown("<small>Descarga un nuevo conjunto desde la API de Scopus y extrae sus métricas de ClickHouse.</small>", unsafe_allow_html=True)
-            new_query_name = st.text_input("Nombre de la Búsqueda", placeholder="ej. UNAM Lab Nucl", key="scopus_new_name")
-            new_query_str = st.text_area("Query Scopus (Avanzado)", placeholder="ej. AFFIL(\"UNAM\")", key="scopus_new_query")
+            
+            search_mode = st.radio("Modo de Búsqueda:", ["Query Avanzado", "Por Área", "Por Sub-Área"], horizontal=True)
+            
+            if search_mode == "Query Avanzado":
+                new_query_name = st.text_input("Nombre de la Búsqueda", placeholder="ej. UNAM Lab Nucl", key="scopus_new_name_adv")
+                new_query_str = st.text_area("Query Scopus (Avanzado)", placeholder="ej. AFFIL(\"UNAM\")", key="scopus_new_query_adv")
+            elif search_mode == "Por Área":
+                SCOPUS_AREAS = {
+                    "AGRI": "Agricultural and Biological Sciences",
+                    "ARTS": "Arts and Humanities",
+                    "BIOC": "Biochemistry, Genetics and Molecular Biology",
+                    "BUSI": "Business, Management and Accounting",
+                    "CENG": "Chemical Engineering",
+                    "CHEM": "Chemistry",
+                    "COMP": "Computer Science",
+                    "DECI": "Decision Sciences",
+                    "DENT": "Dentistry",
+                    "EART": "Earth and Planetary Sciences",
+                    "ECON": "Economics, Econometrics and Finance",
+                    "ENGI": "Engineering",
+                    "ENVI": "Environmental Science",
+                    "HEAL": "Health Professions",
+                    "IMMU": "Immunology and Microbiology",
+                    "MATE": "Materials Science",
+                    "MATH": "Mathematics",
+                    "MEDI": "Medicine",
+                    "NEUR": "Neuroscience",
+                    "NURS": "Nursing",
+                    "PHAR": "Pharmacology, Toxicology and Pharmaceutics",
+                    "PHYS": "Physics and Astronomy",
+                    "PSYC": "Psychology",
+                    "SOCI": "Social Sciences",
+                    "VETE": "Veterinary",
+                    "MULT": "Multidisciplinary"
+                }
+                selected_area_name = st.selectbox("Área de Investigación (Scopus):", list(SCOPUS_AREAS.values()))
+                selected_area_code = [k for k, v in SCOPUS_AREAS.items() if v == selected_area_name][0]
+                
+                country_filter = st.text_input("País (opcional)", placeholder="ej. Mexico", help="Filtra los resultados a un país específico para evitar descargas masivas.")
+                
+                if country_filter:
+                    new_query_str_auto = f'SUBJAREA({selected_area_code}) AND AFFILCOUNTRY("{country_filter}")'
+                    default_name = f"{selected_area_name} {country_filter}"
+                else:
+                    new_query_str_auto = f"SUBJAREA({selected_area_code})"
+                    default_name = selected_area_name
+                    
+                new_query_name = st.text_input("Nombre de la Búsqueda", value=default_name, key="scopus_new_name_area")
+                new_query_str = new_query_str_auto
+                st.code(new_query_str, language="sql")
+            else:
+                import json
+                subareas_path = DATA_DIR / "scopus_subareas.json"
+                if subareas_path.exists():
+                    with open(subareas_path, 'r', encoding='utf-8') as f:
+                        SCOPUS_SUBAREAS = json.load(f)
+                    
+                    # Sort options alphabetically
+                    subarea_names = sorted(list(SCOPUS_SUBAREAS.keys()))
+                    selected_subarea_name = st.selectbox("Sub-Área de Investigación (ASJC):", subarea_names)
+                    selected_subarea_code = SCOPUS_SUBAREAS[selected_subarea_name]
+                    
+                    country_filter = st.text_input("País (opcional)", placeholder="ej. Mexico", help="Filtra los resultados a un país específico.", key="subarea_country")
+                    
+                    if country_filter:
+                        new_query_str_auto = f'SUBJAREA({selected_subarea_code}) AND AFFILCOUNTRY("{country_filter}")'
+                        default_name = f"{selected_subarea_name} {country_filter}"
+                    else:
+                        new_query_str_auto = f"SUBJAREA({selected_subarea_code})"
+                        default_name = selected_subarea_name
+                        
+                    new_query_name = st.text_input("Nombre de la Búsqueda", value=default_name, key="scopus_new_name_subarea")
+                    new_query_str = new_query_str_auto
+                    st.code(new_query_str, language="sql")
+                else:
+                    st.error("Archivo de subáreas no encontrado.")
+                    new_query_name = ""
+                    new_query_str = ""
             
             use_years = st.checkbox("Filtrar por periodo de tiempo", value=False)
             start_y, end_y = 1990, 2025 # defaults
