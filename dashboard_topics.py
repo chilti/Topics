@@ -349,7 +349,10 @@ else:
                 else:
                     with st.spinner("Consultando API de Scopus..."):
                         import subprocess
-                        cmd_check = [sys.executable, str(BASE_PATH / "pipeline_scopus" / "scopus_downloader.py"), "--mode", "check", "--query", new_query_str]
+                        query_to_check = new_query_str
+                        if use_years:
+                            query_to_check = f"({new_query_str}) AND PUBYEAR > {start_y - 1} AND PUBYEAR < {end_y + 1}"
+                        cmd_check = [sys.executable, str(BASE_PATH / "pipeline_scopus" / "scopus_downloader.py"), "--mode", "check", "--query", query_to_check]
                         res = subprocess.run(cmd_check, capture_output=True, text=True)
                         
                         output_lines = [line.strip() for line in res.stdout.split('\n') if line.strip()]
