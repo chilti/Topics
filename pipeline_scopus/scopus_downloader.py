@@ -269,24 +269,99 @@ def download_custom_query(query, start_year, end_year, name_prefix=None):
                                     if df_area is not None:
                                         all_dfs.append(df_area)
                                 else:
-                                    print(f"[!] {area_chunk_name} sigue teniendo {size_area} resultados. Se descargará en bloques de 5000 máximo.")
-                                    # Último recurso: intentar descargar de todos modos (pybliometrics cortara en 5000)
-                                    df_area = fetch_chunk(q_area, area_chunk_name)
-                                    if df_area is not None:
-                                        all_dfs.append(df_area)
+                                    print(f"[!] {area_chunk_name} sigue teniendo {size_area} resultados. Subdividiendo por LOAD-DATE...")
+                                    load_ranges = [
+                                        (f"LOAD-DATE BEF {year}0301", "LD_H1"),
+                                        (f"LOAD-DATE AFT {year}0229 AND LOAD-DATE BEF {year}0501", "LD_H2"),
+                                        (f"LOAD-DATE AFT {year}0430 AND LOAD-DATE BEF {year}0701", "LD_H3"),
+                                        (f"LOAD-DATE AFT {year}0630 AND LOAD-DATE BEF {year}0901", "LD_H4"),
+                                        (f"LOAD-DATE AFT {year}0831 AND LOAD-DATE BEF {year}1101", "LD_H5"),
+                                        (f"LOAD-DATE AFT {year}1031", "LD_H6")
+                                    ]
+                                    for ld_query, ld_suffix in load_ranges:
+                                        q_ld = f"({q_area}) AND {ld_query}"
+                                        ld_chunk_name = f"{area_chunk_name}_{ld_suffix}"
+                                        size_ld = check_size(q_ld)
+                                        if size_ld > 0:
+                                            if size_ld <= 5000:
+                                                df_ld = fetch_chunk(q_ld, ld_chunk_name)
+                                                if df_ld is not None:
+                                                    all_dfs.append(df_ld)
+                                            else:
+                                                print(f"[!!] {ld_chunk_name} sigue excediendo 5000 ({size_ld}). Descargando de todos modos...")
+                                                df_ld = fetch_chunk(q_ld, ld_chunk_name)
+                                                if df_ld is not None:
+                                                    all_dfs.append(df_ld)
                         # Complemento de áreas
                         not_areas = " AND ".join([f"NOT SUBJAREA({a})" for a in seen_areas])
                         if not_areas:
-                            df_area_other = fetch_chunk(f"({q_dt}) AND {not_areas}", f"{chunk_name}_area_other")
-                            if df_area_other is not None:
-                                all_dfs.append(df_area_other)
+                            q_other = f"({q_dt}) AND {not_areas}"
+                            other_chunk_name = f"{chunk_name}_area_other"
+                            size_other = check_size(q_other)
+                            if size_other > 0:
+                                if size_other <= 5000:
+                                    df_area_other = fetch_chunk(q_other, other_chunk_name)
+                                    if df_area_other is not None:
+                                        all_dfs.append(df_area_other)
+                                else:
+                                    print(f"[!] {other_chunk_name} tiene {size_other} resultados. Subdividiendo por LOAD-DATE...")
+                                    load_ranges = [
+                                        (f"LOAD-DATE BEF {year}0301", "LD_H1"),
+                                        (f"LOAD-DATE AFT {year}0229 AND LOAD-DATE BEF {year}0501", "LD_H2"),
+                                        (f"LOAD-DATE AFT {year}0430 AND LOAD-DATE BEF {year}0701", "LD_H3"),
+                                        (f"LOAD-DATE AFT {year}0630 AND LOAD-DATE BEF {year}0901", "LD_H4"),
+                                        (f"LOAD-DATE AFT {year}0831 AND LOAD-DATE BEF {year}1101", "LD_H5"),
+                                        (f"LOAD-DATE AFT {year}1031", "LD_H6")
+                                    ]
+                                    for ld_query, ld_suffix in load_ranges:
+                                        q_ld = f"({q_other}) AND {ld_query}"
+                                        ld_chunk_name = f"{other_chunk_name}_{ld_suffix}"
+                                        size_ld = check_size(q_ld)
+                                        if size_ld > 0:
+                                            if size_ld <= 5000:
+                                                df_ld = fetch_chunk(q_ld, ld_chunk_name)
+                                                if df_ld is not None:
+                                                    all_dfs.append(df_ld)
+                                            else:
+                                                print(f"[!!] {ld_chunk_name} sigue excediendo 5000 ({size_ld}). Descargando de todos modos...")
+                                                df_ld = fetch_chunk(q_ld, ld_chunk_name)
+                                                if df_ld is not None:
+                                                    all_dfs.append(df_ld)
                 
                 # Complemento de DOCTYPEs
                 not_dt = " AND ".join([f"NOT DOCTYPE({dt})" for dt in doctypes])
                 q_not_dt = f"({q_undef}) AND {not_dt}"
-                df_not_dt = fetch_chunk(q_not_dt, f"custom_{query_id}_{year}_UNDEF_OTHER")
-                if df_not_dt is not None:
-                    all_dfs.append(df_not_dt)
+                other_dt_chunk = f"custom_{query_id}_{year}_UNDEF_OTHER"
+                size_not_dt = check_size(q_not_dt)
+                if size_not_dt > 0:
+                    if size_not_dt <= 5000:
+                        df_not_dt = fetch_chunk(q_not_dt, other_dt_chunk)
+                        if df_not_dt is not None:
+                            all_dfs.append(df_not_dt)
+                    else:
+                        print(f"[!] {other_dt_chunk} tiene {size_not_dt} resultados. Subdividiendo por LOAD-DATE...")
+                        load_ranges = [
+                            (f"LOAD-DATE BEF {year}0301", "LD_H1"),
+                            (f"LOAD-DATE AFT {year}0229 AND LOAD-DATE BEF {year}0501", "LD_H2"),
+                            (f"LOAD-DATE AFT {year}0430 AND LOAD-DATE BEF {year}0701", "LD_H3"),
+                            (f"LOAD-DATE AFT {year}0630 AND LOAD-DATE BEF {year}0901", "LD_H4"),
+                            (f"LOAD-DATE AFT {year}0831 AND LOAD-DATE BEF {year}1101", "LD_H5"),
+                            (f"LOAD-DATE AFT {year}1031", "LD_H6")
+                        ]
+                        for ld_query, ld_suffix in load_ranges:
+                            q_ld = f"({q_not_dt}) AND {ld_query}"
+                            ld_chunk_name = f"{other_dt_chunk}_{ld_suffix}"
+                            size_ld = check_size(q_ld)
+                            if size_ld > 0:
+                                if size_ld <= 5000:
+                                    df_ld = fetch_chunk(q_ld, ld_chunk_name)
+                                    if df_ld is not None:
+                                        all_dfs.append(df_ld)
+                                else:
+                                    print(f"[!!] {ld_chunk_name} sigue excediendo 5000 ({size_ld}). Descargando de todos modos...")
+                                    df_ld = fetch_chunk(q_ld, ld_chunk_name)
+                                    if df_ld is not None:
+                                        all_dfs.append(df_ld)
             
             
     if all_dfs:
