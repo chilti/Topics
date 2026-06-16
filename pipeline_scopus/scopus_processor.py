@@ -143,13 +143,15 @@ def procesar_scopus(input_parquet_path):
         df_scopus_con_doi['doi_clean'] = df_scopus_con_doi['doi'].astype(str).str.strip().str.lower()
         df_no_match = df_scopus_con_doi[~df_scopus_con_doi['doi_clean'].isin(dois_en_openalex)]
         
+        matched_scopus = int(len(df_scopus_con_doi) - len(df_no_match))
+        
         coverage = {
             "total_scopus_raw": int(len(df_scopus)),
             "sin_doi": sin_doi,
             "con_doi": int(len(df_scopus) - sin_doi),
-            "matched_openalex": int(len(df_openalex)),
+            "matched_openalex": matched_scopus,
             "no_match_openalex": int(len(df_no_match)),
-            "cobertura_pct": round(len(df_openalex) / max(len(df_scopus) - sin_doi, 1) * 100, 1)
+            "cobertura_pct": round(matched_scopus / max(len(df_scopus) - sin_doi, 1) * 100, 1)
         }
         
         # Guardar cobertura
