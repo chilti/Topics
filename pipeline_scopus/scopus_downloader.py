@@ -271,12 +271,15 @@ def download_custom_query(query, start_year, end_year, name_prefix=None):
                                 else:
                                     print(f"[!] {area_chunk_name} sigue teniendo {size_area} resultados. Subdividiendo por LOAD-DATE...")
                                     load_ranges = [
-                                        (f"LOAD-DATE BEF {year}0301", "LD_H1"),
-                                        (f"LOAD-DATE AFT {year}0229 AND LOAD-DATE BEF {year}0501", "LD_H2"),
-                                        (f"LOAD-DATE AFT {year}0430 AND LOAD-DATE BEF {year}0701", "LD_H3"),
-                                        (f"LOAD-DATE AFT {year}0630 AND LOAD-DATE BEF {year}0901", "LD_H4"),
-                                        (f"LOAD-DATE AFT {year}0831 AND LOAD-DATE BEF {year}1101", "LD_H5"),
-                                        (f"LOAD-DATE AFT {year}1031", "LD_H6")
+                                        (f"LOAD-DATE BEF {year}0301", "LD_1"),
+                                        (f"LOAD-DATE AFT {year}0229 AND LOAD-DATE BEF {year}0501", "LD_2"),
+                                        (f"LOAD-DATE AFT {year}0430 AND LOAD-DATE BEF {year}0701", "LD_3"),
+                                        (f"LOAD-DATE AFT {year}0630 AND LOAD-DATE BEF {year}0901", "LD_4"),
+                                        (f"LOAD-DATE AFT {year}0831 AND LOAD-DATE BEF {year}1101", "LD_5"),
+                                        (f"LOAD-DATE AFT {year}1031 AND LOAD-DATE BEF {year+1}0301", "LD_6"),
+                                        (f"LOAD-DATE AFT {year+1}0228 AND LOAD-DATE BEF {year+1}0701", "LD_7"),
+                                        (f"LOAD-DATE AFT {year+1}0630 AND LOAD-DATE BEF {year+2}0101", "LD_8"),
+                                        (f"LOAD-DATE AFT {year+1}1231", "LD_9")
                                     ]
                                     for ld_query, ld_suffix in load_ranges:
                                         q_ld = f"({q_area}) AND {ld_query}"
@@ -306,12 +309,15 @@ def download_custom_query(query, start_year, end_year, name_prefix=None):
                                 else:
                                     print(f"[!] {other_chunk_name} tiene {size_other} resultados. Subdividiendo por LOAD-DATE...")
                                     load_ranges = [
-                                        (f"LOAD-DATE BEF {year}0301", "LD_H1"),
-                                        (f"LOAD-DATE AFT {year}0229 AND LOAD-DATE BEF {year}0501", "LD_H2"),
-                                        (f"LOAD-DATE AFT {year}0430 AND LOAD-DATE BEF {year}0701", "LD_H3"),
-                                        (f"LOAD-DATE AFT {year}0630 AND LOAD-DATE BEF {year}0901", "LD_H4"),
-                                        (f"LOAD-DATE AFT {year}0831 AND LOAD-DATE BEF {year}1101", "LD_H5"),
-                                        (f"LOAD-DATE AFT {year}1031", "LD_H6")
+                                        (f"LOAD-DATE BEF {year}0301", "LD_1"),
+                                        (f"LOAD-DATE AFT {year}0229 AND LOAD-DATE BEF {year}0501", "LD_2"),
+                                        (f"LOAD-DATE AFT {year}0430 AND LOAD-DATE BEF {year}0701", "LD_3"),
+                                        (f"LOAD-DATE AFT {year}0630 AND LOAD-DATE BEF {year}0901", "LD_4"),
+                                        (f"LOAD-DATE AFT {year}0831 AND LOAD-DATE BEF {year}1101", "LD_5"),
+                                        (f"LOAD-DATE AFT {year}1031 AND LOAD-DATE BEF {year+1}0301", "LD_6"),
+                                        (f"LOAD-DATE AFT {year+1}0228 AND LOAD-DATE BEF {year+1}0701", "LD_7"),
+                                        (f"LOAD-DATE AFT {year+1}0630 AND LOAD-DATE BEF {year+2}0101", "LD_8"),
+                                        (f"LOAD-DATE AFT {year+1}1231", "LD_9")
                                     ]
                                     for ld_query, ld_suffix in load_ranges:
                                         q_ld = f"({q_other}) AND {ld_query}"
@@ -341,12 +347,15 @@ def download_custom_query(query, start_year, end_year, name_prefix=None):
                     else:
                         print(f"[!] {other_dt_chunk} tiene {size_not_dt} resultados. Subdividiendo por LOAD-DATE...")
                         load_ranges = [
-                            (f"LOAD-DATE BEF {year}0301", "LD_H1"),
-                            (f"LOAD-DATE AFT {year}0229 AND LOAD-DATE BEF {year}0501", "LD_H2"),
-                            (f"LOAD-DATE AFT {year}0430 AND LOAD-DATE BEF {year}0701", "LD_H3"),
-                            (f"LOAD-DATE AFT {year}0630 AND LOAD-DATE BEF {year}0901", "LD_H4"),
-                            (f"LOAD-DATE AFT {year}0831 AND LOAD-DATE BEF {year}1101", "LD_H5"),
-                            (f"LOAD-DATE AFT {year}1031", "LD_H6")
+                            (f"LOAD-DATE BEF {year}0301", "LD_1"),
+                            (f"LOAD-DATE AFT {year}0229 AND LOAD-DATE BEF {year}0501", "LD_2"),
+                            (f"LOAD-DATE AFT {year}0430 AND LOAD-DATE BEF {year}0701", "LD_3"),
+                            (f"LOAD-DATE AFT {year}0630 AND LOAD-DATE BEF {year}0901", "LD_4"),
+                            (f"LOAD-DATE AFT {year}0831 AND LOAD-DATE BEF {year}1101", "LD_5"),
+                            (f"LOAD-DATE AFT {year}1031 AND LOAD-DATE BEF {year+1}0301", "LD_6"),
+                            (f"LOAD-DATE AFT {year+1}0228 AND LOAD-DATE BEF {year+1}0701", "LD_7"),
+                            (f"LOAD-DATE AFT {year+1}0630 AND LOAD-DATE BEF {year+2}0101", "LD_8"),
+                            (f"LOAD-DATE AFT {year+1}1231", "LD_9")
                         ]
                         for ld_query, ld_suffix in load_ranges:
                             q_ld = f"({q_not_dt}) AND {ld_query}"
