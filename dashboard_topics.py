@@ -877,34 +877,38 @@ with tab_main_metrics:
     def render_export_section(entity_name, col_key):
         if st.button(f"📥 Exportar Metadatos Scopus", key=f"prep_export_{col_key}", use_container_width=True):
             with st.spinner("Preparando archivo de exportación..."):
-                from pipeline_topic.export_scopus import fetch_export_data
+                from pipeline_topic.export_scopus import fetch_export_data, dataframe_to_scopus_txt, raw_scopus_to_txt
                 engine = "OpenAlex" if "OpenAlex" in data_source else "Scopus"
                 ctx = selected_subfield if engine == "OpenAlex" else str(selected_file)
                 df_ex = fetch_export_data(engine, ctx, entity_name, period_mode)
                 if df_ex is not None and not df_ex.empty:
-                    csv_data = df_ex.to_csv(index=False).encode('utf-8')
-                    st.session_state[f"export_csv_{col_key}"] = csv_data
+                    if engine == "OpenAlex":
+                        txt_str = dataframe_to_scopus_txt(df_ex)
+                    else:
+                        txt_str = raw_scopus_to_txt(df_ex)
+                    
+                    st.session_state[f"export_txt_{col_key}"] = txt_str.encode('utf-8')
                     st.session_state[f"export_len_{col_key}"] = len(df_ex)
                 else:
-                    st.session_state[f"export_csv_{col_key}"] = None
+                    st.session_state[f"export_txt_{col_key}"] = None
                     st.warning("No hay datos para exportar")
                     
-        if st.session_state.get(f"export_csv_{col_key}"):
-            csv_data = st.session_state[f"export_csv_{col_key}"]
+        if st.session_state.get(f"export_txt_{col_key}"):
+            txt_data = st.session_state[f"export_txt_{col_key}"]
             n_docs = st.session_state.get(f"export_len_{col_key}", 0)
             
             import uuid
             from datetime import datetime
             date_str = datetime.now().strftime("%b %d-%Y")
             uid_str = str(uuid.uuid4())
-            new_file_name = f"scopus_export_{date_str}_{uid_str}.csv"
+            new_file_name = f"scopus_export_{date_str}_{uid_str}.txt"
             
             st.download_button(
-                label=f"⬇️ Descargar .csv ({n_docs} docs)",
-                data=csv_data,
+                label=f"⬇️ Descargar .txt ({n_docs} docs)",
+                data=txt_data,
                 file_name=new_file_name,
-                mime="text/csv",
-                key=f"dl_csv_{col_key}",
+                mime="text/plain",
+                key=f"dl_txt_{col_key}",
                 use_container_width=True,
                 type="primary"
             )
