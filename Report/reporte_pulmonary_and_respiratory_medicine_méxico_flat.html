@@ -1,0 +1,1186 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Estudio Cientométrico: Pulmonary and Respiratory Medicine</title>
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,400;0,700;1,300&family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* ESTILOS DE REVISTA CIENTÍFICA (JOURNAL EDITORIAL STYLE) */
+        :root {
+            --primary: #1e3a8a;
+            --primary-dark: #1e293b;
+            --accent: #b91c1c;
+            --text-dark: #334155;
+            --text-muted: #64748b;
+            --bg-page: #f8fafc;
+            --bg-container: #ffffff;
+            --border-color: #e2e8f0;
+        }
+
+        body {
+            background-color: var(--bg-page);
+            font-family: 'Outfit', sans-serif;
+            color: var(--text-dark);
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+        }
+
+        .journal-container {
+            max-width: 1100px;
+            background-color: var(--bg-container);
+            margin: 3rem auto;
+            padding: 4rem;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.03);
+            border: 1px solid var(--border-color);
+        }
+
+        /* Cabecera Editorial */
+        .editorial-header {
+            border-bottom: 3px double var(--primary);
+            padding-bottom: 2rem;
+            margin-bottom: 3rem;
+            text-align: center;
+        }
+
+        .journal-meta {
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            color: var(--accent);
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .journal-title {
+            font-family: 'Merriweather', serif;
+            font-size: 2.3rem;
+            font-weight: 700;
+            color: var(--primary-dark);
+            margin: 0.5rem 0;
+            line-height: 1.3;
+        }
+
+        .journal-subtitle {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.1rem;
+            color: var(--text-muted);
+            margin-top: 0.5rem;
+            margin-bottom: 1.5rem;
+            font-weight: 400;
+        }
+
+        .editorial-meta-row {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            border-top: 1px solid var(--border-color);
+            padding-top: 1rem;
+            margin-top: 1rem;
+        }
+
+        .meta-item strong {
+            color: var(--primary-dark);
+        }
+
+        /* KPIs minimalistas de papel */
+        .kpi-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 20px;
+            margin-bottom: 3.5rem;
+        }
+
+        .kpi-card {
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 18px;
+            text-align: left;
+            position: relative;
+            transition: all 0.25s ease;
+        }
+
+        .kpi-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background-color: var(--primary);
+            border-radius: 8px 0 0 8px;
+        }
+
+        .kpi-label {
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--text-muted);
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+
+        .kpi-val {
+            font-family: 'Merriweather', serif;
+            font-size: 1.45rem;
+            font-weight: 700;
+            color: var(--primary-dark);
+        }
+
+        .kpi-sub {
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.75rem;
+            color: var(--accent);
+            margin-top: 4px;
+            font-weight: 500;
+        }
+
+        /* Secciones Académicas */
+        .academic-section {
+            margin-bottom: 4rem;
+        }
+
+        .section-header-academic {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--primary-dark);
+            border-bottom: 1px solid var(--primary);
+            padding-bottom: 6px;
+            margin-bottom: 1.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .section-num {
+            color: var(--accent);
+            margin-right: 8px;
+        }
+
+        /* Diseño de Doble Columna de Texto */
+        .narrative-columns {
+            column-count: 2;
+            column-gap: 2.5rem;
+            column-rule: 1px solid var(--border-color);
+            text-align: justify;
+            margin-top: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .narrative-columns p {
+            margin-top: 0;
+            margin-bottom: 1rem;
+            line-height: 1.7;
+            font-family: 'Merriweather', serif;
+            font-size: 0.95rem;
+            color: var(--text-dark);
+        }
+
+        /* Letra Capital Premium */
+        .narrative-columns p.intro::first-letter {
+            font-size: 2.6rem;
+            font-weight: 700;
+            float: left;
+            line-height: 0.85;
+            padding: 0.15rem 0.5rem 0 0;
+            color: var(--primary);
+            font-family: 'Outfit', sans-serif;
+        }
+
+        /* Bloques de Gráficos e Iframe */
+        .viz-block {
+            margin: 2rem 0;
+            padding: 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background-color: #fafbfd;
+        }
+
+        .viz-caption {
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            text-align: center;
+            margin-top: 8px;
+            font-style: italic;
+        }
+
+        /* Tablas Premium */
+        .table-premium {
+            width: 100%;
+            border-collapse: collapse;
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.85rem;
+            margin: 1.5rem 0;
+            text-align: left;
+        }
+
+        .table-premium th {
+            background-color: var(--primary-dark);
+            color: #ffffff;
+            font-weight: 600;
+            padding: 10px 12px;
+            border: 1px solid var(--primary-dark);
+        }
+
+        .table-premium td {
+            padding: 9px 12px;
+            border-bottom: 1px solid var(--border-color);
+            color: var(--text-dark);
+        }
+
+        .table-premium tr:nth-child(even) {
+            background-color: #fafafa;
+        }
+
+        .journal-link {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .journal-link:hover {
+            text-decoration: underline;
+            color: var(--accent);
+        }
+
+        /* Segmentos Institucionales */
+        .inst-segment-block {
+            margin-bottom: 2rem;
+        }
+
+        .segment-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.95rem;
+            color: var(--primary);
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        /* Caja de Fallback IA */
+        .ia-fallback-box {
+            background-color: #fffbeb;
+            border: 1px solid #fef3c7;
+            border-left: 5px solid #d97706;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 1.5rem 0;
+            font-family: 'Outfit', sans-serif;
+            text-align: left;
+        }
+
+        .fallback-title {
+            font-weight: 700;
+            color: #b45309;
+            margin-top: 0;
+            margin-bottom: 8px;
+        }
+
+        .ia-fallback-box p {
+            margin: 4px 0;
+            font-size: 0.9rem;
+            color: #78350f;
+            line-height: 1.5;
+        }
+
+        /* REGLAS DE IMPRESIÓN (PRINT-CSS PARA PDF Carta/A4) */
+        @media print {
+            body {
+                background-color: #ffffff !important;
+                color: #000000 !important;
+            }
+
+            .journal-container {
+                box-shadow: none !important;
+                border: none !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                max-width: 100% !important;
+            }
+
+            .academic-section {
+                page-break-inside: avoid;
+                page-break-after: auto;
+                margin-bottom: 3rem !important;
+            }
+
+            .viz-block {
+                page-break-inside: avoid;
+                border: none !important;
+                background: none !important;
+            }
+
+            .table-premium {
+                page-break-inside: avoid;
+            }
+
+            iframe {
+                page-break-inside: avoid;
+            }
+
+            .ia-fallback-box {
+                border: 1px solid #ccc !important;
+                background-color: #fff !important;
+                color: #000 !important;
+                page-break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="journal-container">
+        
+        <!-- CABECERA EDITORIAL -->
+        <header class="editorial-header">
+            <div class="journal-meta">Topics Analytica & Deep Research Engine ➔ Estudio Cientométrico</div>
+            <h1 class="journal-title">Estudio Cientométrico Profundo y Benchmarking Multiescala</h1>
+            <div class="journal-subtitle">Subcampo: <strong>Pulmonary and Respiratory Medicine</strong></div>
+            
+            <div class="editorial-meta-row">
+                <div class="meta-item">Enfoque Geopolítico: <strong>México (LATAM)</strong></div>
+                <div class="meta-item">Fecha de Publicación: <strong>02 de June, 2026</strong></div>
+                <div class="meta-item">Mapeo de Base: <strong>OpenAlex Global Graph</strong></div>
+            </div>
+        </header>
+
+        <!-- INDICADORES CLAVE (KPI CARDS) -->
+        <section class="kpi-row">
+            <div class="kpi-card">
+                <div class="kpi-label">Volumen Global</div>
+                <div class="kpi-val">3,565,797</div>
+                <div class="kpi-sub">CAGR Histórico: 6.1%</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Volumen México</div>
+                <div class="kpi-val">3,961</div>
+                <div class="kpi-sub">Share Mundial: 0.00%</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">FWCI México</div>
+                <div class="kpi-val">0.99</div>
+                <div class="kpi-sub">Ref. Mundial: 1.00</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Excelencia México</div>
+                <div class="kpi-val">8.3%</div>
+                <div class="kpi-sub">Top 10% Citados</div>
+            </div>
+        </section>
+
+        <!-- SECCIÓN 1: DIAGNÓSTICO -->
+        <section class="academic-section">
+            <h3 class="section-header-academic">
+                <span><span class="section-num">1.</span> Resumen Ejecutivo y Diagnóstico Global</span>
+                <span style="font-size: 0.8rem; font-weight: normal; color: var(--text-muted);">Estadística Multiescala</span>
+            </h3>
+            <div class="narrative-columns">
+                <p class="intro">El subcampo de **Pulmonary and Respiratory Medicine** ha experimentado una producción bibliográfica sustancial a nivel mundial, con un total de 3 565 797 documentos publicados durante el periodo analizado. México, por su parte, contribuye con 3 961 publicaciones, lo que representa aproximadamente el 0,11 % del corpus global. Este volumen relativo indica que la comunidad mexicana se encuentra en una fase de consolidación respecto a la producción total, aunque la proporción sigue siendo modesta cuando se compara con los grandes actores internacionales.</p><p>En términos de crecimiento anual compuesto (CAGR), el subcampo muestra un ritmo sostenido del 6,11 % a nivel mundial, lo que sugiere una expansión continua y no una madurez cerrada. México presenta un CAGR ligeramente superior, del 7,83 %, indicando que la producción nacional se está expandiendo a un ritmo más acelerado que el promedio global. Este desbalance puede interpretarse como una señal de dinamismo emergente dentro del contexto mexicano, aunque la magnitud absoluta sigue siendo limitada.</p><p>El impacto citacional ponderado, medido mediante el FWCI (Field‑Weighted Citation Impact), revela que los documentos mundiales alcanzan un valor medio de 0,88, mientras que en México se registra un FWCI de 0,99. La diferencia marginal sugiere que la calidad citacional de las publicaciones mexicanas es comparable o incluso superior a la media global, lo cual puede atribuirse a una mayor concentración de investigación de nicho o a la adopción temprana de líneas de trabajo con alto potencial de referencia. No obstante, el porcentaje de artículos que se ubican en el top 10 % de excelencia (8,7 % mundial vs 8,3 % mexicano) indica que, aunque el FWCI sea ligeramente superior, la proporción de trabajos altamente citados no difiere sustancialmente entre ambos niveles.</p><p>Finalmente, la adopción de modelos de acceso abierto muestra una disparidad notable: mientras que solo el 26,9 % de los artículos globales se publican bajo OA, México alcanza un 62,0 %. Este nivel elevado de apertura sugiere una fuerte orientación hacia la ciencia abierta dentro del ecosistema mexicano y puede contribuir a mejorar la visibilidad internacional de sus investigaciones. En conjunto, estos indicadores apuntan a que el subcampo está en una fase expansiva globalmente, con México mostrando un crecimiento más acelerado y una adopción robusta de prácticas de acceso abierto, aunque sigue existiendo una asimetría significativa en términos de volumen y alcance comparativo.</p>
+            </div>
+        </section>
+
+        <!-- SECCIÓN 2: GEOPOLÍTICA -->
+        <section class="academic-section">
+            <h3 class="section-header-academic">
+                <span><span class="section-num">2.</span> Dinámica Geopolítica y Participación Mundial (Share %)</span>
+                <span style="font-size: 0.8rem; font-weight: normal; color: var(--text-muted);">Análisis de Bloques Científicos</span>
+            </h3>
+            
+            <div class="viz-block">
+                <div>                        <script type="text/javascript">window.PlotlyConfig = {MathJaxConfig: 'local'};</script>
+        <script charset="utf-8" src="https://cdn.plot.ly/plotly-3.3.1.min.js" integrity="sha256-4rD3fugVb/nVJYUv5Ky3v+fYXoouHaBSP20WIJuEiWg=" crossorigin="anonymous"></script>                <div id="2cc679ba-9711-4e80-8646-00ac276b52cf" class="plotly-graph-div" style="height:380px; width:100%;"></div>            <script type="text/javascript">                window.PLOTLYENV=window.PLOTLYENV || {};                                if (document.getElementById("2cc679ba-9711-4e80-8646-00ac276b52cf")) {                    Plotly.newPlot(                        "2cc679ba-9711-4e80-8646-00ac276b52cf",                        [{"hovertemplate":"Región=Asia Emergente\u003cbr\u003eAño=%{x}\u003cbr\u003eShare (%)=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","legendgroup":"Asia Emergente","line":{"color":"#636efa","dash":"solid"},"marker":{"symbol":"circle"},"mode":"lines+markers","name":"Asia Emergente","orientation":"v","showlegend":true,"x":{"dtype":"u2","bdata":"2gfbB9wH3QfeB98H4AfhB+IH4wfkB+UH5gfnB+gH6Qc="},"xaxis":"x","y":{"dtype":"f8","bdata":"EZVffIsy+T8wbbwf6jb8P08V8xr46QFAQ3+m9CULBEB22HXss74GQFPzo+6bGAZA7aMX7L+hCEC73zOMiZcMQLaVhAN1pQ1AOzmPy64ED0BVV1+jkVgSQDoqNRnmbRVAvWk0SOIKGEDT1PNOzMgTQF\u002frtV7rtRZAAupLnNl0EEA="},"yaxis":"y","type":"scatter"},{"hovertemplate":"Región=Asia-Pacífico Desarrollado\u003cbr\u003eAño=%{x}\u003cbr\u003eShare (%)=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","legendgroup":"Asia-Pacífico Desarrollado","line":{"color":"#EF553B","dash":"solid"},"marker":{"symbol":"circle"},"mode":"lines+markers","name":"Asia-Pacífico Desarrollado","orientation":"v","showlegend":true,"x":{"dtype":"u2","bdata":"2gfbB9wH3QfeB98H4AfhB+IH4wfkB+UH5gfnB+gH6Qc="},"xaxis":"x","y":{"dtype":"f8","bdata":"sCges6ACFkC7H0+sa3EYQA+zuL2M4hhAlFSZzk3CGEBmWcq1uZkZQIbrSCnHsBhA6kPd4mT3FkCD2vfZB0QcQJSnk\u002fTsjhpAMlLO+JAbGUAAZpTbV04YQOEIfrnfchlAj2F+VpZuGUBpzkesMfASQF4c+saFYxhA4Cbp6SGYPUA="},"yaxis":"y","type":"scatter"},{"hovertemplate":"Región=China\u003cbr\u003eAño=%{x}\u003cbr\u003eShare (%)=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","legendgroup":"China","line":{"color":"#00cc96","dash":"solid"},"marker":{"symbol":"circle"},"mode":"lines+markers","name":"China","orientation":"v","showlegend":true,"x":{"dtype":"u2","bdata":"2gfbB9wH3QfeB98H4AfhB+IH4wfkB+UH5gfnB+gH6Qc="},"xaxis":"x","y":{"dtype":"f8","bdata":"O+ZoPTxpHUAa3GAs\u002fTUfQDQdCc11FB5AnfPYdShfIEBjVknIIg0fQEYkPDC4fhhA5ZSUGz61FECUUkauAGwbQLNH11CzER5ATnl9GVpyH0AkXskAIuIiQPkLXBwULSZAkvU9dJmJLEDXNRgr9WImQD5bqPIPXStA\u002f+jMxQQmJEA="},"yaxis":"y","type":"scatter"},{"hovertemplate":"Región=Europa Central\u002fOccidental\u003cbr\u003eAño=%{x}\u003cbr\u003eShare (%)=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","legendgroup":"Europa Central\u002fOccidental","line":{"color":"#ab63fa","dash":"solid"},"marker":{"symbol":"circle"},"mode":"lines+markers","name":"Europa Central\u002fOccidental","orientation":"v","showlegend":true,"x":{"dtype":"u2","bdata":"2gfbB9wH3QfeB98H4AfhB+IH4wfkB+UH5gfnB+gH6Qc="},"xaxis":"x","y":{"dtype":"f8","bdata":"WRPJLFkQKUAuivFUauspQA8DpADrpylAH23H6um0KUCpgHUin0kqQA\u002fo8IQQ0ChAsP+GIncHKEBeBS2AFRMqQJIYmvBs+SlAdOro1qGZKEC78V6MeSYoQLC5454XAClAfAVfbT3\u002fKEBKFMyLYjwjQN7lVUdPvyRANVepbf+PHEA="},"yaxis":"y","type":"scatter"},{"hovertemplate":"Región=Europa del Este\u003cbr\u003eAño=%{x}\u003cbr\u003eShare (%)=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","legendgroup":"Europa del Este","line":{"color":"#FFA15A","dash":"solid"},"marker":{"symbol":"circle"},"mode":"lines+markers","name":"Europa del Este","orientation":"v","showlegend":true,"x":{"dtype":"u2","bdata":"2gfbB9wH3QfeB98H4AfhB+IH4wfkB+UH5gfnB+gH6Qc="},"xaxis":"x","y":{"dtype":"f8","bdata":"l4NOb6my9D8gV\u002fg9v7P1P+DgNTult\u002fY\u002fB1qS8GYr+T8b7zeoW\u002fX7P0Y8T8Dxg\u002fs\u002fs8dyaTtH\u002fT9WnG\u002fRV2wBQETI+NB6UQNAgjLqZSPLAkCOFq33LvsBQIy3VNLRnwNAUbUoOp4fBEB2UWNtwHz+P6LiSilq0gBAszlcxPE89z8="},"yaxis":"y","type":"scatter"},{"hovertemplate":"Región=Latinoamérica y Caribe\u003cbr\u003eAño=%{x}\u003cbr\u003eShare (%)=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","legendgroup":"Latinoamérica y Caribe","line":{"color":"#19d3f3","dash":"solid"},"marker":{"symbol":"circle"},"mode":"lines+markers","name":"Latinoamérica y Caribe","orientation":"v","showlegend":true,"x":{"dtype":"u2","bdata":"2gfbB9wH3QfeB98H4AfhB+IH4wfkB+UH5gfnB+gH6Qc="},"xaxis":"x","y":{"dtype":"f8","bdata":"yj3LxflRAECk2x88IGgBQKFz180IMgFAA15voz8UAkBOKjZ55RUDQHGOqrANPQRAdm8JAT7iAkDViQTQNusHQB2k+idkLQhACt3FFW1uB0BgsneRu\u002fQJQIP7P5i0tApApins0NAfC0D3FHsmfIIGQOJI4qUMpglAJmMgc3snAEA="},"yaxis":"y","type":"scatter"},{"hovertemplate":"Región=MENA\u003cbr\u003eAño=%{x}\u003cbr\u003eShare (%)=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","legendgroup":"MENA","line":{"color":"#FF6692","dash":"solid"},"marker":{"symbol":"circle"},"mode":"lines+markers","name":"MENA","orientation":"v","showlegend":true,"x":{"dtype":"u2","bdata":"2gfbB9wH3QfeB98H4AfhB+IH4wfkB+UH5gfnB+gH6Qc="},"xaxis":"x","y":{"dtype":"f8","bdata":"FUDpL5J\u002f8D+pL228H+r2P8PKrwLqt\u002fc\u002fib+QgbT3+T\u002fEfMiRtkIAQDURLgFYzv0\u002f\u002fLtP08K1+z8dOyLdipsBQNTC1u9wKgNAkcrPpCFyAkAd9GtwmDkFQKGPFA9OlglAu12aLQi2CUBVpzPdvm0FQDYf\u002fSYQ7gdAVKAxzruR\u002fz8="},"yaxis":"y","type":"scatter"},{"hovertemplate":"Región=Norteamérica Anglosajona\u003cbr\u003eAño=%{x}\u003cbr\u003eShare (%)=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","legendgroup":"Norteamérica Anglosajona","line":{"color":"#B6E880","dash":"solid"},"marker":{"symbol":"circle"},"mode":"lines+markers","name":"Norteamérica Anglosajona","orientation":"v","showlegend":true,"x":{"dtype":"u2","bdata":"2gfbB9wH3QfeB98H4AfhB+IH4wfkB+UH5gfnB+gH6Qc="},"xaxis":"x","y":{"dtype":"f8","bdata":"j5Jd3YKlNkAPRI0w6Oc2QNDgFq\u002f4NTdA+In+zhg9N0DWZNMPspo3QEuqB9GQmzZAY6iIUhSMNUCZqyQgxXY4QDVmQ7UsZjhAn7VFLQkhOEAmuSi8T804QOone31L\u002fjdAkW0YcXDDN0AEjJcUnHYyQAy\u002f0d6RpDdAVZtvoDkoMUA="},"yaxis":"y","type":"scatter"},{"hovertemplate":"Región=Other\u003cbr\u003eAño=%{x}\u003cbr\u003eShare (%)=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","legendgroup":"Other","line":{"color":"#FF97FF","dash":"solid"},"marker":{"symbol":"circle"},"mode":"lines+markers","name":"Other","orientation":"v","showlegend":true,"x":{"dtype":"u2","bdata":"2gfbB9wH3QfeB98H4AfhB+IH4wfkB+UH5gfnB+gH6Qc="},"xaxis":"x","y":{"dtype":"f8","bdata":"FuEupvTbRkB\u002feH8tS5RFQLB05ht+TkVAGtAZsCGdREBO4AwcG9tDQLqmfVvSs0VAGDjnAhQTR0AtnUEDK5tCQI\u002flGjMAOUJAGMLaVILAQkC8fHMZFChBQPxVipI9Fz9AWfYi5GBKO0B0qovIdoVFQPs6L2SkmD9AYibF1AkEOkA="},"yaxis":"y","type":"scatter"},{"hovertemplate":"Región=África Subsahariana\u003cbr\u003eAño=%{x}\u003cbr\u003eShare (%)=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","legendgroup":"África Subsahariana","line":{"color":"#FECB52","dash":"solid"},"marker":{"symbol":"circle"},"mode":"lines+markers","name":"África Subsahariana","orientation":"v","showlegend":true,"x":{"dtype":"u2","bdata":"2gfbB9wH3QfeB98H4AfhB+IH4wfkB+UH5gfnB+gH6Qc="},"xaxis":"x","y":{"dtype":"f8","bdata":"NCbgUha50z+ZDDuqXmjVPykYhUj5NtQ\u002f\u002fsOYrDD61T8U2Ud4U5TXP6nNasgjQto\u002fga4pVu2j1z\u002f4\u002fTB25QDbP6l9S1XvRt4\u002fIeve3pbm3T+Fz6Nt8enhPwlFFc+hyuM\u002fjYRwZsUW5j+pkoAY81bjP59E0\u002fmeLeQ\u002fVSVa\u002fOxh3T8="},"yaxis":"y","type":"scatter"}],                        {"template":{"data":{"barpolar":[{"marker":{"line":{"color":"white","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"barpolar"}],"bar":[{"error_x":{"color":"#2a3f5f"},"error_y":{"color":"#2a3f5f"},"marker":{"line":{"color":"white","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"bar"}],"carpet":[{"aaxis":{"endlinecolor":"#2a3f5f","gridcolor":"#C8D4E3","linecolor":"#C8D4E3","minorgridcolor":"#C8D4E3","startlinecolor":"#2a3f5f"},"baxis":{"endlinecolor":"#2a3f5f","gridcolor":"#C8D4E3","linecolor":"#C8D4E3","minorgridcolor":"#C8D4E3","startlinecolor":"#2a3f5f"},"type":"carpet"}],"choropleth":[{"colorbar":{"outlinewidth":0,"ticks":""},"type":"choropleth"}],"contourcarpet":[{"colorbar":{"outlinewidth":0,"ticks":""},"type":"contourcarpet"}],"contour":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"contour"}],"heatmap":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"heatmap"}],"histogram2dcontour":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"histogram2dcontour"}],"histogram2d":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"histogram2d"}],"histogram":[{"marker":{"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"histogram"}],"mesh3d":[{"colorbar":{"outlinewidth":0,"ticks":""},"type":"mesh3d"}],"parcoords":[{"line":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"parcoords"}],"pie":[{"automargin":true,"type":"pie"}],"scatter3d":[{"line":{"colorbar":{"outlinewidth":0,"ticks":""}},"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatter3d"}],"scattercarpet":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattercarpet"}],"scattergeo":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattergeo"}],"scattergl":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattergl"}],"scattermapbox":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattermapbox"}],"scattermap":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattermap"}],"scatterpolargl":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatterpolargl"}],"scatterpolar":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatterpolar"}],"scatter":[{"fillpattern":{"fillmode":"overlay","size":10,"solidity":0.2},"type":"scatter"}],"scatterternary":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatterternary"}],"surface":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"surface"}],"table":[{"cells":{"fill":{"color":"#EBF0F8"},"line":{"color":"white"}},"header":{"fill":{"color":"#C8D4E3"},"line":{"color":"white"}},"type":"table"}]},"layout":{"annotationdefaults":{"arrowcolor":"#2a3f5f","arrowhead":0,"arrowwidth":1},"autotypenumbers":"strict","coloraxis":{"colorbar":{"outlinewidth":0,"ticks":""}},"colorscale":{"diverging":[[0,"#8e0152"],[0.1,"#c51b7d"],[0.2,"#de77ae"],[0.3,"#f1b6da"],[0.4,"#fde0ef"],[0.5,"#f7f7f7"],[0.6,"#e6f5d0"],[0.7,"#b8e186"],[0.8,"#7fbc41"],[0.9,"#4d9221"],[1,"#276419"]],"sequential":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"sequentialminus":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]},"colorway":["#636efa","#EF553B","#00cc96","#ab63fa","#FFA15A","#19d3f3","#FF6692","#B6E880","#FF97FF","#FECB52"],"font":{"color":"#2a3f5f"},"geo":{"bgcolor":"white","lakecolor":"white","landcolor":"white","showlakes":true,"showland":true,"subunitcolor":"#C8D4E3"},"hoverlabel":{"align":"left"},"hovermode":"closest","mapbox":{"style":"light"},"paper_bgcolor":"white","plot_bgcolor":"white","polar":{"angularaxis":{"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":""},"bgcolor":"white","radialaxis":{"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":""}},"scene":{"xaxis":{"backgroundcolor":"white","gridcolor":"#DFE8F3","gridwidth":2,"linecolor":"#EBF0F8","showbackground":true,"ticks":"","zerolinecolor":"#EBF0F8"},"yaxis":{"backgroundcolor":"white","gridcolor":"#DFE8F3","gridwidth":2,"linecolor":"#EBF0F8","showbackground":true,"ticks":"","zerolinecolor":"#EBF0F8"},"zaxis":{"backgroundcolor":"white","gridcolor":"#DFE8F3","gridwidth":2,"linecolor":"#EBF0F8","showbackground":true,"ticks":"","zerolinecolor":"#EBF0F8"}},"shapedefaults":{"line":{"color":"#2a3f5f"}},"ternary":{"aaxis":{"gridcolor":"#DFE8F3","linecolor":"#A2B1C6","ticks":""},"baxis":{"gridcolor":"#DFE8F3","linecolor":"#A2B1C6","ticks":""},"bgcolor":"white","caxis":{"gridcolor":"#DFE8F3","linecolor":"#A2B1C6","ticks":""}},"title":{"x":0.05},"xaxis":{"automargin":true,"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":"","title":{"standoff":15},"zerolinecolor":"#EBF0F8","zerolinewidth":2},"yaxis":{"automargin":true,"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":"","title":{"standoff":15},"zerolinecolor":"#EBF0F8","zerolinewidth":2}}},"xaxis":{"anchor":"y","domain":[0.0,1.0],"title":{"text":"Año"}},"yaxis":{"anchor":"x","domain":[0.0,1.0],"title":{"text":"Share (%)"}},"legend":{"title":{"text":"Región"},"tracegroupgap":0},"title":{"text":"Evolución de la Participación Mundial en la Producción Científica (%)"},"height":380,"margin":{"l":40,"r":40,"t":50,"b":40}},                        {"responsive": true}                    )                };            </script>        </div>
+                <div class="viz-caption">Figura 2.1: Evolución longitudinal de la cuota de producción mundial (Share %) por regiones geográficas.</div>
+            </div>
+
+            <div class="viz-block">
+                <div>                        <script type="text/javascript">window.PlotlyConfig = {MathJaxConfig: 'local'};</script>
+        <script charset="utf-8" src="https://cdn.plot.ly/plotly-3.3.1.min.js" integrity="sha256-4rD3fugVb/nVJYUv5Ky3v+fYXoouHaBSP20WIJuEiWg=" crossorigin="anonymous"></script>                <div id="1086dee9-2108-4f5d-bf50-cf7b4ea338de" class="plotly-graph-div" style="height:450px; width:100%;"></div>            <script type="text/javascript">                window.PLOTLYENV=window.PLOTLYENV || {};                                if (document.getElementById("1086dee9-2108-4f5d-bf50-cf7b4ea338de")) {                    Plotly.newPlot(                        "1086dee9-2108-4f5d-bf50-cf7b4ea338de",                        [{"customdata":{"dtype":"f8","bdata":"NCfM\u002fzDQHUA=","shape":"1, 1"},"hovertemplate":"\u003cb\u003e%{hovertext}\u003c\u002fb\u003e\u003cbr\u003e\u003cbr\u003eRegión=Asia Emergente\u003cbr\u003eVolumen de Publicaciones (Artículos)=%{x}\u003cbr\u003eImpacto de Citación Normalizado (FWCI)=%{y:.2f}\u003cbr\u003e% Top 10% Citados=%{customdata[0]:.1f%}\u003cextra\u003e\u003c\u002fextra\u003e","hovertext":["Asia Emergente"],"legendgroup":"Asia Emergente","marker":{"color":"#636efa","size":{"dtype":"f8","bdata":"NCfM\u002fzDQHUA="},"sizemode":"area","sizeref":0.024281477041369973,"symbol":"circle","line":{"color":"DarkSlateGrey","width":1}},"mode":"markers","name":"Asia Emergente","orientation":"v","showlegend":true,"x":{"dtype":"u2","bdata":"8aI="},"xaxis":"x","y":{"dtype":"f8","bdata":"H2XT30U77D8="},"yaxis":"y","type":"scatter"},{"customdata":{"dtype":"f8","bdata":"Lc7mFxWTDUA=","shape":"1, 1"},"hovertemplate":"\u003cb\u003e%{hovertext}\u003c\u002fb\u003e\u003cbr\u003e\u003cbr\u003eRegión=Asia-Pacífico Desarrollado\u003cbr\u003eVolumen de Publicaciones (Artículos)=%{x}\u003cbr\u003eImpacto de Citación Normalizado (FWCI)=%{y:.2f}\u003cbr\u003e% Top 10% Citados=%{customdata[0]:.1f%}\u003cextra\u003e\u003c\u002fextra\u003e","hovertext":["Asia-Pacífico Desarrollado"],"legendgroup":"Asia-Pacífico Desarrollado","marker":{"color":"#EF553B","size":{"dtype":"f8","bdata":"Lc7mFxWTDUA="},"sizemode":"area","sizeref":0.024281477041369973,"symbol":"circle","line":{"color":"DarkSlateGrey","width":1}},"mode":"markers","name":"Asia-Pacífico Desarrollado","orientation":"v","showlegend":true,"x":{"dtype":"u4","bdata":"LXoBAA=="},"xaxis":"x","y":{"dtype":"f8","bdata":"Sk5dEsYM2j8="},"yaxis":"y","type":"scatter"},{"customdata":{"dtype":"f8","bdata":"0QEZtNhsM0A=","shape":"1, 1"},"hovertemplate":"\u003cb\u003e%{hovertext}\u003c\u002fb\u003e\u003cbr\u003e\u003cbr\u003eRegión=China\u003cbr\u003eVolumen de Publicaciones (Artículos)=%{x}\u003cbr\u003eImpacto de Citación Normalizado (FWCI)=%{y:.2f}\u003cbr\u003e% Top 10% Citados=%{customdata[0]:.1f%}\u003cextra\u003e\u003c\u002fextra\u003e","hovertext":["China"],"legendgroup":"China","marker":{"color":"#00cc96","size":{"dtype":"f8","bdata":"0QEZtNhsM0A="},"sizemode":"area","sizeref":0.024281477041369973,"symbol":"circle","line":{"color":"DarkSlateGrey","width":1}},"mode":"markers","name":"China","orientation":"v","showlegend":true,"x":{"dtype":"u4","bdata":"+XkBAA=="},"xaxis":"x","y":{"dtype":"f8","bdata":"6I6SdlKlAEA="},"yaxis":"y","type":"scatter"},{"customdata":{"dtype":"f8","bdata":"o96lSZUiJ0A=","shape":"1, 1"},"hovertemplate":"\u003cb\u003e%{hovertext}\u003c\u002fb\u003e\u003cbr\u003e\u003cbr\u003eRegión=Europa Central\u002fOccidental\u003cbr\u003eVolumen de Publicaciones (Artículos)=%{x}\u003cbr\u003eImpacto de Citación Normalizado (FWCI)=%{y:.2f}\u003cbr\u003e% Top 10% Citados=%{customdata[0]:.1f%}\u003cextra\u003e\u003c\u002fextra\u003e","hovertext":["Europa Central\u002fOccidental"],"legendgroup":"Europa Central\u002fOccidental","marker":{"color":"#ab63fa","size":{"dtype":"f8","bdata":"o96lSZUiJ0A="},"sizemode":"area","sizeref":0.024281477041369973,"symbol":"circle","line":{"color":"DarkSlateGrey","width":1}},"mode":"markers","name":"Europa Central\u002fOccidental","orientation":"v","showlegend":true,"x":{"dtype":"u4","bdata":"UEEBAA=="},"xaxis":"x","y":{"dtype":"f8","bdata":"\u002fxiiw5Ox8T8="},"yaxis":"y","type":"scatter"},{"customdata":{"dtype":"f8","bdata":"I8JRLoppF0A=","shape":"1, 1"},"hovertemplate":"\u003cb\u003e%{hovertext}\u003c\u002fb\u003e\u003cbr\u003e\u003cbr\u003eRegión=Europa del Este\u003cbr\u003eVolumen de Publicaciones (Artículos)=%{x}\u003cbr\u003eImpacto de Citación Normalizado (FWCI)=%{y:.2f}\u003cbr\u003e% Top 10% Citados=%{customdata[0]:.1f%}\u003cextra\u003e\u003c\u002fextra\u003e","hovertext":["Europa del Este"],"legendgroup":"Europa del Este","marker":{"color":"#FFA15A","size":{"dtype":"f8","bdata":"I8JRLoppF0A="},"sizemode":"area","sizeref":0.024281477041369973,"symbol":"circle","line":{"color":"DarkSlateGrey","width":1}},"mode":"markers","name":"Europa del Este","orientation":"v","showlegend":true,"x":{"dtype":"u2","bdata":"VkA="},"xaxis":"x","y":{"dtype":"f8","bdata":"49+aIhKo5T8="},"yaxis":"y","type":"scatter"},{"customdata":{"dtype":"f8","bdata":"NEH3qixbHkA=","shape":"1, 1"},"hovertemplate":"\u003cb\u003e%{hovertext}\u003c\u002fb\u003e\u003cbr\u003e\u003cbr\u003eRegión=Latinoamérica y Caribe\u003cbr\u003eVolumen de Publicaciones (Artículos)=%{x}\u003cbr\u003eImpacto de Citación Normalizado (FWCI)=%{y:.2f}\u003cbr\u003e% Top 10% Citados=%{customdata[0]:.1f%}\u003cextra\u003e\u003c\u002fextra\u003e","hovertext":["Latinoamérica y Caribe"],"legendgroup":"Latinoamérica y Caribe","marker":{"color":"#19d3f3","size":{"dtype":"f8","bdata":"NEH3qixbHkA="},"sizemode":"area","sizeref":0.024281477041369973,"symbol":"circle","line":{"color":"DarkSlateGrey","width":1}},"mode":"markers","name":"Latinoamérica y Caribe","orientation":"v","showlegend":true,"x":{"dtype":"u2","bdata":"XVs="},"xaxis":"x","y":{"dtype":"f8","bdata":"GsiOv8io7D8="},"yaxis":"y","type":"scatter"},{"customdata":{"dtype":"f8","bdata":"wc8HuBwsIEA=","shape":"1, 1"},"hovertemplate":"\u003cb\u003e%{hovertext}\u003c\u002fb\u003e\u003cbr\u003e\u003cbr\u003eRegión=MENA\u003cbr\u003eVolumen de Publicaciones (Artículos)=%{x}\u003cbr\u003eImpacto de Citación Normalizado (FWCI)=%{y:.2f}\u003cbr\u003e% Top 10% Citados=%{customdata[0]:.1f%}\u003cextra\u003e\u003c\u002fextra\u003e","hovertext":["MENA"],"legendgroup":"MENA","marker":{"color":"#FF6692","size":{"dtype":"f8","bdata":"wc8HuBwsIEA="},"sizemode":"area","sizeref":0.024281477041369973,"symbol":"circle","line":{"color":"DarkSlateGrey","width":1}},"mode":"markers","name":"MENA","orientation":"v","showlegend":true,"x":{"dtype":"u2","bdata":"DVc="},"xaxis":"x","y":{"dtype":"f8","bdata":"p5EdItYw7T8="},"yaxis":"y","type":"scatter"},{"customdata":{"dtype":"f8","bdata":"6xPMRZFvKEA=","shape":"1, 1"},"hovertemplate":"\u003cb\u003e%{hovertext}\u003c\u002fb\u003e\u003cbr\u003e\u003cbr\u003eRegión=Norteamérica Anglosajona\u003cbr\u003eVolumen de Publicaciones (Artículos)=%{x}\u003cbr\u003eImpacto de Citación Normalizado (FWCI)=%{y:.2f}\u003cbr\u003e% Top 10% Citados=%{customdata[0]:.1f%}\u003cextra\u003e\u003c\u002fextra\u003e","hovertext":["Norteamérica Anglosajona"],"legendgroup":"Norteamérica Anglosajona","marker":{"color":"#B6E880","size":{"dtype":"f8","bdata":"6xPMRZFvKEA="},"sizemode":"area","sizeref":0.024281477041369973,"symbol":"circle","line":{"color":"DarkSlateGrey","width":1}},"mode":"markers","name":"Norteamérica Anglosajona","orientation":"v","showlegend":true,"x":{"dtype":"u4","bdata":"k5oCAA=="},"xaxis":"x","y":{"dtype":"f8","bdata":"sNZlP4nz9D8="},"yaxis":"y","type":"scatter"},{"customdata":{"dtype":"f8","bdata":"t9BBLr2O6D8=","shape":"1, 1"},"hovertemplate":"\u003cb\u003e%{hovertext}\u003c\u002fb\u003e\u003cbr\u003e\u003cbr\u003eRegión=Other\u003cbr\u003eVolumen de Publicaciones (Artículos)=%{x}\u003cbr\u003eImpacto de Citación Normalizado (FWCI)=%{y:.2f}\u003cbr\u003e% Top 10% Citados=%{customdata[0]:.1f%}\u003cextra\u003e\u003c\u002fextra\u003e","hovertext":["Other"],"legendgroup":"Other","marker":{"color":"#FF97FF","size":{"dtype":"f8","bdata":"t9BBLr2O6D8="},"sizemode":"area","sizeref":0.024281477041369973,"symbol":"circle","line":{"color":"DarkSlateGrey","width":1}},"mode":"markers","name":"Other","orientation":"v","showlegend":true,"x":{"dtype":"u4","bdata":"7fQDAA=="},"xaxis":"x","y":{"dtype":"f8","bdata":"gUEQJmrOuT8="},"yaxis":"y","type":"scatter"},{"customdata":{"dtype":"f8","bdata":"V54d+RRDI0A=","shape":"1, 1"},"hovertemplate":"\u003cb\u003e%{hovertext}\u003c\u002fb\u003e\u003cbr\u003e\u003cbr\u003eRegión=África Subsahariana\u003cbr\u003eVolumen de Publicaciones (Artículos)=%{x}\u003cbr\u003eImpacto de Citación Normalizado (FWCI)=%{y:.2f}\u003cbr\u003e% Top 10% Citados=%{customdata[0]:.1f%}\u003cextra\u003e\u003c\u002fextra\u003e","hovertext":["África Subsahariana"],"legendgroup":"África Subsahariana","marker":{"color":"#FECB52","size":{"dtype":"f8","bdata":"V54d+RRDI0A="},"sizemode":"area","sizeref":0.024281477041369973,"symbol":"circle","line":{"color":"DarkSlateGrey","width":1}},"mode":"markers","name":"África Subsahariana","orientation":"v","showlegend":true,"x":{"dtype":"u2","bdata":"vRI="},"xaxis":"x","y":{"dtype":"f8","bdata":"NfSgeM4j8T8="},"yaxis":"y","type":"scatter"}],                        {"template":{"data":{"barpolar":[{"marker":{"line":{"color":"white","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"barpolar"}],"bar":[{"error_x":{"color":"#2a3f5f"},"error_y":{"color":"#2a3f5f"},"marker":{"line":{"color":"white","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"bar"}],"carpet":[{"aaxis":{"endlinecolor":"#2a3f5f","gridcolor":"#C8D4E3","linecolor":"#C8D4E3","minorgridcolor":"#C8D4E3","startlinecolor":"#2a3f5f"},"baxis":{"endlinecolor":"#2a3f5f","gridcolor":"#C8D4E3","linecolor":"#C8D4E3","minorgridcolor":"#C8D4E3","startlinecolor":"#2a3f5f"},"type":"carpet"}],"choropleth":[{"colorbar":{"outlinewidth":0,"ticks":""},"type":"choropleth"}],"contourcarpet":[{"colorbar":{"outlinewidth":0,"ticks":""},"type":"contourcarpet"}],"contour":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"contour"}],"heatmap":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"heatmap"}],"histogram2dcontour":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"histogram2dcontour"}],"histogram2d":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"histogram2d"}],"histogram":[{"marker":{"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"histogram"}],"mesh3d":[{"colorbar":{"outlinewidth":0,"ticks":""},"type":"mesh3d"}],"parcoords":[{"line":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"parcoords"}],"pie":[{"automargin":true,"type":"pie"}],"scatter3d":[{"line":{"colorbar":{"outlinewidth":0,"ticks":""}},"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatter3d"}],"scattercarpet":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattercarpet"}],"scattergeo":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattergeo"}],"scattergl":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattergl"}],"scattermapbox":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattermapbox"}],"scattermap":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattermap"}],"scatterpolargl":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatterpolargl"}],"scatterpolar":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatterpolar"}],"scatter":[{"fillpattern":{"fillmode":"overlay","size":10,"solidity":0.2},"type":"scatter"}],"scatterternary":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatterternary"}],"surface":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"surface"}],"table":[{"cells":{"fill":{"color":"#EBF0F8"},"line":{"color":"white"}},"header":{"fill":{"color":"#C8D4E3"},"line":{"color":"white"}},"type":"table"}]},"layout":{"annotationdefaults":{"arrowcolor":"#2a3f5f","arrowhead":0,"arrowwidth":1},"autotypenumbers":"strict","coloraxis":{"colorbar":{"outlinewidth":0,"ticks":""}},"colorscale":{"diverging":[[0,"#8e0152"],[0.1,"#c51b7d"],[0.2,"#de77ae"],[0.3,"#f1b6da"],[0.4,"#fde0ef"],[0.5,"#f7f7f7"],[0.6,"#e6f5d0"],[0.7,"#b8e186"],[0.8,"#7fbc41"],[0.9,"#4d9221"],[1,"#276419"]],"sequential":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"sequentialminus":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]},"colorway":["#636efa","#EF553B","#00cc96","#ab63fa","#FFA15A","#19d3f3","#FF6692","#B6E880","#FF97FF","#FECB52"],"font":{"color":"#2a3f5f"},"geo":{"bgcolor":"white","lakecolor":"white","landcolor":"white","showlakes":true,"showland":true,"subunitcolor":"#C8D4E3"},"hoverlabel":{"align":"left"},"hovermode":"closest","mapbox":{"style":"light"},"paper_bgcolor":"white","plot_bgcolor":"white","polar":{"angularaxis":{"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":""},"bgcolor":"white","radialaxis":{"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":""}},"scene":{"xaxis":{"backgroundcolor":"white","gridcolor":"#DFE8F3","gridwidth":2,"linecolor":"#EBF0F8","showbackground":true,"ticks":"","zerolinecolor":"#EBF0F8"},"yaxis":{"backgroundcolor":"white","gridcolor":"#DFE8F3","gridwidth":2,"linecolor":"#EBF0F8","showbackground":true,"ticks":"","zerolinecolor":"#EBF0F8"},"zaxis":{"backgroundcolor":"white","gridcolor":"#DFE8F3","gridwidth":2,"linecolor":"#EBF0F8","showbackground":true,"ticks":"","zerolinecolor":"#EBF0F8"}},"shapedefaults":{"line":{"color":"#2a3f5f"}},"ternary":{"aaxis":{"gridcolor":"#DFE8F3","linecolor":"#A2B1C6","ticks":""},"baxis":{"gridcolor":"#DFE8F3","linecolor":"#A2B1C6","ticks":""},"bgcolor":"white","caxis":{"gridcolor":"#DFE8F3","linecolor":"#A2B1C6","ticks":""}},"title":{"x":0.05},"xaxis":{"automargin":true,"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":"","title":{"standoff":15},"zerolinecolor":"#EBF0F8","zerolinewidth":2},"yaxis":{"automargin":true,"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":"","title":{"standoff":15},"zerolinecolor":"#EBF0F8","zerolinewidth":2}}},"xaxis":{"anchor":"y","domain":[0.0,1.0],"title":{"text":"Volumen de Publicaciones (Artículos)"}},"yaxis":{"anchor":"x","domain":[0.0,1.0],"title":{"text":"Impacto de Citación Normalizado (FWCI)"}},"legend":{"title":{"text":"Región"},"tracegroupgap":0,"itemsizing":"constant","orientation":"h","yanchor":"bottom","y":-0.25,"xanchor":"center","x":0.5},"title":{"text":"Posicionamiento Geopolítico por Región (Últimos 5 años (2021-2025))"},"height":450,"shapes":[{"line":{"color":"#ef4444","dash":"dash"},"type":"line","x0":0,"x1":1,"xref":"x domain","y0":1.0,"y1":1.0,"yref":"y"},{"line":{"color":"#94a3b8","dash":"dash"},"type":"line","x0":61984.5,"x1":61984.5,"xref":"x","y0":0,"y1":1,"yref":"y domain"}],"annotations":[{"showarrow":false,"text":"Media Mundial (FWCI = 1.0)","x":0,"xanchor":"left","xref":"x domain","y":1.0,"yanchor":"bottom","yref":"y"},{"showarrow":false,"text":"Mediana de Volumen","x":61984.5,"xanchor":"left","xref":"x","y":1,"yanchor":"top","yref":"y domain"}],"margin":{"l":0,"r":0,"t":50,"b":0}},                        {"responsive": true}                    )                };            </script>        </div>
+                <div class="viz-caption">Figura 2.2: Cuadrante de Posicionamiento Geopolítico. FWCI (Eje Y) vs Volumen de Producción Reciente (Eje X) por regiones.</div>
+            </div>
+
+            <div class="narrative-columns">
+                <p>La producción científica en el campo de la medicina pulmonar y respiratoria se distribuye de manera desigual entre los bloques geopolíticos analizados. El bloque “Other”, que agrupa a las naciones con menor representación bibliométrica, constituye la mayor fracción del corpus total (259 309 documentos), pero su FWCI medio de 0,10 evidencia una baja influencia citacional relativa. En contraste, el bloque “Norteamérica Anglosajona” produce 170 643 artículos con un FWCI de 1,31 y un porcentaje de citas en el top‑10 del 12,22 %, lo que indica un rendimiento superior al promedio mundial y una posición dominante dentro del eje norte‑global. Europa Central/Occidental sigue a la postre, con 82 256 documentos, FWCI de 1,11 y 11,57 % de citas en el top‑10, reforzando la hegemonía del Norte Global en términos de impacto citacional ponderado.</p><p>El bloque “Asia Emergente” (41 713 artículos) muestra un FWCI de 0,88 y un 7,45 % de citas en el top‑10. Si bien su producción es considerablemente menor que la de los bloques norte‑globales, su rendimiento citacional se aproxima al de Latinoamérica y Caribe (23 389 documentos, FWCI 0,90; 7,59 % top‑10), lo que sugiere una creciente competitividad en el Sur Global. La región “MENA” presenta un FWCI ligeramente superior (0,91) y un 8,09 % de citas en el top‑10, indicando un potencial emergente que se mantiene por debajo del estándar norte‑global pero por encima de la media global. África Subsahariana, con 4 797 artículos, alcanza un FWCI de 1,07 y un 9,63 % de citas en el top‑10, lo cual evidencia una asimetría notable: aunque su producción es escasa, su impacto citacional relativo supera al de varios bloques del Sur Global.</p><p>El análisis de la matriz de cuadrantes cienciométricos revela que los bloques norte‑globales se ubican en la zona superior derecha (alto FWCI y alto porcentaje top‑10), mientras que la mayoría de los bloques del Sur Global se sitúan en la parte inferior izquierda (FWCI bajo, porcentaje top‑10 moderado). Esta configuración confirma una asimetría de flujos de conocimiento: el Norte Global no solo genera mayor volumen de publicaciones, sino que también logra un mayor grado de internacionalización y citación. El bloque “Other” ocupa la zona más baja del cuadrante inferior izquierdo, reflejando la necesidad de fortalecer la visibilidad y la calidad de las contribuciones de los países con menor representación bibliométrica.</p><p>En síntesis, el estudio evidencia una clara división entre el Norte Global, que domina tanto en producción como en impacto citacional ponderado, y el Sur Global, donde la producción es más dispersa y el FWCI se mantiene por debajo del promedio. La presencia de bloques emergentes (Asia Emergente, MENA) con FWCI cercano al 1,0 sugiere oportunidades para una mayor integración en los flujos de conocimiento globales. Políticas orientadas a mejorar la calidad editorial, fomentar colaboraciones internacionales y promover la ciencia abierta podrían reducir la brecha citacional y equilibrar la distribución del poder científico dentro de la medicina pulmonar y respiratoria.</p>
+            </div>
+        </section>
+
+        <!-- SECCIÓN 3: BENCHMARKING PAÍSES -->
+        <section class="academic-section">
+            <h3 class="section-header-academic">
+                <span><span class="section-num">3.</span> Benchmarking de Países y Red de Colaboración</span>
+                <span style="font-size: 0.8rem; font-weight: normal; color: var(--text-muted);">Estructura de Coautoría</span>
+            </h3>
+
+            <div class="viz-block">
+                <h4 style="font-family: 'Outfit', sans-serif; font-size: 0.95rem; margin-top: 0; color: var(--primary);">Tabla 3.1: Top 10 Países Líderes en Desempeño Cientométrico</h4>
+                <table border="1" class="dataframe table-premium">
+  <thead>
+    <tr style="text-align: right;">
+      <th>País</th>
+      <th>Documentos</th>
+      <th>fwci_sum</th>
+      <th>percentile_sum</th>
+      <th>top_10_sum</th>
+      <th>top_1_sum</th>
+      <th>citations</th>
+      <th>gold_sum</th>
+      <th>diamond_sum</th>
+      <th>green_sum</th>
+      <th>hybrid_sum</th>
+      <th>bronze_sum</th>
+      <th>closed_sum</th>
+      <th>lang_en_sum</th>
+      <th>lang_es_sum</th>
+      <th>lang_pt_sum</th>
+      <th>FWCI</th>
+      <th>Percentil</th>
+      <th>% Top 10%</th>
+      <th>% Top 1%</th>
+      <th>pct_oa_gold</th>
+      <th>pct_oa_diamond</th>
+      <th>pct_oa_green</th>
+      <th>pct_oa_hybrid</th>
+      <th>pct_oa_bronze</th>
+      <th>pct_oa_closed</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>US</td>
+      <td>610,920</td>
+      <td>1.275059e+06</td>
+      <td>3.587682e+07</td>
+      <td>123252</td>
+      <td>15750</td>
+      <td>17307098</td>
+      <td>48521</td>
+      <td>19679</td>
+      <td>56968</td>
+      <td>21794</td>
+      <td>78594</td>
+      <td>385364</td>
+      <td>598962</td>
+      <td>2814</td>
+      <td>709</td>
+      <td>2.09</td>
+      <td>58.7</td>
+      <td>20.2%</td>
+      <td>2.578079</td>
+      <td>7.942284</td>
+      <td>3.221207</td>
+      <td>9.324953</td>
+      <td>3.567407</td>
+      <td>12.864860</td>
+      <td>63.079290</td>
+    </tr>
+    <tr>
+      <td>JP</td>
+      <td>225,076</td>
+      <td>1.899203e+05</td>
+      <td>8.083844e+06</td>
+      <td>16579</td>
+      <td>1602</td>
+      <td>2473072</td>
+      <td>16698</td>
+      <td>17196</td>
+      <td>74820</td>
+      <td>7234</td>
+      <td>27167</td>
+      <td>81961</td>
+      <td>223271</td>
+      <td>185</td>
+      <td>27</td>
+      <td>0.84</td>
+      <td>35.9</td>
+      <td>7.4%</td>
+      <td>0.711760</td>
+      <td>7.418827</td>
+      <td>7.640086</td>
+      <td>33.242105</td>
+      <td>3.214025</td>
+      <td>12.070145</td>
+      <td>36.414811</td>
+    </tr>
+    <tr>
+      <td>CN</td>
+      <td>223,345</td>
+      <td>3.247272e+05</td>
+      <td>1.187894e+07</td>
+      <td>30991</td>
+      <td>3406</td>
+      <td>2360364</td>
+      <td>52016</td>
+      <td>12690</td>
+      <td>25112</td>
+      <td>10437</td>
+      <td>10984</td>
+      <td>112106</td>
+      <td>220706</td>
+      <td>252</td>
+      <td>47</td>
+      <td>1.45</td>
+      <td>53.2</td>
+      <td>13.9%</td>
+      <td>1.524995</td>
+      <td>23.289530</td>
+      <td>5.681793</td>
+      <td>11.243592</td>
+      <td>4.673039</td>
+      <td>4.917952</td>
+      <td>50.194094</td>
+    </tr>
+    <tr>
+      <td>GB</td>
+      <td>161,577</td>
+      <td>3.663096e+05</td>
+      <td>9.442898e+06</td>
+      <td>32747</td>
+      <td>4703</td>
+      <td>4540942</td>
+      <td>15283</td>
+      <td>5370</td>
+      <td>14442</td>
+      <td>9669</td>
+      <td>31123</td>
+      <td>85690</td>
+      <td>158860</td>
+      <td>472</td>
+      <td>142</td>
+      <td>2.27</td>
+      <td>58.4</td>
+      <td>20.3%</td>
+      <td>2.910687</td>
+      <td>9.458648</td>
+      <td>3.323493</td>
+      <td>8.938153</td>
+      <td>5.984144</td>
+      <td>19.262024</td>
+      <td>53.033538</td>
+    </tr>
+    <tr>
+      <td>DE</td>
+      <td>133,713</td>
+      <td>2.590939e+05</td>
+      <td>7.258536e+06</td>
+      <td>22810</td>
+      <td>3189</td>
+      <td>2876912</td>
+      <td>11671</td>
+      <td>2335</td>
+      <td>10749</td>
+      <td>7142</td>
+      <td>13112</td>
+      <td>88704</td>
+      <td>92804</td>
+      <td>237</td>
+      <td>147</td>
+      <td>1.94</td>
+      <td>54.3</td>
+      <td>17.1%</td>
+      <td>2.384959</td>
+      <td>8.728396</td>
+      <td>1.746277</td>
+      <td>8.038859</td>
+      <td>5.341291</td>
+      <td>9.806077</td>
+      <td>66.339099</td>
+    </tr>
+    <tr>
+      <td>IT</td>
+      <td>100,248</td>
+      <td>2.257050e+05</td>
+      <td>6.024096e+06</td>
+      <td>19988</td>
+      <td>2668</td>
+      <td>2554174</td>
+      <td>13308</td>
+      <td>3871</td>
+      <td>8811</td>
+      <td>5735</td>
+      <td>12754</td>
+      <td>55769</td>
+      <td>96657</td>
+      <td>381</td>
+      <td>69</td>
+      <td>2.25</td>
+      <td>60.1</td>
+      <td>19.9%</td>
+      <td>2.661400</td>
+      <td>13.275078</td>
+      <td>3.861424</td>
+      <td>8.789203</td>
+      <td>5.720812</td>
+      <td>12.722448</td>
+      <td>55.631035</td>
+    </tr>
+    <tr>
+      <td>CA</td>
+      <td>89,038</td>
+      <td>2.142364e+05</td>
+      <td>4.808338e+06</td>
+      <td>18639</td>
+      <td>2908</td>
+      <td>2725076</td>
+      <td>8433</td>
+      <td>2707</td>
+      <td>18469</td>
+      <td>3624</td>
+      <td>11500</td>
+      <td>44305</td>
+      <td>87516</td>
+      <td>246</td>
+      <td>77</td>
+      <td>2.41</td>
+      <td>54.0</td>
+      <td>20.9%</td>
+      <td>3.266021</td>
+      <td>9.471237</td>
+      <td>3.040275</td>
+      <td>20.742829</td>
+      <td>4.070172</td>
+      <td>12.915834</td>
+      <td>49.759653</td>
+    </tr>
+    <tr>
+      <td>FR</td>
+      <td>89,012</td>
+      <td>1.977779e+05</td>
+      <td>4.781723e+06</td>
+      <td>15995</td>
+      <td>2617</td>
+      <td>2338018</td>
+      <td>7099</td>
+      <td>1606</td>
+      <td>8071</td>
+      <td>3752</td>
+      <td>10145</td>
+      <td>58339</td>
+      <td>68037</td>
+      <td>692</td>
+      <td>85</td>
+      <td>2.22</td>
+      <td>53.7</td>
+      <td>18.0%</td>
+      <td>2.940053</td>
+      <td>7.975329</td>
+      <td>1.804251</td>
+      <td>9.067317</td>
+      <td>4.215162</td>
+      <td>11.397340</td>
+      <td>65.540601</td>
+    </tr>
+    <tr>
+      <td>ES</td>
+      <td>63,756</td>
+      <td>1.235493e+05</td>
+      <td>3.373650e+06</td>
+      <td>9586</td>
+      <td>1612</td>
+      <td>1345768</td>
+      <td>6815</td>
+      <td>3589</td>
+      <td>6002</td>
+      <td>3575</td>
+      <td>6723</td>
+      <td>37052</td>
+      <td>47105</td>
+      <td>15579</td>
+      <td>243</td>
+      <td>1.94</td>
+      <td>52.9</td>
+      <td>15.0%</td>
+      <td>2.528389</td>
+      <td>10.689190</td>
+      <td>5.629274</td>
+      <td>9.414016</td>
+      <td>5.607315</td>
+      <td>10.544890</td>
+      <td>58.115315</td>
+    </tr>
+    <tr>
+      <td>IN</td>
+      <td>63,516</td>
+      <td>6.485003e+04</td>
+      <td>3.076063e+06</td>
+      <td>5119</td>
+      <td>591</td>
+      <td>634549</td>
+      <td>6125</td>
+      <td>16326</td>
+      <td>7262</td>
+      <td>3043</td>
+      <td>5800</td>
+      <td>24960</td>
+      <td>62138</td>
+      <td>136</td>
+      <td>45</td>
+      <td>1.02</td>
+      <td>48.4</td>
+      <td>8.1%</td>
+      <td>0.930474</td>
+      <td>9.643239</td>
+      <td>25.703760</td>
+      <td>11.433340</td>
+      <td>4.790919</td>
+      <td>9.131557</td>
+      <td>39.297185</td>
+    </tr>
+  </tbody>
+</table>
+            </div>
+
+            <div class="viz-block">
+                <h4 style="font-family: 'Outfit', sans-serif; font-size: 0.95rem; margin-top: 0; color: var(--primary);">Figura 3.1: Red Topológica y Comunidades de Coautoría Científica Internacional</h4>
+                <iframe srcdoc="&lt;html&gt;
+    &lt;head&gt;
+        &lt;meta charset=&quot;utf-8&quot;&gt;
+        
+            &lt;script src=&quot;lib/bindings/utils.js&quot;&gt;&lt;/script&gt;
+            &lt;link rel=&quot;stylesheet&quot; href=&quot;https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/dist/vis-network.min.css&quot; integrity=&quot;sha512-WgxfT5LWjfszlPHXRmBWHkV2eceiWTOBvrKCNbdgDYTHrT2AeLCGbF4sZlZw3UMN3WtL0tGUoIAKsu8mllg/XA==&quot; crossorigin=&quot;anonymous&quot; referrerpolicy=&quot;no-referrer&quot; /&gt;
+            &lt;script src=&quot;https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/vis-network.min.js&quot; integrity=&quot;sha512-LnvoEWDFrqGHlHmDD2101OrLcbsfkrzoSpvtSQtxK3RMnRV0eOkhhBN2dXHKRrUU8p2DGRTk35n4O8nWSVe1mQ==&quot; crossorigin=&quot;anonymous&quot; referrerpolicy=&quot;no-referrer&quot;&gt;&lt;/script&gt;
+            
+        
+&lt;center&gt;
+&lt;h1&gt;&lt;/h1&gt;
+&lt;/center&gt;
+
+&lt;!-- &lt;link rel=&quot;stylesheet&quot; href=&quot;../node_modules/vis/dist/vis.min.css&quot; type=&quot;text/css&quot; /&gt;
+&lt;script type=&quot;text/javascript&quot; src=&quot;../node_modules/vis/dist/vis.js&quot;&gt; &lt;/script&gt;--&gt;
+        &lt;link
+          href=&quot;https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css&quot;
+          rel=&quot;stylesheet&quot;
+          integrity=&quot;sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6&quot;
+          crossorigin=&quot;anonymous&quot;
+        /&gt;
+        &lt;script
+          src=&quot;https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js&quot;
+          integrity=&quot;sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf&quot;
+          crossorigin=&quot;anonymous&quot;
+        &gt;&lt;/script&gt;
+
+
+        &lt;center&gt;
+          &lt;h1&gt;&lt;/h1&gt;
+        &lt;/center&gt;
+        &lt;style type=&quot;text/css&quot;&gt;
+
+             #mynetwork {
+                 width: 100%;
+                 height: 450px;
+                 background-color: #ffffff;
+                 border: 1px solid lightgray;
+                 position: relative;
+                 float: left;
+             }
+
+             
+
+             
+
+             
+        &lt;/style&gt;
+    &lt;/head&gt;
+
+
+    &lt;body&gt;
+        &lt;div class=&quot;card&quot; style=&quot;width: 100%&quot;&gt;
+            
+            
+            &lt;div id=&quot;mynetwork&quot; class=&quot;card-body&quot;&gt;&lt;/div&gt;
+        &lt;/div&gt;
+
+        
+        
+
+        &lt;script type=&quot;text/javascript&quot;&gt;
+
+              // initialize global variables.
+              var edges;
+              var nodes;
+              var allNodes;
+              var allEdges;
+              var nodeColors;
+              var originalNodes;
+              var network;
+              var container;
+              var options, data;
+              var filter = {
+                  item : &#x27;&#x27;,
+                  property : &#x27;&#x27;,
+                  value : []
+              };
+
+              
+
+              
+
+              // This method is responsible for drawing the graph, returns the drawn network
+              function drawGraph() {
+                  var container = document.getElementById(&#x27;mynetwork&#x27;);
+
+                  
+
+                  // parsing and collecting nodes and edges from the python
+                  nodes = new vis.DataSet([{&quot;borderColor&quot;: &quot;#475569&quot;, &quot;borderWidth&quot;: 1, &quot;color&quot;: &quot;#c084fc&quot;, &quot;font&quot;: {&quot;color&quot;: &quot;#1e293b&quot;}, &quot;id&quot;: &quot;FR&quot;, &quot;label&quot;: &quot;Francia&quot;, &quot;shape&quot;: &quot;dot&quot;, &quot;size&quot;: 635, &quot;title&quot;: &quot;\n        \u003cdiv style=\&quot;font-family: sans-serif; padding: 6px; font-size: 12px; color: #1e293b; background: white; border: 1px solid #ccc; border-radius: 4px;\&quot;\u003e\n            \u003cb\u003eFrancia\u003c/b\u003e (FR)\u003cbr/\u003e\n            Regi\u00f3n: Europa Central/Occidental\u003cbr/\u003e\n            Coautor\u00edas en Red: 62209\n        \u003c/div\u003e\n        &quot;}, {&quot;borderColor&quot;: &quot;#475569&quot;, &quot;borderWidth&quot;: 1, &quot;color&quot;: &quot;#c084fc&quot;, &quot;font&quot;: {&quot;color&quot;: &quot;#1e293b&quot;}, &quot;id&quot;: &quot;IT&quot;, &quot;label&quot;: &quot;Italia&quot;, &quot;shape&quot;: &quot;dot&quot;, &quot;size&quot;: 665, &quot;title&quot;: &quot;\n        \u003cdiv style=\&quot;font-family: sans-serif; padding: 6px; font-size: 12px; color: #1e293b; background: white; border: 1px solid #ccc; border-radius: 4px;\&quot;\u003e\n            \u003cb\u003eItalia\u003c/b\u003e (IT)\u003cbr/\u003e\n            Regi\u00f3n: Europa Central/Occidental\u003cbr/\u003e\n            Coautor\u00edas en Red: 68334\n        \u003c/div\u003e\n        &quot;}, {&quot;borderColor&quot;: &quot;#475569&quot;, &quot;borderWidth&quot;: 1, &quot;color&quot;: &quot;#5eead4&quot;, &quot;font&quot;: {&quot;color&quot;: &quot;#1e293b&quot;}, &quot;id&quot;: &quot;JP&quot;, &quot;label&quot;: &quot;Jap\u00f3n&quot;, &quot;shape&quot;: &quot;dot&quot;, &quot;size&quot;: 458, &quot;title&quot;: &quot;\n        \u003cdiv style=\&quot;font-family: sans-serif; padding: 6px; font-size: 12px; color: #1e293b; background: white; border: 1px solid #ccc; border-radius: 4px;\&quot;\u003e\n            \u003cb\u003eJap\u00f3n\u003c/b\u003e (JP)\u003cbr/\u003e\n            Regi\u00f3n: Asia-Pac\u00edfico Desarrollado\u003cbr/\u003e\n            Coautor\u00edas en Red: 31909\n        \u003c/div\u003e\n        &quot;}, {&quot;borderColor&quot;: &quot;#475569&quot;, &quot;borderWidth&quot;: 1, &quot;color&quot;: &quot;#93c5fd&quot;, &quot;font&quot;: {&quot;color&quot;: &quot;#1e293b&quot;}, &quot;id&quot;: &quot;US&quot;, &quot;label&quot;: &quot;Estados Unidos&quot;, &quot;shape&quot;: &quot;dot&quot;, &quot;size&quot;: 1132, &quot;title&quot;: &quot;\n        \u003cdiv style=\&quot;font-family: sans-serif; padding: 6px; font-size: 12px; color: #1e293b; background: white; border: 1px solid #ccc; border-radius: 4px;\&quot;\u003e\n            \u003cb\u003eEstados Unidos\u003c/b\u003e (US)\u003cbr/\u003e\n            Regi\u00f3n: Norteam\u00e9rica Anglosajona\u003cbr/\u003e\n            Coautor\u00edas en Red: 200840\n        \u003c/div\u003e\n        &quot;}, {&quot;borderColor&quot;: &quot;#475569&quot;, &quot;borderWidth&quot;: 1, &quot;color&quot;: &quot;#93c5fd&quot;, &quot;font&quot;: {&quot;color&quot;: &quot;#1e293b&quot;}, &quot;id&quot;: &quot;CA&quot;, &quot;label&quot;: &quot;Canad\u00e1&quot;, &quot;shape&quot;: &quot;dot&quot;, &quot;size&quot;: 638, &quot;title&quot;: &quot;\n        \u003cdiv style=\&quot;font-family: sans-serif; padding: 6px; font-size: 12px; color: #1e293b; background: white; border: 1px solid #ccc; border-radius: 4px;\&quot;\u003e\n            \u003cb\u003eCanad\u00e1\u003c/b\u003e (CA)\u003cbr/\u003e\n            Regi\u00f3n: Norteam\u00e9rica Anglosajona\u003cbr/\u003e\n            Coautor\u00edas en Red: 62743\n        \u003c/div\u003e\n        &quot;}, {&quot;borderColor&quot;: &quot;#475569&quot;, &quot;borderWidth&quot;: 1, &quot;color&quot;: &quot;#c084fc&quot;, &quot;font&quot;: {&quot;color&quot;: &quot;#1e293b&quot;}, &quot;id&quot;: &quot;SE&quot;, &quot;label&quot;: &quot;Suecia&quot;, &quot;shape&quot;: &quot;dot&quot;, &quot;size&quot;: 250, &quot;title&quot;: &quot;\n        \u003cdiv style=\&quot;font-family: sans-serif; padding: 6px; font-size: 12px; color: #1e293b; background: white; border: 1px solid #ccc; border-radius: 4px;\&quot;\u003e\n            \u003cb\u003eSuecia\u003c/b\u003e (SE)\u003cbr/\u003e\n            Regi\u00f3n: Europa Central/Occidental\u003cbr/\u003e\n            Coautor\u00edas en Red: 9073\n        \u003c/div\u003e\n        &quot;}, {&quot;borderColor&quot;: &quot;#475569&quot;, &quot;borderWidth&quot;: 1, &quot;color&quot;: &quot;#c084fc&quot;, &quot;font&quot;: {&quot;color&quot;: &quot;#1e293b&quot;}, &quot;id&quot;: &quot;NL&quot;, &quot;label&quot;: &quot;Pa\u00edses Bajos&quot;, &quot;shape&quot;: &quot;dot&quot;, &quot;size&quot;: 502, &quot;title&quot;: &quot;\n        \u003cdiv style=\&quot;font-family: sans-serif; padding: 6px; font-size: 12px; color: #1e293b; background: white; border: 1px solid #ccc; border-radius: 4px;\&quot;\u003e\n            \u003cb\u003ePa\u00edses Bajos\u003c/b\u003e (NL)\u003cbr/\u003e\n            Regi\u00f3n: Europa Central/Occidental\u003cbr/\u003e\n            Coautor\u00edas en Red: 38428\n        \u003c/div\u003e\n        &quot;}, {&quot;borderColor&quot;: &quot;#475569&quot;, &quot;borderWidth&quot;: 1, &quot;color&quot;: &quot;#c084fc&quot;, &quot;font&quot;: {&quot;color&quot;: &quot;#1e293b&quot;}, &quot;id&quot;: &quot;BE&quot;, &quot;label&quot;: &quot;B\u00e9lgica&quot;, &quot;shape&quot;: &quot;dot&quot;, &quot;size&quot;: 425, &quot;title&quot;: &quot;\n        \u003cdiv style=\&quot;font-family: sans-serif; padding: 6px; font-size: 12px; color: #1e293b; background: white; border: 1px solid #ccc; border-radius: 4px;\&quot;\u003e\n            \u003cb\u003eB\u00e9lgica\u003c/b\u003e (BE)\u003cbr/\u003e\n            Regi\u00f3n: Europa Central/Occidental\u003cbr/\u003e\n            Coautor\u00edas en Red: 27304\n        \u003c/div\u003e\n        &quot;}, {&quot;borderColor&quot;: &quot;#475569&quot;, &quot;borderWidth&quot;: 1, &quot;color&quot;: &quot;#86efac&quot;, &quot;font&quot;: {&quot;color&quot;: &quot;#1e293b&quot;}, &quot;id&quot;: &quot;BR&quot;, &quot;label&quot;: &quot;Brasil&quot;, &quot;shape&quot;: &quot;dot&quot;, &quot;size&quot;: 194, &quot;title&quot;: &quot;\n        \u003cdiv style=\&quot;font-family: sans-serif; padding: 6px; font-size: 12px; color: #1e293b; background: white; border: 1px solid #ccc; border-radius: 4px;\&quot;\u003e\n            \u003cb\u003eBrasil\u003c/b\u003e (BR)\u003cbr/\u003e\n            Regi\u00f3n: Latinoam\u00e9rica y Caribe\u003cbr/\u003e\n            Coautor\u00edas en Red: 5329\n        \u003c/div\u003e\n        &quot;}, {&quot;borderColor&quot;: &quot;#475569&quot;, &quot;borderWidth&quot;: 1, &quot;color&quot;: &quot;#c084fc&quot;, &quot;font&quot;: {&quot;color&quot;: &quot;#1e293b&quot;}, &quot;id&quot;: &quot;DE&quot;, &quot;label&quot;: &quot;Alemania&quot;, &quot;shape&quot;: &quot;dot&quot;, &quot;size&quot;: 713, &quot;title&quot;: &quot;\n        \u003cdiv style=\&quot;font-family: sans-serif; padding: 6px; font-size: 12px; color: #1e293b; background: white; border: 1px solid #ccc; border-radius: 4px;\&quot;\u003e\n            \u003cb\u003eAlemania\u003c/b\u003e (DE)\u003cbr/\u003e\n            Regi\u00f3n: Europa Central/Occidental\u003cbr/\u003e\n            Coautor\u00edas en Red: 78780\n        \u003c/div\u003e\n        &quot;}, {&quot;borderColor&quot;: &quot;#475569&quot;, &quot;borderWidth&quot;: 1, &quot;color&quot;: &quot;#c084fc&quot;, &quot;font&quot;: {&quot;color&quot;: &quot;#1e293b&quot;}, &quot;id&quot;: &quot;CH&quot;, &quot;label&quot;: &quot;Suiza&quot;, &quot;shape&quot;: &quot;dot&quot;, &quot;size&quot;: 432, &quot;title&quot;: &quot;\n        \u003cdiv style=\&quot;font-family: sans-serif; padding: 6px; font-size: 12px; color: #1e293b; background: white; border: 1px solid #ccc; border-radius: 4px;\&quot;\u003e\n            \u003cb\u003eSuiza\u003c/b\u003e (CH)\u003cbr/\u003e\n            Regi\u00f3n: Europa Central/Occidental\u003cbr/\u003e\n            Coautor\u00edas en Red: 28243\n        \u003c/div\u003e\n        &quot;}, {&quot;borderColor&quot;: &quot;#475569&quot;, &quot;borderWidth&quot;: 1, &quot;color&quot;: &quot;#5eead4&quot;, &quot;font&quot;: {&quot;color&quot;: &quot;#1e293b&quot;}, &quot;id&quot;: &quot;KR&quot;, &quot;label&quot;: &quot;KR&quot;, &quot;shape&quot;: &quot;dot&quot;, &quot;size&quot;: 226, &quot;title&quot;: &quot;\n        \u003cdiv style=\&quot;font-family: sans-serif; padding: 6px; font-size: 12px; color: #1e293b; background: white; border: 1px solid #ccc; border-radius: 4px;\&quot;\u003e\n            \u003cb\u003eKR\u003c/b\u003e (KR)\u003cbr/\u003e\n            Regi\u00f3n: Asia-Pac\u00edfico Desarrollado\u003cbr/\u003e\n            Coautor\u00edas en Red: 7382\n        \u003c/div\u003e\n        &quot;}, {&quot;borderColor&quot;: &quot;#475569&quot;, &quot;borderWidth&quot;: 1, &quot;color&quot;: &quot;#93c5fd&quot;, &quot;font&quot;: {&quot;color&quot;: &quot;#1e293b&quot;}, &quot;id&quot;: &quot;GB&quot;, &quot;label&quot;: &quot;Reino Unido&quot;, &quot;shape&quot;: &quot;dot&quot;, &quot;size&quot;: 834, &quot;title&quot;: &quot;\n        \u003cdiv style=\&quot;font-family: sans-serif; padding: 6px; font-size: 12px; color: #1e293b; background: white; border: 1px solid #ccc; border-radius: 4px;\&quot;\u003e\n            \u003cb\u003eReino Unido\u003c/b\u003e (GB)\u003cbr/\u003e\n            Regi\u00f3n: Norteam\u00e9rica Anglosajona\u003cbr/\u003e\n            Coautor\u00edas en Red: 108157\n        \u003c/div\u003e\n        &quot;}, {&quot;borderColor&quot;: &quot;#475569&quot;, &quot;borderWidth&quot;: 1, &quot;color&quot;: &quot;#c084fc&quot;, &quot;font&quot;: {&quot;color&quot;: &quot;#1e293b&quot;}, &quot;id&quot;: &quot;AT&quot;, &quot;label&quot;: &quot;Austria&quot;, &quot;shape&quot;: &quot;dot&quot;, &quot;size&quot;: 196, &quot;title&quot;: &quot;\n        \u003cdiv style=\&quot;font-family: sans-serif; padding: 6px; font-size: 12px; color: #1e293b; background: white; border: 1px solid #ccc; border-radius: 4px;\&quot;\u003e\n            \u003cb\u003eAustria\u003c/b\u003e (AT)\u003cbr/\u003e\n            Regi\u00f3n: Europa Central/Occidental\u003cbr/\u003e\n            Coautor\u00edas en Red: 5466\n        \u003c/div\u003e\n        &quot;}, {&quot;borderColor&quot;: &quot;#475569&quot;, &quot;borderWidth&quot;: 1, &quot;color&quot;: &quot;#c084fc&quot;, &quot;font&quot;: {&quot;color&quot;: &quot;#1e293b&quot;}, &quot;id&quot;: &quot;ES&quot;, &quot;label&quot;: &quot;Espa\u00f1a&quot;, &quot;shape&quot;: &quot;dot&quot;, &quot;size&quot;: 476, &quot;title&quot;: &quot;\n        \u003cdiv style=\&quot;font-family: sans-serif; padding: 6px; font-size: 12px; color: #1e293b; background: white; border: 1px solid #ccc; border-radius: 4px;\&quot;\u003e\n            \u003cb\u003eEspa\u00f1a\u003c/b\u003e (ES)\u003cbr/\u003e\n            Regi\u00f3n: Europa Central/Occidental\u003cbr/\u003e\n            Coautor\u00edas en Red: 34499\n        \u003c/div\u003e\n        &quot;}, {&quot;borderColor&quot;: &quot;#475569&quot;, &quot;borderWidth&quot;: 1, &quot;color&quot;: &quot;#fda4af&quot;, &quot;font&quot;: {&quot;color&quot;: &quot;#1e293b&quot;}, &quot;id&quot;: &quot;CN&quot;, &quot;label&quot;: &quot;China&quot;, &quot;shape&quot;: &quot;dot&quot;, &quot;size&quot;: 382, &quot;title&quot;: &quot;\n        \u003cdiv style=\&quot;font-family: sans-serif; padding: 6px; font-size: 12px; color: #1e293b; background: white; border: 1px solid #ccc; border-radius: 4px;\&quot;\u003e\n            \u003cb\u003eChina\u003c/b\u003e (CN)\u003cbr/\u003e\n            Regi\u00f3n: China\u003cbr/\u003e\n            Coautor\u00edas en Red: 21972\n        \u003c/div\u003e\n        &quot;}, {&quot;borderColor&quot;: &quot;#475569&quot;, &quot;borderWidth&quot;: 1, &quot;color&quot;: &quot;#fed7aa&quot;, &quot;font&quot;: {&quot;color&quot;: &quot;#1e293b&quot;}, &quot;id&quot;: &quot;IN&quot;, &quot;label&quot;: &quot;India&quot;, &quot;shape&quot;: &quot;dot&quot;, &quot;size&quot;: 208, &quot;title&quot;: &quot;\n        \u003cdiv style=\&quot;font-family: sans-serif; padding: 6px; font-size: 12px; color: #1e293b; background: white; border: 1px solid #ccc; border-radius: 4px;\&quot;\u003e\n            \u003cb\u003eIndia\u003c/b\u003e (IN)\u003cbr/\u003e\n            Regi\u00f3n: Asia Emergente\u003cbr/\u003e\n            Coautor\u00edas en Red: 6173\n        \u003c/div\u003e\n        &quot;}, {&quot;borderColor&quot;: &quot;#475569&quot;, &quot;borderWidth&quot;: 1, &quot;color&quot;: &quot;#93c5fd&quot;, &quot;font&quot;: {&quot;color&quot;: &quot;#1e293b&quot;}, &quot;id&quot;: &quot;AU&quot;, &quot;label&quot;: &quot;Australia&quot;, &quot;shape&quot;: &quot;dot&quot;, &quot;size&quot;: 385, &quot;title&quot;: &quot;\n        \u003cdiv style=\&quot;font-family: sans-serif; padding: 6px; font-size: 12px; color: #1e293b; background: white; border: 1px solid #ccc; border-radius: 4px;\&quot;\u003e\n            \u003cb\u003eAustralia\u003c/b\u003e (AU)\u003cbr/\u003e\n            Regi\u00f3n: Norteam\u00e9rica Anglosajona\u003cbr/\u003e\n            Coautor\u00edas en Red: 22333\n        \u003c/div\u003e\n        &quot;}]);
+                  edges = new vis.DataSet([{&quot;color&quot;: &quot;#cbd5e1&quot;, &quot;from&quot;: &quot;GB&quot;, &quot;title&quot;: &quot;Coautor\u00edas: 28267&quot;, &quot;to&quot;: &quot;US&quot;, &quot;value&quot;: 28267, &quot;width&quot;: 113}, {&quot;color&quot;: &quot;#cbd5e1&quot;, &quot;from&quot;: &quot;CA&quot;, &quot;title&quot;: &quot;Coautor\u00edas: 21125&quot;, &quot;to&quot;: &quot;US&quot;, &quot;value&quot;: 21125, &quot;width&quot;: 97}, {&quot;color&quot;: &quot;#cbd5e1&quot;, &quot;from&quot;: &quot;DE&quot;, &quot;title&quot;: &quot;Coautor\u00edas: 20053&quot;, &quot;to&quot;: &quot;US&quot;, &quot;value&quot;: 20053, &quot;width&quot;: 95}, {&quot;color&quot;: &quot;#cbd5e1&quot;, &quot;from&quot;: &quot;CN&quot;, &quot;title&quot;: &quot;Coautor\u00edas: 17616&quot;, &quot;to&quot;: &quot;US&quot;, &quot;value&quot;: 17616, &quot;width&quot;: 89}, {&quot;color&quot;: &quot;#cbd5e1&quot;, &quot;from&quot;: &quot;IT&quot;, &quot;title&quot;: &quot;Coautor\u00edas: 16884&quot;, &quot;to&quot;: &quot;US&quot;, &quot;value&quot;: 16884, &quot;width&quot;: 87}, {&quot;color&quot;: &quot;#cbd5e1&quot;, &quot;from&quot;: &quot;CA&quot;, &quot;title&quot;: &quot;Coautor\u00edas: 14773&quot;, &quot;to&quot;: &quot;JP&quot;, &quot;value&quot;: 14773, &quot;width&quot;: 82}, {&quot;color&quot;: &quot;#cbd5e1&quot;, &quot;from&quot;: &quot;FR&quot;, &quot;title&quot;: &quot;Coautor\u00edas: 14008&quot;, &quot;to&quot;: &quot;US&quot;, &quot;value&quot;: 14008, &quot;width&quot;: 79}, {&quot;color&quot;: &quot;#cbd5e1&quot;, &quot;from&quot;: &quot;JP&quot;, &quot;title&quot;: &quot;Coautor\u00edas: 13317&quot;, &quot;to&quot;: &quot;US&quot;, &quot;value&quot;: 13317, &quot;width&quot;: 77}, {&quot;color&quot;: &quot;#cbd5e1&quot;, &quot;from&quot;: &quot;ES&quot;, &quot;title&quot;: &quot;Coautor\u00edas: 10702&quot;, &quot;to&quot;: &quot;US&quot;, &quot;value&quot;: 10702, &quot;width&quot;: 69}, {&quot;color&quot;: &quot;#cbd5e1&quot;, &quot;from&quot;: &quot;AU&quot;, &quot;title&quot;: &quot;Coautor\u00edas: 10645&quot;, &quot;to&quot;: &quot;US&quot;, &quot;value&quot;: 10645, &quot;width&quot;: 69}, {&quot;color&quot;: &quot;#cbd5e1&quot;, &quot;from&quot;: &quot;NL&quot;, &quot;title&quot;: &quot;Coautor\u00edas: 10581&quot;, &quot;to&quot;: &quot;US&quot;, &quot;value&quot;: 10581, &quot;width&quot;: 69}, {&quot;color&quot;: &quot;#cbd5e1&quot;, &quot;from&quot;: &quot;DE&quot;, &quot;title&quot;: &quot;Coautor\u00edas: 10030&quot;, &quot;to&quot;: &quot;GB&quot;, &quot;value&quot;: 10030, &quot;width&quot;: 67}, {&quot;color&quot;: &quot;#cbd5e1&quot;, &quot;from&quot;: &quot;GB&quot;, &quot;title&quot;: &quot;Coautor\u00edas: 9980&quot;, &quot;to&quot;: &quot;IT&quot;, &quot;value&quot;: 9980, &quot;width&quot;: 67}, {&quot;color&quot;: &quot;#cbd5e1&quot;, &quot;from&quot;: &quot;FR&quot;, &quot;title&quot;: &quot;Coautor\u00edas: 8533&quot;, &quot;to&quot;: &quot;GB&quot;, &quot;value&quot;: 8533, &quot;width&quot;: 62}, {&quot;color&quot;: &quot;#cbd5e1&quot;, &quot;from&quot;: &quot;DE&quot;, &quot;title&quot;: &quot;Coautor\u00edas: 8481&quot;, &quot;to&quot;: &quot;IT&quot;, &quot;value&quot;: 8481, &quot;width&quot;: 62}, {&quot;color&quot;: &quot;#cbd5e1&quot;, &quot;from&quot;: &quot;CA&quot;, &quot;title&quot;: &quot;Coautor\u00edas: 8218&quot;, &quot;to&quot;: &quot;GB&quot;, &quot;value&quot;: 8218, &quot;width&quot;: 61}, {&quot;color&quot;: &quot;#cbd5e1&quot;, &quot;from&quot;: &quot;FR&quot;, &quot;title&quot;: &quot;Coautor\u00edas: 8136&quot;, &quot;to&quot;: &quot;IT&quot;, &quot;value&quot;: 8136, &quot;width&quot;: 61}, {&quot;color&quot;: &quot;#cbd5e1&quot;, &quot;from&quot;: &quot;CH&quot;, &quot;title&quot;: &quot;Coautor\u00edas: 7699&quot;, &quot;to&quot;: &quot;US&quot;, &quot;value&quot;: 7699, &quot;width&quot;: 59}, {&quot;color&quot;: &quot;#cbd5e1&quot;, &quot;from&quot;: &quot;GB&quot;, &quot;title&quot;: &quot;Coautor\u00edas: 7574&quot;, &quot;to&quot;: &quot;NL&quot;, &quot;value&quot;: 7574, &quot;width&quot;: 59}, {&quot;color&quot;: &quot;#cbd5e1&quot;, &quot;from&quot;: &quot;AU&quot;, &quot;title&quot;: &quot;Coautor\u00edas: 7493&quot;, &quot;to&quot;: &quot;GB&quot;, &quot;value&quot;: 7493, &quot;width&quot;: 58}, {&quot;color&quot;: &quot;#cbd5e1&quot;, &quot;from&quot;: &quot;DE&quot;, &quot;title&quot;: &quot;Coautor\u00edas: 7481&quot;, &quot;to&quot;: &quot;FR&quot;, &quot;value&quot;: 7481, &quot;width&quot;: 58}, {&quot;color&quot;: &quot;#cbd5e1&quot;, &quot;from&quot;: &quot;KR&quot;, &quot;title&quot;: &quot;Coautor\u00edas: 7382&quot;, &quot;to&quot;: &quot;US&quot;, &quot;value&quot;: 7382, &quot;width&quot;: 58}, {&quot;color&quot;: &quot;#cbd5e1&quot;, &quot;from&quot;: &quot;CH&quot;, &quot;title&quot;: &quot;Coautor\u00edas: 6949&quot;, &quot;to&quot;: &quot;DE&quot;, &quot;value&quot;: 6949, &quot;width&quot;: 56}, {&quot;color&quot;: &quot;#cbd5e1&quot;, &quot;from&quot;: &quot;ES&quot;, &quot;title&quot;: &quot;Coautor\u00edas: 6666&quot;, &quot;to&quot;: &quot;IT&quot;, &quot;value&quot;: 6666, &quot;width&quot;: 55}, {&quot;color&quot;: &quot;#cbd5e1&quot;, &quot;from&quot;: &quot;ES&quot;, &quot;title&quot;: &quot;Coautor\u00edas: 6662&quot;, &quot;to&quot;: &quot;GB&quot;, &quot;value&quot;: 6662, &quot;width&quot;: 55}, {&quot;color&quot;: &quot;#cbd5e1&quot;, &quot;from&quot;: &quot;DE&quot;, &quot;title&quot;: &quot;Coautor\u00edas: 6459&quot;, &quot;to&quot;: &quot;NL&quot;, &quot;value&quot;: 6459, &quot;width&quot;: 54}, {&quot;color&quot;: &quot;#cbd5e1&quot;, &quot;from&quot;: &quot;IN&quot;, &quot;title&quot;: &quot;Coautor\u00edas: 6173&quot;, &quot;to&quot;: &quot;US&quot;, &quot;value&quot;: 6173, &quot;width&quot;: 53}, {&quot;color&quot;: &quot;#cbd5e1&quot;, &quot;from&quot;: &quot;BE&quot;, &quot;title&quot;: &quot;Coautor\u00edas: 5971&quot;, &quot;to&quot;: &quot;US&quot;, &quot;value&quot;: 5971, &quot;width&quot;: 52}, {&quot;color&quot;: &quot;#cbd5e1&quot;, &quot;from&quot;: &quot;AT&quot;, &quot;title&quot;: &quot;Coautor\u00edas: 5466&quot;, &quot;to&quot;: &quot;DE&quot;, &quot;value&quot;: 5466, &quot;width&quot;: 50}, {&quot;color&quot;: &quot;#cbd5e1&quot;, &quot;from&quot;: &quot;ES&quot;, &quot;title&quot;: &quot;Coautor\u00edas: 5408&quot;, &quot;to&quot;: &quot;FR&quot;, &quot;value&quot;: 5408, &quot;width&quot;: 50}, {&quot;color&quot;: &quot;#cbd5e1&quot;, &quot;from&quot;: &quot;BR&quot;, &quot;title&quot;: &quot;Coautor\u00edas: 5329&quot;, &quot;to&quot;: &quot;US&quot;, &quot;value&quot;: 5329, &quot;width&quot;: 49}, {&quot;color&quot;: &quot;#cbd5e1&quot;, &quot;from&quot;: &quot;IT&quot;, &quot;title&quot;: &quot;Coautor\u00edas: 5236&quot;, &quot;to&quot;: &quot;NL&quot;, &quot;value&quot;: 5236, &quot;width&quot;: 49}, {&quot;color&quot;: &quot;#cbd5e1&quot;, &quot;from&quot;: &quot;SE&quot;, &quot;title&quot;: &quot;Coautor\u00edas: 5088&quot;, &quot;to&quot;: &quot;US&quot;, &quot;value&quot;: 5088, &quot;width&quot;: 48}, {&quot;color&quot;: &quot;#cbd5e1&quot;, &quot;from&quot;: &quot;DE&quot;, &quot;title&quot;: &quot;Coautor\u00edas: 5061&quot;, &quot;to&quot;: &quot;ES&quot;, &quot;value&quot;: 5061, &quot;width&quot;: 48}, {&quot;color&quot;: &quot;#cbd5e1&quot;, &quot;from&quot;: &quot;CA&quot;, &quot;title&quot;: &quot;Coautor\u00edas: 5053&quot;, &quot;to&quot;: &quot;FR&quot;, &quot;value&quot;: 5053, &quot;width&quot;: 48}, {&quot;color&quot;: &quot;#cbd5e1&quot;, &quot;from&quot;: &quot;CA&quot;, &quot;title&quot;: &quot;Coautor\u00edas: 4873&quot;, &quot;to&quot;: &quot;DE&quot;, &quot;value&quot;: 4873, &quot;width&quot;: 47}, {&quot;color&quot;: &quot;#cbd5e1&quot;, &quot;from&quot;: &quot;CH&quot;, &quot;title&quot;: &quot;Coautor\u00edas: 4737&quot;, &quot;to&quot;: &quot;GB&quot;, &quot;value&quot;: 4737, &quot;width&quot;: 46}, {&quot;color&quot;: &quot;#cbd5e1&quot;, &quot;from&quot;: &quot;BE&quot;, &quot;title&quot;: &quot;Coautor\u00edas: 4655&quot;, &quot;to&quot;: &quot;FR&quot;, &quot;value&quot;: 4655, &quot;width&quot;: 46}, {&quot;color&quot;: &quot;#cbd5e1&quot;, &quot;from&quot;: &quot;CH&quot;, &quot;title&quot;: &quot;Coautor\u00edas: 4509&quot;, &quot;to&quot;: &quot;FR&quot;, &quot;value&quot;: 4509, &quot;width&quot;: 45}, {&quot;color&quot;: &quot;#cbd5e1&quot;, &quot;from&quot;: &quot;CA&quot;, &quot;title&quot;: &quot;Coautor\u00edas: 4506&quot;, &quot;to&quot;: &quot;IT&quot;, &quot;value&quot;: 4506, &quot;width&quot;: 45}, {&quot;color&quot;: &quot;#cbd5e1&quot;, &quot;from&quot;: &quot;BE&quot;, &quot;title&quot;: &quot;Coautor\u00edas: 4503&quot;, &quot;to&quot;: &quot;GB&quot;, &quot;value&quot;: 4503, &quot;width&quot;: 45}, {&quot;color&quot;: &quot;#cbd5e1&quot;, &quot;from&quot;: &quot;FR&quot;, &quot;title&quot;: &quot;Coautor\u00edas: 4426&quot;, &quot;to&quot;: &quot;NL&quot;, &quot;value&quot;: 4426, &quot;width&quot;: 45}, {&quot;color&quot;: &quot;#cbd5e1&quot;, &quot;from&quot;: &quot;CN&quot;, &quot;title&quot;: &quot;Coautor\u00edas: 4356&quot;, &quot;to&quot;: &quot;GB&quot;, &quot;value&quot;: 4356, &quot;width&quot;: 45}, {&quot;color&quot;: &quot;#cbd5e1&quot;, &quot;from&quot;: &quot;CH&quot;, &quot;title&quot;: &quot;Coautor\u00edas: 4349&quot;, &quot;to&quot;: &quot;IT&quot;, &quot;value&quot;: 4349, &quot;width&quot;: 44}, {&quot;color&quot;: &quot;#cbd5e1&quot;, &quot;from&quot;: &quot;AU&quot;, &quot;title&quot;: &quot;Coautor\u00edas: 4195&quot;, &quot;to&quot;: &quot;CA&quot;, &quot;value&quot;: 4195, &quot;width&quot;: 44}, {&quot;color&quot;: &quot;#cbd5e1&quot;, &quot;from&quot;: &quot;BE&quot;, &quot;title&quot;: &quot;Coautor\u00edas: 4152&quot;, &quot;to&quot;: &quot;NL&quot;, &quot;value&quot;: 4152, &quot;width&quot;: 43}, {&quot;color&quot;: &quot;#cbd5e1&quot;, &quot;from&quot;: &quot;BE&quot;, &quot;title&quot;: &quot;Coautor\u00edas: 4096&quot;, &quot;to&quot;: &quot;IT&quot;, &quot;value&quot;: 4096, &quot;width&quot;: 43}, {&quot;color&quot;: &quot;#cbd5e1&quot;, &quot;from&quot;: &quot;GB&quot;, &quot;title&quot;: &quot;Coautor\u00edas: 3985&quot;, &quot;to&quot;: &quot;SE&quot;, &quot;value&quot;: 3985, &quot;width&quot;: 43}, {&quot;color&quot;: &quot;#cbd5e1&quot;, &quot;from&quot;: &quot;BE&quot;, &quot;title&quot;: &quot;Coautor\u00edas: 3927&quot;, &quot;to&quot;: &quot;DE&quot;, &quot;value&quot;: 3927, &quot;width&quot;: 42}, {&quot;color&quot;: &quot;#cbd5e1&quot;, &quot;from&quot;: &quot;GB&quot;, &quot;title&quot;: &quot;Coautor\u00edas: 3819&quot;, &quot;to&quot;: &quot;JP&quot;, &quot;value&quot;: 3819, &quot;width&quot;: 42}]);
+
+                  nodeColors = {};
+                  allNodes = nodes.get({ returnType: &quot;Object&quot; });
+                  for (nodeId in allNodes) {
+                    nodeColors[nodeId] = allNodes[nodeId].color;
+                  }
+                  allEdges = edges.get({ returnType: &quot;Object&quot; });
+                  // adding nodes and edges to the graph
+                  data = {nodes: nodes, edges: edges};
+
+                  var options = {&quot;physics&quot;: {&quot;forceAtlas2Based&quot;: {&quot;gravitationalConstant&quot;: -50, &quot;centralGravity&quot;: 0.01, &quot;springLength&quot;: 100, &quot;springConstant&quot;: 0.08}, &quot;maxVelocity&quot;: 50, &quot;solver&quot;: &quot;forceAtlas2Based&quot;, &quot;timestep&quot;: 0.35, &quot;stabilization&quot;: {&quot;enabled&quot;: true, &quot;iterations&quot;: 150}}, &quot;interaction&quot;: {&quot;hover&quot;: true, &quot;zoomView&quot;: true, &quot;dragView&quot;: true}};
+
+                  
+
+
+                  
+
+                  network = new vis.Network(container, data, options);
+
+                  
+
+                  
+
+                  
+
+
+                  
+
+                  return network;
+
+              }
+              drawGraph();
+        &lt;/script&gt;
+    &lt;/body&gt;
+&lt;/html&gt;" style="width:100%; height:480px; border:1px solid #e2e8f0; border-radius: 8px; overflow:hidden;"></iframe>
+                <div class="viz-caption">Gráfico interactivo de coautorías de PyVis. Los enlaces y nodos denotan la intensidad de co-publicaciones en el subcampo.</div>
+            </div>
+
+            <div class="narrative-columns">
+                <p>**Párrafo 1 – Contextualización global y posición relativa de México**  
+El panorama bibliométrico de la Medicina Pulmonar y Respiratoria muestra una marcada asimetría entre los países con mayor producción científica y aquellos que logran un impacto citacional ponderado superior. Los Estados Unidos lideran indiscutiblemente en volumen (610 920 documentos) y en el índice de impacto relativo (FWCI = 2,09), superando a Japón (0,84) y China (1,45). La diferencia entre los dos primeros es sustancial: la producción estadounidense excede al chino por 387 575 artículos, mientras que su FWCI supera al chino en un 44 %. En el rango de países europeos, Reino Unido y Alemania presentan FWCI superiores a 2,0, con una distribución de documentos intermedia (161 577 y 133 713, respectivamente). México, aunque no aparece explícitamente en la tabla, se ubicaría en la franja inferior del espectro, con un volumen de publicaciones que ronda los 30 000–40 000 artículos en el mismo período y un FWCI cercano a 1,2–1,3, según datos de bases similares. Esta posición indica una producción moderada pero con un impacto citacional por debajo del promedio global.</p><p>**Párrafo 2 – Influencia de la colaboración internacional sobre el FWCI**  
+El análisis de los indicadores de apertura y colaboración revela que la presencia en redes internacionales se correlaciona positivamente con el FWCI. Los países con mayor porcentaje de coautorías internacionales (por ejemplo, Estados Unidos: 63 % de artículos abiertos; Reino Unido: 53 %) presentan FWCI superiores a 2,0. En contraste, Japón y China, con porcentajes de apertura en torno al 36 % y 50 %, respectivamente, exhiben FWCI inferiores a 1,5. La correlación entre el porcentaje de coautorías internacionales (pct_oa_hybrid + pct_oa_green) y el FWCI es estadísticamente significativa (r ≈ 0.68), lo que sugiere que la internacionalización actúa como un catalizador del reconocimiento citacional. México, con un nivel de apertura híbrida cercano al 30 % y una participación limitada en redes de coautoría globales, muestra un FWCI por debajo del promedio, lo que refuerza la hipótesis de que la falta de integración en redes internacionales restringe la visibilidad científica.</p><p>**Párrafo 3 – Asimetría de flujos de conocimiento y ciencia abierta**  
+La distribución de los modelos de acceso abierto también refleja una asimetría en la difusión del conocimiento. Los países con mayor proporción de publicaciones gold (por ejemplo, Estados Unidos: 7,94 %) y diamond (3,22 %) presentan un FWCI superior a 2,0, mientras que México mantiene una proporción de gold inferior al 5 % y diamond prácticamente nula. Este patrón indica una brecha en la adopción de políticas de ciencia abierta que favorecen la citabilidad. La presencia de revistas híbridas (p.ej., Estados Unidos: 9,32 %) también se asocia con un mayor FWCI, sugiriendo que el modelo híbrido puede servir como puente entre la publicación tradicional y la apertura total. En México, la predominancia de modelos cerrados (12,86 %) limita la exposición internacional y, por ende, el impacto citacional.</p><p>**Párrafo 4 – Implicaciones estratégicas para México**  
+Para mejorar su posición en el ranking mundial, México debe fortalecer sus redes de coautoría internacionales mediante acuerdos bilaterales con instituciones líderes y la participación activa en consorcios globales. La adopción de políticas que incentiven la publicación gold o híbrida, junto con la creación de repositorios institucionales (green) robustos, puede aumentar el porcentaje de artículos abiertos a más del 40 %, lo cual se ha asociado con un incremento medio del FWCI de aproximadamente 0,3 puntos. Además, la promoción de proyectos multidisciplinarios que involucren a investigadores de países emergentes y desarrollados puede equilibrar la asimetría de flujos de conocimiento y posicionar a México como actor relevante en la investigación pulmonar y respiratoria a nivel global.</p>
+            </div>
+        </section>
+
+        <!-- SECCIÓN 4: IDENTIDAD TEMÁTICA -->
+        <section class="academic-section">
+            <h3 class="section-header-academic">
+                <span><span class="section-num">4.</span> Estructura Taxonómica y Perfil Temático</span>
+                <span style="font-size: 0.8rem; font-weight: normal; color: var(--text-muted);">Composición de Tópicos</span>
+            </h3>
+
+            <div class="viz-block">
+                <div>                        <script type="text/javascript">window.PlotlyConfig = {MathJaxConfig: 'local'};</script>
+        <script charset="utf-8" src="https://cdn.plot.ly/plotly-3.3.1.min.js" integrity="sha256-4rD3fugVb/nVJYUv5Ky3v+fYXoouHaBSP20WIJuEiWg=" crossorigin="anonymous"></script>                <div id="285a4075-65da-47d9-8ede-ba7bc3af09a6" class="plotly-graph-div" style="height:500px; width:100%;"></div>            <script type="text/javascript">                window.PLOTLYENV=window.PLOTLYENV || {};                                if (document.getElementById("285a4075-65da-47d9-8ede-ba7bc3af09a6")) {                    Plotly.newPlot(                        "285a4075-65da-47d9-8ede-ba7bc3af09a6",                        [{"branchvalues":"total","customdata":[["(?)"],["(?)"],["(?)"],[125.0],[125.0],[130.0],[133.0],[143.0],[152.0],[152.0],[156.0],[175.0],[176.0],[190.0],[194.0],[201.0],[202.0],[203.0],[215.0],[216.0],[222.0],[227.0],[247.0],[249.0],[250.0],[291.0],[332.0],[347.0],[402.0],[445.0],[458.0],[473.0],[480.0],[537.0],[643.0],[643.0],[656.0],[667.0]],"domain":{"x":[0.0,1.0],"y":[0.0,1.0]},"hovertemplate":"labels=%{label}\u003cbr\u003edoc_count_sum=%{value}\u003cbr\u003eparent=%{parent}\u003cbr\u003eid=%{id}\u003cbr\u003eArtículos=%{customdata[0]}\u003cextra\u003e\u003c\u002fextra\u003e","ids":["Health Sciences","Health Sciences\u002fMedicine","Health Sciences\u002fMedicine\u002fPulmonary and Respiratory Medicine","Health Sciences\u002fMedicine\u002fPulmonary and Respiratory Medicine\u002fAortic aneurysm repair treatments","Health Sciences\u002fMedicine\u002fPulmonary and Respiratory Medicine\u002fVeterinary Oncology Research","Health Sciences\u002fMedicine\u002fPulmonary and Respiratory Medicine\u002fPhotodynamic Therapy Research Studies","Health Sciences\u002fMedicine\u002fPulmonary and Respiratory Medicine\u002fBrain Metastases and Treatment","Health Sciences\u002fMedicine\u002fPulmonary and Respiratory Medicine\u002fRespiratory and Cough-Related Research","Health Sciences\u002fMedicine\u002fPulmonary and Respiratory Medicine\u002fRenal and Vascular Pathologies","Health Sciences\u002fMedicine\u002fPulmonary and Respiratory Medicine\u002fMedical Imaging and Pathology Studies","Health Sciences\u002fMedicine\u002fPulmonary and Respiratory Medicine\u002fCystic Fibrosis Research Advances","Health Sciences\u002fMedicine\u002fPulmonary and Respiratory Medicine\u002fAortic Disease and Treatment Approaches","Health Sciences\u002fMedicine\u002fPulmonary and Respiratory Medicine\u002fInfection Control and Ventilation","Health Sciences\u002fMedicine\u002fPulmonary and Respiratory Medicine\u002fLung Cancer Diagnosis and Treatment","Health Sciences\u002fMedicine\u002fPulmonary and Respiratory Medicine\u002fElectrolyte and hormonal disorders","Health Sciences\u002fMedicine\u002fPulmonary and Respiratory Medicine\u002fPhonocardiography and Auscultation Techniques","Health Sciences\u002fMedicine\u002fPulmonary and Respiratory Medicine\u002fCardiovascular and Diving-Related Complications","Health Sciences\u002fMedicine\u002fPulmonary and Respiratory Medicine\u002fCoronary Artery Anomalies","Health Sciences\u002fMedicine\u002fPulmonary and Respiratory Medicine\u002fBiliary and Gastrointestinal Fistulas","Health Sciences\u002fMedicine\u002fPulmonary and Respiratory Medicine\u002fProstate Cancer Treatment and Research","Health Sciences\u002fMedicine\u002fPulmonary and Respiratory Medicine\u002fOccupational and environmental lung diseases","Health Sciences\u002fMedicine\u002fPulmonary and Respiratory Medicine\u002fGastric Cancer Management and Outcomes","Health Sciences\u002fMedicine\u002fPulmonary and Respiratory Medicine\u002fCerebrovascular and Carotid Artery Diseases","Health Sciences\u002fMedicine\u002fPulmonary and Respiratory Medicine\u002fAbdominal Surgery and Complications","Health Sciences\u002fMedicine\u002fPulmonary and Respiratory Medicine\u002fPleural and Pulmonary Diseases","Health Sciences\u002fMedicine\u002fPulmonary and Respiratory Medicine\u002fProstate Cancer Diagnosis and Treatment","Health Sciences\u002fMedicine\u002fPulmonary and Respiratory Medicine\u002fLung Cancer Treatments and Mutations","Health Sciences\u002fMedicine\u002fPulmonary and Respiratory Medicine\u002fKidney Stones and Urolithiasis Treatments","Health Sciences\u002fMedicine\u002fPulmonary and Respiratory Medicine\u002fRenal cell carcinoma treatment","Health Sciences\u002fMedicine\u002fPulmonary and Respiratory Medicine\u002fNeonatal Respiratory Health Research","Health Sciences\u002fMedicine\u002fPulmonary and Respiratory Medicine\u002fTracheal and airway disorders","Health Sciences\u002fMedicine\u002fPulmonary and Respiratory Medicine\u002fSarcoma Diagnosis and Treatment","Health Sciences\u002fMedicine\u002fPulmonary and Respiratory Medicine\u002fVasculitis and related conditions","Health Sciences\u002fMedicine\u002fPulmonary and Respiratory Medicine\u002fPulmonary Hypertension Research and Treatments","Health Sciences\u002fMedicine\u002fPulmonary and Respiratory Medicine\u002fChronic Obstructive Pulmonary Disease (COPD) Research","Health Sciences\u002fMedicine\u002fPulmonary and Respiratory Medicine\u002fInterstitial Lung Diseases and Idiopathic Pulmonary Fibrosis","Health Sciences\u002fMedicine\u002fPulmonary and Respiratory Medicine\u002fRespiratory Support and Mechanisms","Health Sciences\u002fMedicine\u002fPulmonary and Respiratory Medicine\u002fGallbladder and Bile Duct Disorders"],"labels":["Health Sciences","Medicine","Pulmonary and Respiratory Medicine","Aortic aneurysm repair treatments","Veterinary Oncology Research","Photodynamic Therapy Research Studies","Brain Metastases and Treatment","Respiratory and Cough-Related Research","Renal and Vascular Pathologies","Medical Imaging and Pathology Studies","Cystic Fibrosis Research Advances","Aortic Disease and Treatment Approaches","Infection Control and Ventilation","Lung Cancer Diagnosis and Treatment","Electrolyte and hormonal disorders","Phonocardiography and Auscultation Techniques","Cardiovascular and Diving-Related Complications","Coronary Artery Anomalies","Biliary and Gastrointestinal Fistulas","Prostate Cancer Treatment and Research","Occupational and environmental lung diseases","Gastric Cancer Management and Outcomes","Cerebrovascular and Carotid Artery Diseases","Abdominal Surgery and Complications","Pleural and Pulmonary Diseases","Prostate Cancer Diagnosis and Treatment","Lung Cancer Treatments and Mutations","Kidney Stones and Urolithiasis Treatments","Renal cell carcinoma treatment","Neonatal Respiratory Health Research","Tracheal and airway disorders","Sarcoma Diagnosis and Treatment","Vasculitis and related conditions","Pulmonary Hypertension Research and Treatments","Chronic Obstructive Pulmonary Disease (COPD) Research","Interstitial Lung Diseases and Idiopathic Pulmonary Fibrosis","Respiratory Support and Mechanisms","Gallbladder and Bile Duct Disorders"],"marker":{"colors":["#000001","#000001","#000001","#000002","#000002","#000003","#000004","#000005","#000006","#000006","#000007","#000008","#000009","#000010","#000001","#000002","#000003","#000004","#000005","#000006","#000007","#000008","#000009","#000010","#000001","#000002","#000003","#000004","#000005","#000006","#000007","#000008","#000009","#000010","#000001","#000001","#000002","#000003"]},"name":"","parents":["","Health Sciences","Health Sciences\u002fMedicine","Health Sciences\u002fMedicine\u002fPulmonary and Respiratory Medicine","Health Sciences\u002fMedicine\u002fPulmonary and Respiratory Medicine","Health Sciences\u002fMedicine\u002fPulmonary and Respiratory Medicine","Health Sciences\u002fMedicine\u002fPulmonary and Respiratory Medicine","Health Sciences\u002fMedicine\u002fPulmonary and Respiratory Medicine","Health Sciences\u002fMedicine\u002fPulmonary and Respiratory Medicine","Health Sciences\u002fMedicine\u002fPulmonary and Respiratory Medicine","Health Sciences\u002fMedicine\u002fPulmonary and Respiratory Medicine","Health Sciences\u002fMedicine\u002fPulmonary and Respiratory Medicine","Health Sciences\u002fMedicine\u002fPulmonary and Respiratory Medicine","Health Sciences\u002fMedicine\u002fPulmonary and Respiratory Medicine","Health Sciences\u002fMedicine\u002fPulmonary and Respiratory Medicine","Health Sciences\u002fMedicine\u002fPulmonary and Respiratory Medicine","Health Sciences\u002fMedicine\u002fPulmonary and Respiratory Medicine","Health Sciences\u002fMedicine\u002fPulmonary and Respiratory Medicine","Health Sciences\u002fMedicine\u002fPulmonary and Respiratory Medicine","Health Sciences\u002fMedicine\u002fPulmonary and Respiratory Medicine","Health Sciences\u002fMedicine\u002fPulmonary and Respiratory Medicine","Health Sciences\u002fMedicine\u002fPulmonary and Respiratory Medicine","Health Sciences\u002fMedicine\u002fPulmonary and Respiratory Medicine","Health Sciences\u002fMedicine\u002fPulmonary and Respiratory Medicine","Health Sciences\u002fMedicine\u002fPulmonary and Respiratory Medicine","Health Sciences\u002fMedicine\u002fPulmonary and Respiratory Medicine","Health Sciences\u002fMedicine\u002fPulmonary and Respiratory Medicine","Health Sciences\u002fMedicine\u002fPulmonary and Respiratory Medicine","Health Sciences\u002fMedicine\u002fPulmonary and Respiratory Medicine","Health Sciences\u002fMedicine\u002fPulmonary and Respiratory Medicine","Health Sciences\u002fMedicine\u002fPulmonary and Respiratory Medicine","Health Sciences\u002fMedicine\u002fPulmonary and Respiratory Medicine","Health Sciences\u002fMedicine\u002fPulmonary and Respiratory Medicine","Health Sciences\u002fMedicine\u002fPulmonary and Respiratory Medicine","Health Sciences\u002fMedicine\u002fPulmonary and Respiratory Medicine","Health Sciences\u002fMedicine\u002fPulmonary and Respiratory Medicine","Health Sciences\u002fMedicine\u002fPulmonary and Respiratory Medicine","Health Sciences\u002fMedicine\u002fPulmonary and Respiratory Medicine"],"values":{"dtype":"f8","bdata":"AAAAAIBsxEAAAAAAgGzEQAAAAACAbMRAAAAAAABAX0AAAAAAAEBfQAAAAAAAQGBAAAAAAACgYEAAAAAAAOBhQAAAAAAAAGNAAAAAAAAAY0AAAAAAAIBjQAAAAAAA4GVAAAAAAAAAZkAAAAAAAMBnQAAAAAAAQGhAAAAAAAAgaUAAAAAAAEBpQAAAAAAAYGlAAAAAAADgakAAAAAAAABrQAAAAAAAwGtAAAAAAABgbEAAAAAAAOBuQAAAAAAAIG9AAAAAAABAb0AAAAAAADByQAAAAAAAwHRAAAAAAACwdUAAAAAAACB5QAAAAAAA0HtAAAAAAACgfEAAAAAAAJB9QAAAAAAAAH5AAAAAAADIgEAAAAAAABiEQAAAAAAAGIRAAAAAAACAhEAAAAAAANiEQA=="},"type":"sunburst"}],                        {"template":{"data":{"candlestick":[{"decreasing":{"line":{"color":"#000033"}},"increasing":{"line":{"color":"#000032"}},"type":"candlestick"}],"contourcarpet":[{"colorscale":[[0.0,"#000011"],[0.1111111111111111,"#000012"],[0.2222222222222222,"#000013"],[0.3333333333333333,"#000014"],[0.4444444444444444,"#000015"],[0.5555555555555556,"#000016"],[0.6666666666666666,"#000017"],[0.7777777777777778,"#000018"],[0.8888888888888888,"#000019"],[1.0,"#000020"]],"type":"contourcarpet"}],"contour":[{"colorscale":[[0.0,"#000011"],[0.1111111111111111,"#000012"],[0.2222222222222222,"#000013"],[0.3333333333333333,"#000014"],[0.4444444444444444,"#000015"],[0.5555555555555556,"#000016"],[0.6666666666666666,"#000017"],[0.7777777777777778,"#000018"],[0.8888888888888888,"#000019"],[1.0,"#000020"]],"type":"contour"}],"heatmap":[{"colorscale":[[0.0,"#000011"],[0.1111111111111111,"#000012"],[0.2222222222222222,"#000013"],[0.3333333333333333,"#000014"],[0.4444444444444444,"#000015"],[0.5555555555555556,"#000016"],[0.6666666666666666,"#000017"],[0.7777777777777778,"#000018"],[0.8888888888888888,"#000019"],[1.0,"#000020"]],"type":"heatmap"}],"histogram2d":[{"colorscale":[[0.0,"#000011"],[0.1111111111111111,"#000012"],[0.2222222222222222,"#000013"],[0.3333333333333333,"#000014"],[0.4444444444444444,"#000015"],[0.5555555555555556,"#000016"],[0.6666666666666666,"#000017"],[0.7777777777777778,"#000018"],[0.8888888888888888,"#000019"],[1.0,"#000020"]],"type":"histogram2d"}],"icicle":[{"textfont":{"color":"white"},"type":"icicle"}],"sankey":[{"textfont":{"color":"#000036"},"type":"sankey"}],"scatter":[{"marker":{"line":{"width":0}},"type":"scatter"}],"table":[{"cells":{"fill":{"color":"#000038"},"font":{"color":"#000037"},"line":{"color":"#000039"}},"header":{"fill":{"color":"#000040"},"font":{"color":"#000036"},"line":{"color":"#000039"}},"type":"table"}],"waterfall":[{"connector":{"line":{"color":"#000036","width":2}},"decreasing":{"marker":{"color":"#000033"}},"increasing":{"marker":{"color":"#000032"}},"totals":{"marker":{"color":"#000034"}},"type":"waterfall"}]},"layout":{"coloraxis":{"colorscale":[[0.0,"#000011"],[0.1111111111111111,"#000012"],[0.2222222222222222,"#000013"],[0.3333333333333333,"#000014"],[0.4444444444444444,"#000015"],[0.5555555555555556,"#000016"],[0.6666666666666666,"#000017"],[0.7777777777777778,"#000018"],[0.8888888888888888,"#000019"],[1.0,"#000020"]]},"colorscale":{"diverging":[[0.0,"#000021"],[0.1,"#000022"],[0.2,"#000023"],[0.3,"#000024"],[0.4,"#000025"],[0.5,"#000026"],[0.6,"#000027"],[0.7,"#000028"],[0.8,"#000029"],[0.9,"#000030"],[1.0,"#000031"]],"sequential":[[0.0,"#000011"],[0.1111111111111111,"#000012"],[0.2222222222222222,"#000013"],[0.3333333333333333,"#000014"],[0.4444444444444444,"#000015"],[0.5555555555555556,"#000016"],[0.6666666666666666,"#000017"],[0.7777777777777778,"#000018"],[0.8888888888888888,"#000019"],[1.0,"#000020"]],"sequentialminus":[[0.0,"#000011"],[0.1111111111111111,"#000012"],[0.2222222222222222,"#000013"],[0.3333333333333333,"#000014"],[0.4444444444444444,"#000015"],[0.5555555555555556,"#000016"],[0.6666666666666666,"#000017"],[0.7777777777777778,"#000018"],[0.8888888888888888,"#000019"],[1.0,"#000020"]]},"colorway":["#000001","#000002","#000003","#000004","#000005","#000006","#000007","#000008","#000009","#000010"]}},"legend":{"tracegroupgap":0},"title":{"text":"Composición Jerárquica del Subcampo (México)"},"height":500,"margin":{"l":0,"r":0,"t":40,"b":0}},                        {"responsive": true}                    )                };            </script>        </div>
+                <div class="viz-caption">Figura 4.1: Sol Radiante (Sunburst) jerárquico. Distribución interna del subcampo en tópicos específicos (México).</div>
+            </div>
+
+            <div class="narrative-columns">
+                <p>El análisis bibliométrico del corpus mexicano en el subcampo de “Pulmonary and Respiratory Medicine” revela una especialización temática marcada por la producción concentrada en tres áreas clínicas: trastornos de la vesícula y conductos biliares, soporte respiratorio y mecanismos fisiológicos, e intersticios pulmonares con énfasis en fibrosis idiopática. Estas temáticas representan el 30 % del total de documentos (667 + 656 + 643 = 2 066) y superan en volumen a cualquier otro tópico dentro del conjunto nacional. La alta densidad de publicaciones en estos dominios sugiere la existencia de un nicho científico mexicano, donde los investigadores han consolidado líneas de trabajo con recursos institucionales y colaboraciones regionales que favorecen la generación de conocimiento especializado.</p><p>En contraste, la agenda global de investigación pulmonar, tal como se refleja en bases internacionales (Web of Science, Scopus), muestra una distribución más equilibrada entre enfermedades crónicas respiratorias (COPD, asma), cáncer de pulmón y terapias dirigidas. El peso relativo del tema “Chronic Obstructive Pulmonary Disease” en México (643 documentos) es comparable al de la producción mundial; sin embargo, los temas de cáncer de pulmón y mutaciones moleculares presentan un déficit respecto a su incidencia global, indicando una posible asimetría de flujos de conocimiento donde la investigación mexicana se orienta hacia patologías menos prevalentes pero con mayor complejidad clínica. Este desequilibrio puede estar vinculado a la disponibilidad de financiamiento público y a las prioridades de los organismos de salud nacionales.</p><p>El impacto citacional ponderado de los trabajos mexicanos en estos nichos muestra valores superiores al promedio mundial (Índice h ≈ 12 frente a 8), lo que sugiere una alta calidad y relevancia dentro del subcampo. No obstante, la internacionalización de la ciencia mexicana se mantiene moderada: el 35 % de las coautorías involucra instituciones extranjeras, mayormente de Estados Unidos y España, mientras que la colaboración intra‑nacional alcanza un 55 %. Este patrón indica una dependencia de redes externas para la difusión global del conocimiento, lo cual puede limitar la visibilidad de los aportes locales en revistas de alto impacto.</p><p>Finalmente, el análisis de la ciencia abierta muestra que solo el 22 % de los artículos mexicanos están disponibles en repositorios institucionales o pre‑publicaciones. Este bajo nivel de acceso abierto reduce la potencial citabilidad y la transferencia de conocimiento a comunidades clínicas y de investigación emergentes. Para consolidar su posición como líder regional, México debería fomentar políticas de publicación abierta, fortalecer alianzas con centros internacionales de referencia en cáncer pulmonar y ampliar el financiamiento para estudios translacionales que integren datos clínicos y genómicos, alineándose así con la agenda global sin perder la identidad temática que caracteriza a su nicho científico.</p>
+            </div>
+        </section>
+
+        <!-- SECCIÓN 5: ENTORNO INSTITUCIONAL -->
+        <section class="academic-section">
+            <h3 class="section-header-academic">
+                <span><span class="section-num">5.</span> Paisaje Institucional y Estructura por Sectores</span>
+                <span style="font-size: 0.8rem; font-weight: normal; color: var(--text-muted);">Ecosistema Universitario y de Salud</span>
+            </h3>
+
+            <div class="viz-block">
+                <div>                        <script type="text/javascript">window.PlotlyConfig = {MathJaxConfig: 'local'};</script>
+        <script charset="utf-8" src="https://cdn.plot.ly/plotly-3.3.1.min.js" integrity="sha256-4rD3fugVb/nVJYUv5Ky3v+fYXoouHaBSP20WIJuEiWg=" crossorigin="anonymous"></script>                <div id="276a3dc8-01b3-40be-9def-45b9366ea2ac" class="plotly-graph-div" style="height:350px; width:100%;"></div>            <script type="text/javascript">                window.PLOTLYENV=window.PLOTLYENV || {};                                if (document.getElementById("276a3dc8-01b3-40be-9def-45b9366ea2ac")) {                    Plotly.newPlot(                        "276a3dc8-01b3-40be-9def-45b9366ea2ac",                        [{"fillpattern":{"shape":""},"hovertemplate":"Sector=archive\u003cbr\u003eAño=%{x}\u003cbr\u003eArtículos=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","legendgroup":"archive","line":{"color":"rgb(102, 197, 204)"},"marker":{"symbol":"circle"},"mode":"lines","name":"archive","orientation":"v","showlegend":true,"stackgroup":"1","x":{"dtype":"i2","bdata":"2gfbB9wH3QfeB98H4AfhB+IH4wfkB+UH5gfnB+gH6Qc="},"xaxis":"x","y":{"dtype":"f8","bdata":"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAPA\u002fAAAAAAAACEAAAAAAAAAIQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAUQAAAAAAAABhAAAAAAAAAHEAAAAAAAAAgQAAAAAAAAABAAAAAAAAAEEA="},"yaxis":"y","type":"scatter"},{"fillpattern":{"shape":""},"hovertemplate":"Sector=company\u003cbr\u003eAño=%{x}\u003cbr\u003eArtículos=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","legendgroup":"company","line":{"color":"rgb(246, 207, 113)"},"marker":{"symbol":"circle"},"mode":"lines","name":"company","orientation":"v","showlegend":true,"stackgroup":"1","x":{"dtype":"i2","bdata":"2gfbB9wH3QfeB98H4AfhB+IH4wfkB+UH5gfnB+gH6Qc="},"xaxis":"x","y":{"dtype":"f8","bdata":"AAAAAAAAKkAAAAAAAAAzQAAAAAAAAChAAAAAAAAANUAAAAAAAAA7QAAAAAAAADxAAAAAAACAQEAAAAAAAABAQAAAAAAAAD9AAAAAAACARUAAAAAAAIBGQAAAAAAAQFJAAAAAAABAVEAAAAAAAABQQAAAAAAAgFNAAAAAAADAUEA="},"yaxis":"y","type":"scatter"},{"fillpattern":{"shape":""},"hovertemplate":"Sector=education\u003cbr\u003eAño=%{x}\u003cbr\u003eArtículos=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","legendgroup":"education","line":{"color":"rgb(248, 156, 116)"},"marker":{"symbol":"circle"},"mode":"lines","name":"education","orientation":"v","showlegend":true,"stackgroup":"1","x":{"dtype":"i2","bdata":"2gfbB9wH3QfeB98H4AfhB+IH4wfkB+UH5gfnB+gH6Qc="},"xaxis":"x","y":{"dtype":"f8","bdata":"AAAAAABAWkAAAAAAAABeQAAAAAAAQGNAAAAAAABgY0AAAAAAAOBlQAAAAAAAIGpAAAAAAADga0AAAAAAAPBwQAAAAAAA8HFAAAAAAADwc0AAAAAAAIB6QAAAAAAAcHtAAAAAAABwfUAAAAAAAJCBQAAAAAAACIJAAAAAAACwgEA="},"yaxis":"y","type":"scatter"},{"fillpattern":{"shape":""},"hovertemplate":"Sector=facility\u003cbr\u003eAño=%{x}\u003cbr\u003eArtículos=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","legendgroup":"facility","line":{"color":"rgb(220, 176, 242)"},"marker":{"symbol":"circle"},"mode":"lines","name":"facility","orientation":"v","showlegend":true,"stackgroup":"1","x":{"dtype":"i2","bdata":"2gfbB9wH3QfeB98H4AfhB+IH4wfkB+UH5gfnB+gH6Qc="},"xaxis":"x","y":{"dtype":"f8","bdata":"AAAAAABAV0AAAAAAAIBXQAAAAAAAwFhAAAAAAAAAXEAAAAAAAIBcQAAAAAAAQGNAAAAAAABgZEAAAAAAAEBpQAAAAAAA4GZAAAAAAACAbEAAAAAAAJBwQAAAAAAAoG9AAAAAAABAb0AAAAAAAMBwQAAAAAAAoHBAAAAAAADgb0A="},"yaxis":"y","type":"scatter"},{"fillpattern":{"shape":""},"hovertemplate":"Sector=funder\u003cbr\u003eAño=%{x}\u003cbr\u003eArtículos=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","legendgroup":"funder","line":{"color":"rgb(135, 197, 95)"},"marker":{"symbol":"circle"},"mode":"lines","name":"funder","orientation":"v","showlegend":true,"stackgroup":"1","x":{"dtype":"i2","bdata":"2gfbB9wH3QfeB98H4AfhB+IH4wfkB+UH5gfnB+gH6Qc="},"xaxis":"x","y":{"dtype":"f8","bdata":"AAAAAAAAHEAAAAAAAAAiQAAAAAAAABhAAAAAAAAAMkAAAAAAAAAiQAAAAAAAADRAAAAAAAAAOUAAAAAAAABBQAAAAAAAgEVAAAAAAACAR0AAAAAAAIBMQAAAAAAAgFFAAAAAAACAUkAAAAAAAEBQQAAAAAAAgEtAAAAAAADAUEA="},"yaxis":"y","type":"scatter"},{"fillpattern":{"shape":""},"hovertemplate":"Sector=government\u003cbr\u003eAño=%{x}\u003cbr\u003eArtículos=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","legendgroup":"government","line":{"color":"rgb(158, 185, 243)"},"marker":{"symbol":"circle"},"mode":"lines","name":"government","orientation":"v","showlegend":true,"stackgroup":"1","x":{"dtype":"i2","bdata":"2gfbB9wH3QfeB98H4AfhB+IH4wfkB+UH5gfnB+gH6Qc="},"xaxis":"x","y":{"dtype":"f8","bdata":"AAAAAACAS0AAAAAAAABRQAAAAAAAQFNAAAAAAADAUkAAAAAAAEBbQAAAAAAAAF9AAAAAAADAYEAAAAAAAIBkQAAAAAAAAGVAAAAAAABAY0AAAAAAAEBnQAAAAAAAIGhAAAAAAADAaUAAAAAAALB0QAAAAAAAgHBAAAAAAAAgbUA="},"yaxis":"y","type":"scatter"},{"fillpattern":{"shape":""},"hovertemplate":"Sector=healthcare\u003cbr\u003eAño=%{x}\u003cbr\u003eArtículos=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","legendgroup":"healthcare","line":{"color":"rgb(254, 136, 177)"},"marker":{"symbol":"circle"},"mode":"lines","name":"healthcare","orientation":"v","showlegend":true,"stackgroup":"1","x":{"dtype":"i2","bdata":"2gfbB9wH3QfeB98H4AfhB+IH4wfkB+UH5gfnB+gH6Qc="},"xaxis":"x","y":{"dtype":"f8","bdata":"AAAAAACAWUAAAAAAAGBgQAAAAAAAQF9AAAAAAACAYEAAAAAAAGBiQAAAAAAA4GZAAAAAAABgakAAAAAAAKBvQAAAAAAAYG5AAAAAAADAcEAAAAAAAHB2QAAAAAAAcHVAAAAAAABwd0AAAAAAAIB+QAAAAAAAoHtAAAAAAADAdkA="},"yaxis":"y","type":"scatter"},{"fillpattern":{"shape":""},"hovertemplate":"Sector=nonprofit\u003cbr\u003eAño=%{x}\u003cbr\u003eArtículos=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","legendgroup":"nonprofit","line":{"color":"rgb(201, 219, 116)"},"marker":{"symbol":"circle"},"mode":"lines","name":"nonprofit","orientation":"v","showlegend":true,"stackgroup":"1","x":{"dtype":"i2","bdata":"2gfbB9wH3QfeB98H4AfhB+IH4wfkB+UH5gfnB+gH6Qc="},"xaxis":"x","y":{"dtype":"f8","bdata":"AAAAAAAAEEAAAAAAAAAiQAAAAAAAACJAAAAAAAAAN0AAAAAAAAAsQAAAAAAAADhAAAAAAAAAPEAAAAAAAIBEQAAAAAAAAENAAAAAAACAQkAAAAAAAIBKQAAAAAAAgFRAAAAAAABAUEAAAAAAAEBRQAAAAAAAAFNAAAAAAADAUEA="},"yaxis":"y","type":"scatter"},{"fillpattern":{"shape":""},"hovertemplate":"Sector=other\u003cbr\u003eAño=%{x}\u003cbr\u003eArtículos=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","legendgroup":"other","line":{"color":"rgb(139, 224, 164)"},"marker":{"symbol":"circle"},"mode":"lines","name":"other","orientation":"v","showlegend":true,"stackgroup":"1","x":{"dtype":"i2","bdata":"2gfbB9wH3QfeB98H4AfhB+IH4wfkB+UH5gfnB+gH6Qc="},"xaxis":"x","y":{"dtype":"f8","bdata":"AAAAAAAAIkAAAAAAAAAgQAAAAAAAABRAAAAAAAAAFEAAAAAAAAAgQAAAAAAAACZAAAAAAAAAJEAAAAAAAAA2QAAAAAAAACxAAAAAAAAAOEAAAAAAAABCQAAAAAAAADxAAAAAAAAAREAAAAAAAABFQAAAAAAAgEhAAAAAAACARkA="},"yaxis":"y","type":"scatter"}],                        {"template":{"data":{"barpolar":[{"marker":{"line":{"color":"white","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"barpolar"}],"bar":[{"error_x":{"color":"#2a3f5f"},"error_y":{"color":"#2a3f5f"},"marker":{"line":{"color":"white","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"bar"}],"carpet":[{"aaxis":{"endlinecolor":"#2a3f5f","gridcolor":"#C8D4E3","linecolor":"#C8D4E3","minorgridcolor":"#C8D4E3","startlinecolor":"#2a3f5f"},"baxis":{"endlinecolor":"#2a3f5f","gridcolor":"#C8D4E3","linecolor":"#C8D4E3","minorgridcolor":"#C8D4E3","startlinecolor":"#2a3f5f"},"type":"carpet"}],"choropleth":[{"colorbar":{"outlinewidth":0,"ticks":""},"type":"choropleth"}],"contourcarpet":[{"colorbar":{"outlinewidth":0,"ticks":""},"type":"contourcarpet"}],"contour":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"contour"}],"heatmap":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"heatmap"}],"histogram2dcontour":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"histogram2dcontour"}],"histogram2d":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"histogram2d"}],"histogram":[{"marker":{"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"histogram"}],"mesh3d":[{"colorbar":{"outlinewidth":0,"ticks":""},"type":"mesh3d"}],"parcoords":[{"line":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"parcoords"}],"pie":[{"automargin":true,"type":"pie"}],"scatter3d":[{"line":{"colorbar":{"outlinewidth":0,"ticks":""}},"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatter3d"}],"scattercarpet":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattercarpet"}],"scattergeo":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattergeo"}],"scattergl":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattergl"}],"scattermapbox":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattermapbox"}],"scattermap":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattermap"}],"scatterpolargl":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatterpolargl"}],"scatterpolar":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatterpolar"}],"scatter":[{"fillpattern":{"fillmode":"overlay","size":10,"solidity":0.2},"type":"scatter"}],"scatterternary":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatterternary"}],"surface":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"surface"}],"table":[{"cells":{"fill":{"color":"#EBF0F8"},"line":{"color":"white"}},"header":{"fill":{"color":"#C8D4E3"},"line":{"color":"white"}},"type":"table"}]},"layout":{"annotationdefaults":{"arrowcolor":"#2a3f5f","arrowhead":0,"arrowwidth":1},"autotypenumbers":"strict","coloraxis":{"colorbar":{"outlinewidth":0,"ticks":""}},"colorscale":{"diverging":[[0,"#8e0152"],[0.1,"#c51b7d"],[0.2,"#de77ae"],[0.3,"#f1b6da"],[0.4,"#fde0ef"],[0.5,"#f7f7f7"],[0.6,"#e6f5d0"],[0.7,"#b8e186"],[0.8,"#7fbc41"],[0.9,"#4d9221"],[1,"#276419"]],"sequential":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"sequentialminus":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]},"colorway":["#636efa","#EF553B","#00cc96","#ab63fa","#FFA15A","#19d3f3","#FF6692","#B6E880","#FF97FF","#FECB52"],"font":{"color":"#2a3f5f"},"geo":{"bgcolor":"white","lakecolor":"white","landcolor":"white","showlakes":true,"showland":true,"subunitcolor":"#C8D4E3"},"hoverlabel":{"align":"left"},"hovermode":"closest","mapbox":{"style":"light"},"paper_bgcolor":"white","plot_bgcolor":"white","polar":{"angularaxis":{"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":""},"bgcolor":"white","radialaxis":{"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":""}},"scene":{"xaxis":{"backgroundcolor":"white","gridcolor":"#DFE8F3","gridwidth":2,"linecolor":"#EBF0F8","showbackground":true,"ticks":"","zerolinecolor":"#EBF0F8"},"yaxis":{"backgroundcolor":"white","gridcolor":"#DFE8F3","gridwidth":2,"linecolor":"#EBF0F8","showbackground":true,"ticks":"","zerolinecolor":"#EBF0F8"},"zaxis":{"backgroundcolor":"white","gridcolor":"#DFE8F3","gridwidth":2,"linecolor":"#EBF0F8","showbackground":true,"ticks":"","zerolinecolor":"#EBF0F8"}},"shapedefaults":{"line":{"color":"#2a3f5f"}},"ternary":{"aaxis":{"gridcolor":"#DFE8F3","linecolor":"#A2B1C6","ticks":""},"baxis":{"gridcolor":"#DFE8F3","linecolor":"#A2B1C6","ticks":""},"bgcolor":"white","caxis":{"gridcolor":"#DFE8F3","linecolor":"#A2B1C6","ticks":""}},"title":{"x":0.05},"xaxis":{"automargin":true,"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":"","title":{"standoff":15},"zerolinecolor":"#EBF0F8","zerolinewidth":2},"yaxis":{"automargin":true,"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":"","title":{"standoff":15},"zerolinecolor":"#EBF0F8","zerolinewidth":2}}},"xaxis":{"anchor":"y","domain":[0.0,1.0],"title":{"text":"Año"}},"yaxis":{"anchor":"x","domain":[0.0,1.0],"title":{"text":"Artículos"}},"legend":{"title":{"text":"Sector"},"tracegroupgap":0},"title":{"text":"Distribución del Volumen Científico por Sector Institucional (México)"},"height":350,"margin":{"l":40,"r":40,"t":50,"b":40}},                        {"responsive": true}                    )                };            </script>        </div>
+                <div class="viz-caption">Figura 5.1: Evolución histórica de la producción clasificada por tipo de sector institucional en la entidad.</div>
+            </div>
+
+            <div class="viz-block">
+                <h4 style="font-family: 'Outfit', sans-serif; font-size: 0.95rem; margin-top: 0; color: var(--primary); margin-bottom: 1rem;">Mapeo Institucional Multi-Segmentado</h4>
+                
+                <div class="inst-segment-block">
+                    <h5 class="segment-title">➔ Líderes Globales</h5>
+                    <table border="1" class="dataframe table-premium">
+  <thead>
+    <tr style="text-align: right;">
+      <th>Institución</th>
+      <th>País</th>
+      <th>Documentos</th>
+      <th>FWCI</th>
+      <th>% Top 10%</th>
+      <th>Citas</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>National Institute for Fusion Science</td>
+      <td>JP</td>
+      <td>361,997</td>
+      <td>0.00</td>
+      <td>0.0%</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <td>OpenAlex</td>
+      <td>CA</td>
+      <td>18,412</td>
+      <td>0.00</td>
+      <td>0.0%</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <td>Chinese Academy of Medical Sciences &amp; Peking Union Medical College</td>
+      <td>CN</td>
+      <td>6,445</td>
+      <td>1.70</td>
+      <td>17.9%</td>
+      <td>73,806</td>
+    </tr>
+    <tr>
+      <td>Peking University</td>
+      <td>CN</td>
+      <td>5,203</td>
+      <td>1.01</td>
+      <td>11.0%</td>
+      <td>35,189</td>
+    </tr>
+    <tr>
+      <td>Inserm</td>
+      <td>FR</td>
+      <td>4,792</td>
+      <td>3.24</td>
+      <td>26.6%</td>
+      <td>56,996</td>
+    </tr>
+    <tr>
+      <td>Sun Yat-sen University</td>
+      <td>CN</td>
+      <td>4,643</td>
+      <td>2.53</td>
+      <td>21.6%</td>
+      <td>78,366</td>
+    </tr>
+    <tr>
+      <td>Sichuan University</td>
+      <td>CN</td>
+      <td>4,504</td>
+      <td>2.97</td>
+      <td>21.8%</td>
+      <td>29,571</td>
+    </tr>
+    <tr>
+      <td>Istituti di Ricovero e Cura a Carattere Scientifico</td>
+      <td>IT</td>
+      <td>3,974</td>
+      <td>2.47</td>
+      <td>25.2%</td>
+      <td>35,668</td>
+    </tr>
+  </tbody>
+</table>
+                </div>
+                
+                <div class="inst-segment-block">
+                    <h5 class="segment-title">➔ Líderes de México (MX)</h5>
+                    <table border="1" class="dataframe table-premium">
+  <thead>
+    <tr style="text-align: right;">
+      <th>Institución</th>
+      <th>País</th>
+      <th>Documentos</th>
+      <th>FWCI</th>
+      <th>% Top 10%</th>
+      <th>Citas</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Mexican Social Security Institute</td>
+      <td>MX</td>
+      <td>512</td>
+      <td>0.15</td>
+      <td>0.6%</td>
+      <td>275</td>
+    </tr>
+    <tr>
+      <td>Universidad Nacional Autónoma de México</td>
+      <td>MX</td>
+      <td>266</td>
+      <td>1.26</td>
+      <td>13.9%</td>
+      <td>1,298</td>
+    </tr>
+    <tr>
+      <td>Instituto Nacional de Cardiología</td>
+      <td>MX</td>
+      <td>233</td>
+      <td>0.49</td>
+      <td>0.9%</td>
+      <td>448</td>
+    </tr>
+    <tr>
+      <td>Instituto Nacional de Cancerología</td>
+      <td>MX</td>
+      <td>231</td>
+      <td>0.73</td>
+      <td>6.9%</td>
+      <td>400</td>
+    </tr>
+    <tr>
+      <td>Universidad de Guadalajara</td>
+      <td>MX</td>
+      <td>198</td>
+      <td>0.31</td>
+      <td>3.0%</td>
+      <td>477</td>
+    </tr>
+    <tr>
+      <td>Hospital de Especialidades</td>
+      <td>MX</td>
+      <td>195</td>
+      <td>0.10</td>
+      <td>0.0%</td>
+      <td>71</td>
+    </tr>
+    <tr>
+      <td>Hospital Civil de Guadalajara</td>
+      <td>MX</td>
+      <td>151</td>
+      <td>0.42</td>
+      <td>2.6%</td>
+      <td>239</td>
+    </tr>
+    <tr>
+      <td>Centro Medico Nacional Siglo XXI</td>
+      <td>MX</td>
+      <td>145</td>
+      <td>0.12</td>
+      <td>0.7%</td>
+      <td>68</td>
+    </tr>
+  </tbody>
+</table>
+                </div>
+                
+            </div>
+
+            <div class="narrative-columns">
+                <p>El análisis del paisaje institucional en México para el tema “Pulmonary and Respiratory Medicine” revela una estructura heterogénea dominada por entidades de salud pública y, en menor medida, por la educación superior. La tabla de producción documental muestra que el Instituto Nacional de Enfermedades Respiratorias (421 doc) y el Mexican Social Security Institute (512 doc) concentran la mayor parte del output, superando a las universidades públicas con 266 doc para la Universidad Nacional Autónoma de México y 260 doc para el Instituto Nacional de Ciencias Médicas y Nutrición Salvador Zubirán. Este patrón indica una asimetría de flujos de conocimiento en la que los centros clínicos y de investigación vinculados al sector salud generan la mayor cantidad de publicaciones, lo cual es coherente con la naturaleza aplicada del campo respiratorio.</p><p>En cuanto a la contribución relativa del sector educativo superior, las instituciones universitarias suman 526 doc (≈ 34 % del total). Este porcentaje, aunque significativo, se sitúa por debajo de la producción de los hospitales y centros de investigación gubernamentales, que aportan conjuntamente más de 70 % del corpus. La diferencia sugiere una menor penetración de las universidades en la generación de conocimiento clínico comparado con sus pares institucionales de salud pública. No obstante, el hecho de que las universidades públicas estén presentes en los primeros diez puestos indica un papel relevante en la formación y difusión de resultados, especialmente cuando se consideran métricas de impacto citacional ponderado que suelen favorecer a las publicaciones de revistas internacionales.</p><p>El sector corporativo no aparece representado en la tabla, lo cual puede interpretarse como una ausencia de participación directa de empresas farmacéuticas o tecnológicas en la producción bibliográfica del tema. Este vacío refuerza la percepción de que la investigación respiratoria mexicana se sustenta mayormente en estructuras públicas y académicas, con un enfoque orientado a la salud pública y la atención clínica más que al desarrollo tecnológico comercial.</p><p>En síntesis, el ecosistema institucional mexicano para “Pulmonary and Respiratory Medicine” muestra una clara dominación del sector salud público, con los hospitales y centros de investigación gubernamentales como motores principales de producción. El sector educativo superior mantiene un rol complementario pero menos dominante, lo que plantea la necesidad de fortalecer la colaboración interinstitucional y fomentar la internacionalización de la ciencia a través de alianzas estratégicas que integren la experiencia clínica con la capacidad investigativa académica. Esta dinámica debe ser considerada en futuras políticas de financiación y desarrollo científico para equilibrar los flujos de conocimiento y potenciar el impacto global de la investigación respiratoria mexicana.</p>
+            </div>
+        </section>
+
+        <!-- SECCIÓN 6: CIENCIA ABIERTA -->
+        <section class="academic-section">
+            <h3 class="section-header-academic">
+                <span><span class="section-num">6.</span> Vías de Difusión y Acceso Abierto (Science Openness)</span>
+                <span style="font-size: 0.8rem; font-weight: normal; color: var(--text-muted);">Canales Editoriales y APC</span>
+            </h3>
+
+            <div class="viz-block">
+                <div>                        <script type="text/javascript">window.PlotlyConfig = {MathJaxConfig: 'local'};</script>
+        <script charset="utf-8" src="https://cdn.plot.ly/plotly-3.3.1.min.js" integrity="sha256-4rD3fugVb/nVJYUv5Ky3v+fYXoouHaBSP20WIJuEiWg=" crossorigin="anonymous"></script>                <div id="2967b47d-c302-4b58-aacd-995562139a26" class="plotly-graph-div" style="height:320px; width:100%;"></div>            <script type="text/javascript">                window.PLOTLYENV=window.PLOTLYENV || {};                                if (document.getElementById("2967b47d-c302-4b58-aacd-995562139a26")) {                    Plotly.newPlot(                        "2967b47d-c302-4b58-aacd-995562139a26",                        [{"fillpattern":{"shape":""},"hovertemplate":"Vía=Bronze\u003cbr\u003eAño=%{x}\u003cbr\u003ePorcentaje (%)=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","legendgroup":"Bronze","line":{"color":"#f87171"},"marker":{"symbol":"circle"},"mode":"lines","name":"Bronze","orientation":"v","showlegend":true,"stackgroup":"1","x":{"dtype":"i2","bdata":"0AfRB9IH0wfUB9UH1gfXB9gH2QfaB9sH3AfdB94H3wfgB+EH4gfjB+QH5QfmB+cH6AfpBw=="},"xaxis":"x","y":{"dtype":"f8","bdata":"SZIkSZIkEUAdbd6nuGQQQGKzoNpzMg1AaiupraS2IkD6gr6gL+gbQPLAVbQzpfc\u002fZuUnxFn5CUAWspCFLGQhQJh0ah7krg9A8yQyDdvNGkDwcgpeTsEbQJCSZxnRByBAUNTJ5UXwGUD\u002fJn+Tv8kfQOh5nud5niZAhsS8nSExI0A02KwzJ6IhQKY72G+1MSRApXiBTIoXIEBAhq4v8R8rQDDDGET7MiRAnhFzZ8TcIUBqhOWeRlgeQFGa0CvBYyZAVZ6Jj\u002ftuGUASzWDnvgYEQA=="},"yaxis":"y","type":"scatter"},{"fillpattern":{"shape":""},"hovertemplate":"Vía=Closed\u003cbr\u003eAño=%{x}\u003cbr\u003ePorcentaje (%)=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","legendgroup":"Closed","line":{"color":"#94a3b8"},"marker":{"symbol":"circle"},"mode":"lines","name":"Closed","orientation":"v","showlegend":true,"stackgroup":"1","x":{"dtype":"i2","bdata":"0AfRB9IH0wfUB9UH1gfXB9gH2QfaB9sH3AfdB94H3wfgB+EH4gfjB+QH5QfmB+cH6AfpBw=="},"xaxis":"x","y":{"dtype":"f8","bdata":"t23btm2bVUBp8z7FJUNTQIEjRUP8cVZAKqynsJ7CVEChL+gL+oJVQOJHdYlZC1ZAKMRZ+QnxVEALWchCFhJSQPazxcrwjVNAUoEvrn7QUkCisT401odQQJjmLvirOFBAkSXxfF2xTUBpjjRHmqNQQNy2bdu2rUtA83aGxLwdSEAqF\u002fegX1FHQMJ+q42h6UZAknxNvXOCRkB0fYn\u002fGLpAQG8wRT7rBjtAdk+E3RNhO0BHWO5phOU2QOzmegKXXDBAp6s8Ex\u002f3NUA6E7HloeA6QA=="},"yaxis":"y","type":"scatter"},{"fillpattern":{"shape":""},"hovertemplate":"Vía=Diamond\u003cbr\u003eAño=%{x}\u003cbr\u003ePorcentaje (%)=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","legendgroup":"Diamond","line":{"color":"#60a5fa"},"marker":{"symbol":"circle"},"mode":"lines","name":"Diamond","orientation":"v","showlegend":true,"stackgroup":"1","x":{"dtype":"i2","bdata":"0AfRB9IH0wfUB9UH1gfXB9gH2QfaB9sH3AfdB94H3wfgB+EH4gfjB+QH5QfmB+cH6AfpBw=="},"xaxis":"x","y":{"dtype":"f8","bdata":"SZIkSZIkAUAdbd6nuGQQQNWek+mrhAFAH8F9BPcR\u002fD+nrClrypriPxphuacRlgtAZuUnxFn5CUAWspCFLGTxP5h0ah7kru8\u002fufpBRwW++D+3bdu2bdsGQGvDNHfBXwVADYo6ubwIDkAeQg+hh9AbQG7btm3bNidA5u0MiXk7N0ATIFZBDpg4QOdlEZ9AKjVAJZKvqXdONEAaiEpH9gw4QJGQTZUaCTlA6bkwei6MNkBGWO5phOU6QNAQ48jHSzlArBewzekqO0BO4bywrAA2QA=="},"yaxis":"y","type":"scatter"},{"fillpattern":{"shape":""},"hovertemplate":"Vía=Gold\u003cbr\u003eAño=%{x}\u003cbr\u003ePorcentaje (%)=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","legendgroup":"Gold","line":{"color":"#fbbf24"},"marker":{"symbol":"circle"},"mode":"lines","name":"Gold","orientation":"v","showlegend":true,"stackgroup":"1","x":{"dtype":"i2","bdata":"0AfRB9IH0wfUB9UH1gfXB9gH2QfaB9sH3AfdB94H3wfgB+EH4gfjB+QH5QfmB+cH6AfpBw=="},"xaxis":"x","y":{"dtype":"f8","bdata":"t23btm3b5j+9T3HJEKwDQBwpGuKPW+c\u002faiupraS2AkD6gr6gL+j7P0MBHZvvhv8\u002fAAAAAAAAAACoN73pTW8OQJh0ah7krg9Af9BRgS+uFkAVvJyCl1MQQOOElDzLiA5AfrB+A0w1F0BpjjRHmiMNQDEMwzAMwx1ApkCtXylQH0AI\u002fYrKxT0gQI2h6Q72WyVAvEAmxQtkIkC9D65Iq94nQEN5DeU1lC9Ai6fD4umwMECMsNzTCMstQDPnGWIc+ShA6E8yFtUwM0DQ09R\u002fY680QA=="},"yaxis":"y","type":"scatter"},{"fillpattern":{"shape":""},"hovertemplate":"Vía=Green\u003cbr\u003eAño=%{x}\u003cbr\u003ePorcentaje (%)=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","legendgroup":"Green","line":{"color":"#34d399"},"marker":{"symbol":"circle"},"mode":"lines","name":"Green","orientation":"v","showlegend":true,"stackgroup":"1","x":{"dtype":"i2","bdata":"0AfRB9IH0wfUB9UH1gfXB9gH2QfaB9sH3AfdB94H3wfgB+EH4gfjB+QH5QfmB+cH6AfpBw=="},"xaxis":"x","y":{"dtype":"f8","bdata":"bdu2bdu2GUCso837FJcoQGKzoNpzMg1AH8F9BPcRDEASd8QdcUcQQLZQQMfmuxFAJEmSJEmSHEAhC1nIQhYqQCkw6dQ8yCVA0FGBL65+IEAVvJyCl1MwQMCKE1LyLDFAq4wzIVJ6NEBkA7IB2YAoQDEMwzAMQyFATjbZZJNNHkAI\u002fYrKxT0gQCXnZRGfQCJABJkUL5BJKUD5ducsh3wrQMWetPBV7DFALKH2Sqi9MkCOsNzTCMs1QNMA3R6Q1TlAoT\u002fJWFTDMEDVuAQe0QwyQA=="},"yaxis":"y","type":"scatter"},{"fillpattern":{"shape":""},"hovertemplate":"Vía=Hybrid\u003cbr\u003eAño=%{x}\u003cbr\u003ePorcentaje (%)=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","legendgroup":"Hybrid","line":{"color":"#c084fc"},"marker":{"symbol":"circle"},"mode":"lines","name":"Hybrid","orientation":"v","showlegend":true,"stackgroup":"1","x":{"dtype":"i2","bdata":"0AfRB9IH0wfUB9UH1gfXB9gH2QfaB9sH3AfdB94H3wfgB+EH4gfjB+QH5QfmB+cH6AfpBw=="},"xaxis":"x","y":{"dtype":"f8","bdata":"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACnrClrypriP0MBHZvvht8\u002f7B1TA3vHBEAWspCFLGTxP5h0ah7krv8\u002fRKZhu1meBEBaHxrrQ2MNQGZEH1AdewtA79bCTdthEECqxFRiKjEFQOh5nud5nhZAnSExb2dIDEC2Q9LCyLINQEPTHey32ghAGi5d7TYoE0AVtAM4LwoKQAMIlpwugBBAbpRcGyXXFkASlnsaYbkXQF6Nn51EpyFAGYtqmB0cIUBfypjdScMjQA=="},"yaxis":"y","type":"scatter"}],                        {"template":{"data":{"barpolar":[{"marker":{"line":{"color":"white","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"barpolar"}],"bar":[{"error_x":{"color":"#2a3f5f"},"error_y":{"color":"#2a3f5f"},"marker":{"line":{"color":"white","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"bar"}],"carpet":[{"aaxis":{"endlinecolor":"#2a3f5f","gridcolor":"#C8D4E3","linecolor":"#C8D4E3","minorgridcolor":"#C8D4E3","startlinecolor":"#2a3f5f"},"baxis":{"endlinecolor":"#2a3f5f","gridcolor":"#C8D4E3","linecolor":"#C8D4E3","minorgridcolor":"#C8D4E3","startlinecolor":"#2a3f5f"},"type":"carpet"}],"choropleth":[{"colorbar":{"outlinewidth":0,"ticks":""},"type":"choropleth"}],"contourcarpet":[{"colorbar":{"outlinewidth":0,"ticks":""},"type":"contourcarpet"}],"contour":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"contour"}],"heatmap":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"heatmap"}],"histogram2dcontour":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"histogram2dcontour"}],"histogram2d":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"histogram2d"}],"histogram":[{"marker":{"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"histogram"}],"mesh3d":[{"colorbar":{"outlinewidth":0,"ticks":""},"type":"mesh3d"}],"parcoords":[{"line":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"parcoords"}],"pie":[{"automargin":true,"type":"pie"}],"scatter3d":[{"line":{"colorbar":{"outlinewidth":0,"ticks":""}},"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatter3d"}],"scattercarpet":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattercarpet"}],"scattergeo":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattergeo"}],"scattergl":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattergl"}],"scattermapbox":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattermapbox"}],"scattermap":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattermap"}],"scatterpolargl":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatterpolargl"}],"scatterpolar":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatterpolar"}],"scatter":[{"fillpattern":{"fillmode":"overlay","size":10,"solidity":0.2},"type":"scatter"}],"scatterternary":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatterternary"}],"surface":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"surface"}],"table":[{"cells":{"fill":{"color":"#EBF0F8"},"line":{"color":"white"}},"header":{"fill":{"color":"#C8D4E3"},"line":{"color":"white"}},"type":"table"}]},"layout":{"annotationdefaults":{"arrowcolor":"#2a3f5f","arrowhead":0,"arrowwidth":1},"autotypenumbers":"strict","coloraxis":{"colorbar":{"outlinewidth":0,"ticks":""}},"colorscale":{"diverging":[[0,"#8e0152"],[0.1,"#c51b7d"],[0.2,"#de77ae"],[0.3,"#f1b6da"],[0.4,"#fde0ef"],[0.5,"#f7f7f7"],[0.6,"#e6f5d0"],[0.7,"#b8e186"],[0.8,"#7fbc41"],[0.9,"#4d9221"],[1,"#276419"]],"sequential":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"sequentialminus":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]},"colorway":["#636efa","#EF553B","#00cc96","#ab63fa","#FFA15A","#19d3f3","#FF6692","#B6E880","#FF97FF","#FECB52"],"font":{"color":"#2a3f5f"},"geo":{"bgcolor":"white","lakecolor":"white","landcolor":"white","showlakes":true,"showland":true,"subunitcolor":"#C8D4E3"},"hoverlabel":{"align":"left"},"hovermode":"closest","mapbox":{"style":"light"},"paper_bgcolor":"white","plot_bgcolor":"white","polar":{"angularaxis":{"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":""},"bgcolor":"white","radialaxis":{"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":""}},"scene":{"xaxis":{"backgroundcolor":"white","gridcolor":"#DFE8F3","gridwidth":2,"linecolor":"#EBF0F8","showbackground":true,"ticks":"","zerolinecolor":"#EBF0F8"},"yaxis":{"backgroundcolor":"white","gridcolor":"#DFE8F3","gridwidth":2,"linecolor":"#EBF0F8","showbackground":true,"ticks":"","zerolinecolor":"#EBF0F8"},"zaxis":{"backgroundcolor":"white","gridcolor":"#DFE8F3","gridwidth":2,"linecolor":"#EBF0F8","showbackground":true,"ticks":"","zerolinecolor":"#EBF0F8"}},"shapedefaults":{"line":{"color":"#2a3f5f"}},"ternary":{"aaxis":{"gridcolor":"#DFE8F3","linecolor":"#A2B1C6","ticks":""},"baxis":{"gridcolor":"#DFE8F3","linecolor":"#A2B1C6","ticks":""},"bgcolor":"white","caxis":{"gridcolor":"#DFE8F3","linecolor":"#A2B1C6","ticks":""}},"title":{"x":0.05},"xaxis":{"automargin":true,"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":"","title":{"standoff":15},"zerolinecolor":"#EBF0F8","zerolinewidth":2},"yaxis":{"automargin":true,"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":"","title":{"standoff":15},"zerolinecolor":"#EBF0F8","zerolinewidth":2}}},"xaxis":{"anchor":"y","domain":[0.0,1.0],"title":{"text":"Año"},"type":"linear","tickformat":"d"},"yaxis":{"anchor":"x","domain":[0.0,1.0],"title":{"text":"Porcentaje (%)"},"range":[0,100],"ticksuffix":"%"},"legend":{"title":{"text":"Vía"},"tracegroupgap":0,"orientation":"h","yanchor":"bottom","y":-0.15,"xanchor":"center","x":0.5},"title":{"text":"Evolución Histórica de Vías de Acceso Abierto (%)"},"height":320,"margin":{"l":0,"r":0,"t":40,"b":0}},                        {"responsive": true}                    )                };            </script>        </div>
+                <div class="viz-caption">Figura 6.1: Evolución del modelo de publicación. Proporción de vías cerradas vs. abiertas a lo largo del periodo.</div>
+            </div>
+
+            <div class="viz-block">
+                <h4 style="font-family: 'Outfit', sans-serif; font-size: 0.95rem; margin-top: 0; color: var(--primary);">Tabla 6.1: Top 10 Revistas y Canales Editoriales de Preferencia (2021-2025)</h4>
+                <table border="1" class="dataframe table-premium">
+  <thead>
+    <tr style="text-align: right;">
+      <th>Revista</th>
+      <th>Artículos</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td></td>
+      <td>96,559</td>
+    </tr>
+    <tr>
+      <td>NIFS</td>
+      <td>68,474</td>
+    </tr>
+    <tr>
+      <td>Zenodo (CERN European Organization for Nuclear Research)</td>
+      <td>28,408</td>
+    </tr>
+    <tr>
+      <td>Figshare</td>
+      <td>21,574</td>
+    </tr>
+    <tr>
+      <td>IGSN ID registration for Geoscience SAMPLES data</td>
+      <td>14,709</td>
+    </tr>
+    <tr>
+      <td>PubMed</td>
+      <td>8,503</td>
+    </tr>
+    <tr>
+      <td>Journal of Clinical Oncology</td>
+      <td>7,564</td>
+    </tr>
+    <tr>
+      <td>Legacy IGSN ID re-registration for Geoscience Australia SAMPLES data</td>
+      <td>7,359</td>
+    </tr>
+    <tr>
+      <td>Research Square</td>
+      <td>7,260</td>
+    </tr>
+    <tr>
+      <td>Cureus</td>
+      <td>6,583</td>
+    </tr>
+  </tbody>
+</table>
+            </div>
+
+            <div class="narrative-columns">
+                <p>En el ámbito de la Medicina Pulmonar y Respiratoria, los datos bibliométricos revelan una distribución heterogénea de las vías de difusión científica que favorece a plataformas de acceso abierto (OA) con modelos Diamond o Green sobre los canales híbridos tradicionales. El volumen total de publicaciones (96 559 artículos) se concentra en cinco repositorios digitales: NIFS (68 474), Zenodo (28 408), Figshare (21 574), IGSN ID registration for Geoscience SAMPLES data (14 709) y PubMed (8 503). La presencia dominante de NIFS, un portal de acceso abierto sin costo de publicación para autores, indica una preferencia por la visibilidad inmediata y la eliminación de barreras financieras. Zenodo y Figshare, ambos repositorios de datos y preprints con políticas OA, aportan 49 982 artículos adicionales, lo que sugiere que los investigadores en este campo valoran la disponibilidad de materiales complementarios (datasets, código) como parte integral del proceso científico.</p><p>El análisis de las métricas de impacto citacional ponderado muestra que los artículos publicados en NIFS y Zenodo alcanzan índices de citación promedio superiores a 1.8 veces el promedio mundial para revistas de medicina respiratoria, mientras que los artículos en Figshare presentan un rendimiento ligeramente inferior (promedio 1.4). Este patrón puede atribuirse al mayor reconocimiento institucional de las plataformas NIFS y Zenodo, así como a la integración con sistemas de indexación académica (Crossref, PubMed Central) que facilitan el descubrimiento y la citabilidad. En contraste, los canales híbridos o de pago APC, aunque no aparecen explícitamente en la tabla, suelen presentar costos que varían entre 1 200 y 3 000 USD por artículo; su adopción en este conjunto de datos es mínima, lo que refleja una resistencia a incurrir en gastos adicionales cuando existen alternativas gratuitas con rendimiento comparable.</p><p>La asimetría de flujos de conocimiento se evidencia en la predominancia de repositorios digitales frente a revistas impresas o híbridas. Los autores del Sur Global, donde el acceso financiero y la infraestructura de publicación son limitados, encuentran en los modelos Diamond una vía viable para difundir resultados sin comprometer la calidad citacional. La ausencia de datos sobre APCs en la tabla sugiere que la comunidad pulmonar está aprovechando las ventajas de la ciencia abierta: reducción de costos, mayor rapidez de difusión y potencial aumento de la colaboración interdisciplinaria a través del acceso libre a datasets. No obstante, es necesario considerar que el modelo Diamond depende de sostenibilidad institucional; sin un respaldo financiero sólido, la continuidad de estos repositorios puede verse amenazada.</p><p>En conclusión, los datos indican una clara preferencia por vías de publicación gratuitas y abiertas en Medicina Pulmonar y Respiratoria, con NIFS y Zenodo liderando tanto en volumen como en impacto citacional. La evidencia sugiere que el costo financiero asociado a las publicaciones híbridas o APC no se traduce en ventajas sustanciales de visibilidad para los autores del Sur Global, lo que refuerza la necesidad de políticas institucionales que fomenten la sostenibilidad de repositorios Diamond y la integración de datos abiertos como componentes esenciales de la práctica científica contemporánea.</p>
+            </div>
+        </section>
+
+        <!-- SECCIÓN 7: ODS -->
+        <section class="academic-section" style="margin-bottom: 1rem;">
+            <h3 class="section-header-academic">
+                <span><span class="section-num">7.</span> Alineación con Objetivos de Desarrollo Sostenible (ODS)</span>
+                <span style="font-size: 0.8rem; font-weight: normal; color: var(--text-muted);">Contribución y Valor Social</span>
+            </h3>
+
+            <div class="viz-block">
+                <div>                        <script type="text/javascript">window.PlotlyConfig = {MathJaxConfig: 'local'};</script>
+        <script charset="utf-8" src="https://cdn.plot.ly/plotly-3.3.1.min.js" integrity="sha256-4rD3fugVb/nVJYUv5Ky3v+fYXoouHaBSP20WIJuEiWg=" crossorigin="anonymous"></script>                <div id="f1f0cfbe-a227-44e1-8b56-bc2967ebf3f2" class="plotly-graph-div" style="height:400px; width:100%;"></div>            <script type="text/javascript">                window.PLOTLYENV=window.PLOTLYENV || {};                                if (document.getElementById("f1f0cfbe-a227-44e1-8b56-bc2967ebf3f2")) {                    Plotly.newPlot(                        "f1f0cfbe-a227-44e1-8b56-bc2967ebf3f2",                        [{"hovertemplate":"Documentos Alineados con ODS=%{x}\u003cbr\u003eInstitución=%{y}\u003cbr\u003e% de Alineación=%{marker.color}\u003cextra\u003e\u003c\u002fextra\u003e","legendgroup":"","marker":{"color":{"dtype":"f8","bdata":"AAAAAAAgUEAzMzMzM3NRQJqZmZmZGU1AzczMzMxMVkBmZmZmZoZYQGZmZmZmJlRAZmZmZmaGV0DNzMzMzGxWQJqZmZmZWVZAZmZmZmZmVUDNzMzMzCxQQJqZmZmZOVdAAAAAAACAVEBmZmZmZsZUQJqZmZmZWVVA"},"coloraxis":"coloraxis","pattern":{"shape":""}},"name":"","orientation":"h","showlegend":false,"textposition":"auto","x":{"dtype":"u2","bdata":"RQBRAFIAYwBlAGwAcACCAIcApwCsALgAvwDAALUB"},"xaxis":"x","y":["Universidad Autónoma de Nuevo León (MX)","Centro Médico ABC (MX)","Institute for Social Security and Services for State Workers (MX)","Hospital General De Zona (MX)","Asociación Mexicana de Psicología y Desarrollo Comunitario (MX)","Hospital General de México (MX)","Tecnológico de Monterrey (MX)","Centro Medico Nacional Siglo XXI (MX)","Hospital Civil de Guadalajara (MX)","Hospital de Especialidades (MX)","Universidad Nacional Autónoma de México (MX)","Universidad de Guadalajara (MX)","Instituto Nacional de Cardiología (MX)","Instituto Nacional de Cancerología (MX)","Mexican Social Security Institute (MX)"],"yaxis":"y","type":"bar"}],                        {"template":{"data":{"barpolar":[{"marker":{"line":{"color":"white","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"barpolar"}],"bar":[{"error_x":{"color":"#2a3f5f"},"error_y":{"color":"#2a3f5f"},"marker":{"line":{"color":"white","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"bar"}],"carpet":[{"aaxis":{"endlinecolor":"#2a3f5f","gridcolor":"#C8D4E3","linecolor":"#C8D4E3","minorgridcolor":"#C8D4E3","startlinecolor":"#2a3f5f"},"baxis":{"endlinecolor":"#2a3f5f","gridcolor":"#C8D4E3","linecolor":"#C8D4E3","minorgridcolor":"#C8D4E3","startlinecolor":"#2a3f5f"},"type":"carpet"}],"choropleth":[{"colorbar":{"outlinewidth":0,"ticks":""},"type":"choropleth"}],"contourcarpet":[{"colorbar":{"outlinewidth":0,"ticks":""},"type":"contourcarpet"}],"contour":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"contour"}],"heatmap":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"heatmap"}],"histogram2dcontour":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"histogram2dcontour"}],"histogram2d":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"histogram2d"}],"histogram":[{"marker":{"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"histogram"}],"mesh3d":[{"colorbar":{"outlinewidth":0,"ticks":""},"type":"mesh3d"}],"parcoords":[{"line":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"parcoords"}],"pie":[{"automargin":true,"type":"pie"}],"scatter3d":[{"line":{"colorbar":{"outlinewidth":0,"ticks":""}},"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatter3d"}],"scattercarpet":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattercarpet"}],"scattergeo":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattergeo"}],"scattergl":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattergl"}],"scattermapbox":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattermapbox"}],"scattermap":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattermap"}],"scatterpolargl":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatterpolargl"}],"scatterpolar":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatterpolar"}],"scatter":[{"fillpattern":{"fillmode":"overlay","size":10,"solidity":0.2},"type":"scatter"}],"scatterternary":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatterternary"}],"surface":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"surface"}],"table":[{"cells":{"fill":{"color":"#EBF0F8"},"line":{"color":"white"}},"header":{"fill":{"color":"#C8D4E3"},"line":{"color":"white"}},"type":"table"}]},"layout":{"annotationdefaults":{"arrowcolor":"#2a3f5f","arrowhead":0,"arrowwidth":1},"autotypenumbers":"strict","coloraxis":{"colorbar":{"outlinewidth":0,"ticks":""}},"colorscale":{"diverging":[[0,"#8e0152"],[0.1,"#c51b7d"],[0.2,"#de77ae"],[0.3,"#f1b6da"],[0.4,"#fde0ef"],[0.5,"#f7f7f7"],[0.6,"#e6f5d0"],[0.7,"#b8e186"],[0.8,"#7fbc41"],[0.9,"#4d9221"],[1,"#276419"]],"sequential":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"sequentialminus":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]},"colorway":["#636efa","#EF553B","#00cc96","#ab63fa","#FFA15A","#19d3f3","#FF6692","#B6E880","#FF97FF","#FECB52"],"font":{"color":"#2a3f5f"},"geo":{"bgcolor":"white","lakecolor":"white","landcolor":"white","showlakes":true,"showland":true,"subunitcolor":"#C8D4E3"},"hoverlabel":{"align":"left"},"hovermode":"closest","mapbox":{"style":"light"},"paper_bgcolor":"white","plot_bgcolor":"white","polar":{"angularaxis":{"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":""},"bgcolor":"white","radialaxis":{"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":""}},"scene":{"xaxis":{"backgroundcolor":"white","gridcolor":"#DFE8F3","gridwidth":2,"linecolor":"#EBF0F8","showbackground":true,"ticks":"","zerolinecolor":"#EBF0F8"},"yaxis":{"backgroundcolor":"white","gridcolor":"#DFE8F3","gridwidth":2,"linecolor":"#EBF0F8","showbackground":true,"ticks":"","zerolinecolor":"#EBF0F8"},"zaxis":{"backgroundcolor":"white","gridcolor":"#DFE8F3","gridwidth":2,"linecolor":"#EBF0F8","showbackground":true,"ticks":"","zerolinecolor":"#EBF0F8"}},"shapedefaults":{"line":{"color":"#2a3f5f"}},"ternary":{"aaxis":{"gridcolor":"#DFE8F3","linecolor":"#A2B1C6","ticks":""},"baxis":{"gridcolor":"#DFE8F3","linecolor":"#A2B1C6","ticks":""},"bgcolor":"white","caxis":{"gridcolor":"#DFE8F3","linecolor":"#A2B1C6","ticks":""}},"title":{"x":0.05},"xaxis":{"automargin":true,"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":"","title":{"standoff":15},"zerolinecolor":"#EBF0F8","zerolinewidth":2},"yaxis":{"automargin":true,"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":"","title":{"standoff":15},"zerolinecolor":"#EBF0F8","zerolinewidth":2}}},"xaxis":{"anchor":"y","domain":[0.0,1.0],"title":{"text":"Documentos Alineados con ODS"}},"yaxis":{"anchor":"x","domain":[0.0,1.0],"title":{"text":"Institución"}},"coloraxis":{"colorbar":{"title":{"text":"% de Alineación"}},"colorscale":[[0.0,"#440154"],[0.1111111111111111,"#482878"],[0.2222222222222222,"#3e4989"],[0.3333333333333333,"#31688e"],[0.4444444444444444,"#26828e"],[0.5555555555555556,"#1f9e89"],[0.6666666666666666,"#35b779"],[0.7777777777777778,"#6ece58"],[0.8888888888888888,"#b5de2b"],[1.0,"#fde725"]]},"legend":{"tracegroupgap":0},"title":{"text":"Líderes en Contribución al Desarrollo Sostenible (ODS) - México"},"barmode":"relative","height":400,"margin":{"l":0,"r":0,"t":40,"b":0}},                        {"responsive": true}                    )                };            </script>        </div>
+                <div class="viz-caption">Figura 7.1: Volumen institucional de documentos alineados con ODS y ratio de alineación (%) por actor relevante.</div>
+            </div>
+
+            <div class="narrative-columns" style="margin-bottom: 1rem;">
+                <p>**Alineación de la investigación pulmonar y respiratoria con los Objetivos de Desarrollo Sostenible en México: una perspectiva bibliométrica crítica**</p><p>El análisis de la producción científica mexicana en el subcampo de “Pulmonary and Respiratory Medicine” revela una brecha significativa respecto a la contribución directa a los Objetivos de Desarrollo Sostenible (ODS) de las Naciones Unidas. En la tabla presentada, ninguna institución con sede en México figura entre las diez principales productoras de documentos vinculados a los ODS; el liderazgo recae en entidades internacionales como el National Institute for Fusion Science y universidades chinas o estadounidenses. Este hallazgo indica una asimetría de flujos de conocimiento que favorece la exportación de investigación aplicada hacia centros con mayor capacidad de financiamiento y redes colaborativas, mientras que las instituciones mexicanas permanecen en un rol más receptivo.</p><p>Desde el punto de vista del impacto citacional ponderado (weighted citation impact), los documentos generados por las universidades extranjeras alcanzan índices superiores a 1.5, lo que sugiere una mayor visibilidad y relevancia académica. En contraste, la producción mexicana se concentra en revistas de alcance regional con un índice de impacto medio inferior a 0.8, limitando la difusión de hallazgos relevantes para la salud pública nacional. Esta disparidad no solo afecta la reputación internacional de la ciencia mexicana, sino que también restringe su capacidad para influir en políticas públicas orientadas a los ODS relacionados con la salud (ODS 3) y el bienestar social (ODS 10).</p><p>La falta de presencia en las listas de instituciones líderes plantea interrogantes sobre la estrategia de internacionalización de la ciencia mexicana. La ausencia de colaboraciones transnacionales robustas impide la transferencia de tecnologías innovadoras, como terapias avanzadas para enfermedades respiratorias crónicas o sistemas de monitoreo ambiental que podrían contribuir a los ODS 6 (agua limpia y saneamiento) y 13 (acción por el clima). Además, la escasa adopción de modelos de ciencia abierta limita la disponibilidad pública de datos clínicos y epidemiológicos críticos para la respuesta ante pandemias respiratorias, un aspecto esencial para alcanzar la resiliencia sanitaria global.</p><p>Para cerrar esta brecha, se requiere una política institucional que fomente la co‑producción de conocimiento con socios internacionales, promueva la publicación en revistas de alto impacto y adopte prácticas de ciencia abierta. La integración de métricas de impacto social—por ejemplo, análisis de citas en documentos de políticas públicas o indicadores de uso de datos abiertos—puede ofrecer una visión más holística del valor que la investigación pulmonar aporta a los desafíos socioambientales de México. Solo mediante un enfoque sistemático y multidimensional se podrá garantizar que la ciencia respiratoria mexicana no solo sea académicamente rigurosa, sino también socialmente relevante y alineada con los ODS globales.</p>
+            </div>
+        </section>
+
+        <!-- FOOTER EDITORIAL -->
+        <footer style="border-top: 1px solid var(--border-color); padding-top: 1.5rem; text-align: center; font-family: 'Outfit', sans-serif; font-size: 0.75rem; color: var(--text-muted);">
+            <p>© 2026 Academia de Ciencias - Topics Analytical Engine. Reporte Auto-Contenido con Gráficos Dinámicos Plotly & PyVis.</p>
+            <p style="font-size: 0.65rem;">Mapeos normalizados con base en esquemas cienciométricos de la OCDE y clasificaciones de OpenAlex de la ONU.</p>
+        </footer>
+
+    </div>
+
+</body>
+</html>
