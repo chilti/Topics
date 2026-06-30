@@ -3,6 +3,142 @@ import pandas as pd
 from pathlib import Path
 from dotenv import load_dotenv
 import clickhouse_connect
+import re
+import numpy as np
+
+def wildcard_to_regex(term):
+    term = re.escape(term)
+    term = term.replace(r'\*', r'.*').replace(r'\?', r'.')
+    pattern = r'\b' + term
+    if not pattern.endswith('.*'):
+        pattern += r'\b'
+    return pattern
+
+def check_proximity(text, term1, term2, distance):
+    if not isinstance(text, str):
+        return False
+    words = re.findall(r'\b\w+\b', text.lower())
+    p1 = re.compile(wildcard_to_regex(term1).lower())
+    p2 = re.compile(wildcard_to_regex(term2).lower())
+    
+    indices1 = [idx for idx, w in enumerate(words) if p1.match(w)]
+    indices2 = [idx for idx, w in enumerate(words) if p2.match(w)]
+    
+    for i1 in indices1:
+        for i2 in indices2:
+            if i1 == i2:
+                continue
+            if abs(i1 - i2) <= distance:
+                return True
+    return False
+
+def match_proximity_pattern(text, pattern_str):
+    m = re.match(r'\((.*?)\s+W/(\d+)\s+(.*?)\)', pattern_str, re.IGNORECASE)
+    if m:
+        t1, dist, t2 = m.groups()
+        return check_proximity(text, t1, t2, int(dist))
+    return False
+
+def compile_terms(terms_list):
+    regex_terms = []
+    proximity_terms = []
+    
+    for t in terms_list:
+        t = t.strip()
+        if not t:
+            continue
+        if ' W/' in t.upper():
+            proximity_terms.append(t)
+        else:
+            regex_terms.append(wildcard_to_regex(t))
+            
+    pattern = None
+    if regex_terms:
+        pattern = re.compile('|'.join(regex_terms), re.IGNORECASE)
+        
+    return pattern, proximity_terms
+
+def filtrar_exclusiones_locales(df, exclusions):
+    """
+    Aplica una lista de reglas de exclusión sobre el DataFrame de OpenAlex.
+    df: DataFrame con columnas 'title', 'abstract', 'concepts', 'keywords', etc.
+    exclusions: List of dicts representing exclusion rules.
+    """
+    if df.empty or not exclusions:
+        return df
+        
+    # Creamos representaciones de texto limpio para evaluar
+    titles = df['title'].fillna('').astype(str)
+    abstracts = df['abstract'].fillna('').astype(str)
+    
+    def list_to_str(val):
+        if isinstance(val, (list, np.ndarray)):
+            return " ".join(str(x) for x in val)
+        return str(val) if pd.notna(val) else ""
+        
+    keywords_col = df.get('keywords', pd.Series(dtype=str)).apply(list_to_str)
+    concepts_col = df.get('concepts', pd.Series(dtype=str)).apply(list_to_str)
+    
+    # Combinado completo para búsquedas de tipo TITLE-ABS-KEY
+    title_abs_key = (titles + " " + abstracts + " " + keywords_col + " " + concepts_col).str.lower()
+    title_abs = (titles + " " + abstracts).str.lower()
+    
+    # Empezamos con una máscara donde todos los registros son válidos (True)
+    keep_mask = pd.Series(True, index=df.index)
+    
+    for idx, rule in enumerate(exclusions):
+        excl_terms = rule.get('exclude_terms', [])
+        reincl_terms = rule.get('reinclude_terms', [])
+        exclude_vete = rule.get('exclude_vete', False)
+        
+        print(f"[*] Aplicando regla de exclusión {idx+1} localmente:")
+        print(f"    - Excluir términos: {len(excl_terms)}")
+        print(f"    - Re-incluir términos: {len(reincl_terms)}")
+        
+        # 1. Evaluar exclusiones
+        excl_pattern, excl_prox = compile_terms(excl_terms)
+        
+        # Si la regla tiene exclude_vete, es el bloque de animales/veterinaria
+        is_animal_block = exclude_vete or any(x in str(excl_terms).lower() for x in ['murine', 'rodent', 'mouse'])
+        target_text = title_abs if is_animal_block else title_abs_key
+        
+        if excl_pattern or excl_prox:
+            # Mask de filas que contienen exclusión
+            exclude_match = pd.Series(False, index=df.index)
+            if excl_pattern:
+                exclude_match = exclude_match | target_text.str.contains(excl_pattern.pattern, case=False, na=False)
+            if excl_prox:
+                exclude_match = exclude_match | target_text.apply(lambda x: any(match_proximity_pattern(x, pt) for pt in excl_prox))
+                
+            # 2. Evaluar re-inclusiones
+            if reincl_terms and exclude_match.any():
+                reincl_pattern, reincl_prox = compile_terms(reincl_terms)
+                reinclude_match = pd.Series(False, index=df.index)
+                
+                target_reincl = title_abs_key if not is_animal_block else title_abs
+                
+                # Evaluar solo sobre las filas pre-excluidas para ahorrar recursos
+                sub_target = target_reincl[exclude_match]
+                sub_reinclude = pd.Series(False, index=sub_target.index)
+                if reincl_pattern:
+                    sub_reinclude = sub_reinclude | sub_target.str.contains(reincl_pattern.pattern, case=False, na=False)
+                if reincl_prox:
+                    sub_reinclude = sub_reinclude | sub_target.apply(lambda x: any(match_proximity_pattern(x, pt) for pt in reincl_prox))
+                    
+                reinclude_match.loc[sub_reinclude.index] = sub_reinclude
+                
+                # Excluir solo si coincide con exclusión Y NO coincide con re-inclusión
+                final_excl_mask = exclude_match & ~reinclude_match
+            else:
+                final_excl_mask = exclude_match
+                
+            keep_mask = keep_mask & ~final_excl_mask
+            
+    filtered_df = df[keep_mask]
+    excluded_count = len(df) - len(filtered_df)
+    print(f"[OK] Filtrado local finalizado. Excluidos {excluded_count} de {len(df)} registros. Conservados {len(filtered_df)}.")
+    return filtered_df
+
 
 # Cargar variables de entorno
 load_dotenv()
@@ -166,18 +302,40 @@ def procesar_scopus(input_parquet_path):
             unmatched_path = PROCESSED_SCOPUS_DIR / (input_path.stem + "_no_en_openalex.parquet")
             df_no_match.drop(columns=['doi_clean'], errors='ignore').to_parquet(unmatched_path, index=False)
             print(f"[*] {len(df_no_match)} artículos sin match guardados en: {unmatched_path.name}", flush=True)
+            
+        # Cargar exclusiones si existen en el JSON de metadata
+        exclusions = []
+        meta_path = input_path.with_suffix('.json')
+        if meta_path.exists():
+            try:
+                with open(meta_path, 'r', encoding='utf-8') as f:
+                    meta_data = json.load(f)
+                    exclusions = meta_data.get('exclusions', [])
+                    if exclusions:
+                        print(f"[*] Encontradas {len(exclusions)} reglas de exclusión en el archivo de metadatos.", flush=True)
+            except Exception as e:
+                print(f"[!] Error al leer metadatos de exclusión: {e}", flush=True)
         
         if len(df_openalex) > 0:
-            # Guardamos los registros completos de OpenAlex
-            output_filename = input_path.stem + "_openalex.parquet"
-            output_path = PROCESSED_SCOPUS_DIR / output_filename
-            
-            df_openalex.to_parquet(output_path, index=False)
-            print(f"[OK] Registros combinados/OpenAlex guardados en: {output_path}", flush=True)
-            return output_path
+            if exclusions:
+                print("[*] Aplicando exclusiones locales sobre el corpus de OpenAlex...", flush=True)
+                df_openalex = filtrar_exclusiones_locales(df_openalex, exclusions)
+                
+            if len(df_openalex) > 0:
+                # Guardamos los registros completos de OpenAlex
+                output_filename = input_path.stem + "_openalex.parquet"
+                output_path = PROCESSED_SCOPUS_DIR / output_filename
+                
+                df_openalex.to_parquet(output_path, index=False)
+                print(f"[OK] Registros filtrados y cruzados con OpenAlex guardados en: {output_path}", flush=True)
+                return output_path
+            else:
+                print("[!] Todos los registros fueron excluidos por los filtros locales.", flush=True)
+                return None
         else:
             print("[!] Ningun DOI hizo match en OpenAlex.", flush=True)
             return None
+
             
     except Exception as e:
         print(f"[!] Error al consultar ClickHouse: {e}", flush=True)
